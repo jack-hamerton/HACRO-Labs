@@ -638,4 +638,124 @@ router.post('/reset-password', async (req, res) => {
   res.json({ success: true });
 });
 
+/**
+ * GET /admin/company-accounts
+ * Get company financial overview (admin only)
+ */
+router.get('/company-accounts', verifyAdminToken, async (req, res) => {
+  try {
+    // Get all company transactions (assuming we have a company_transactions collection)
+    // If not, we'll aggregate from various sources
+    let companyTransactions = [];
+    try {
+      companyTransactions = await pb.collection('company_transactions').getFullList({
+        sort: '-date',
+        $autoCancel: false
+      });
+    } catch (error) {
+      // If collection doesn't exist, we'll aggregate from other sources
+      console.log('company_transactions collection not found, aggregating from other sources');
+    }
+
+    // Aggregate registration fees
+    const registrationPayments = await pb.collection('payments').getFullList({
+      filter: 'payment_type = "registration" && payment_status = "completed"',
+      $autoCancel: false
+    });
+
+    // Aggregate insurance fees
+    const insurancePayments = await pb.collection('payments').getFullList({
+      filter: 'payment_type = "insurance" && payment_status = "completed"',
+      $autoCancel: false
+    });
+
+    // Aggregate interest bonuses distributed to company
+    const companyInterestRecords = await pb.collection('contributions_history').getFullList({
+      filter: 'type = "company_interest_bonus"',
+      $autoCancel: false
+    });
+
+    // Calculate totals
+    const registrationTotal = registrationPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const insuranceTotal = insurancePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const interestTotal = companyInterestRecords.reduce((sum, r) => sum + (r.amount || 0), 0);
+
+    // Get member transaction summary
+    const allMembers = await pb.collection('members').getFullList({ $autoCancel: false });
+    const memberSummaries = [];
+
+    for (const member of allMembers) {
+      const memberId = member.id;
+
+      // Total savings contributions
+      const savingsContributions = await pb.collection('contributions_history').getFullList({
+        filter: `member_id = "${memberId}" && type = "savings_contribution"`,
+        $autoCancel: false
+      });
+      const totalSavings = savingsContributions.reduce((sum, c) => sum + (c.amount || 0), 0);
+
+      // Total loan repayments
+      const loanRepayments = await pb.collection('loan_repayments').getFullList({
+        filter: `member_id = "${memberId}"`,
+        $autoCancel: false
+      });
+      const totalRepayments = loanRepayments.reduce((sum, r) => sum + (r.amount || 0), 0);
+
+      // Total insurance payments
+      const insurancePayments = await pb.collection('payments').getFullList({
+        filter: `member_id = "${memberId}" && payment_type = "insurance" && payment_status = "completed"`,
+        $autoCancel: false
+      });
+      const totalInsurance = insurancePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+      memberSummaries.push({
+        member_id: memberId,
+        member_name: `${member.first_name} ${member.last_name}`,
+        total_savings: totalSavings,
+        total_repayments: totalRepayments,
+        total_insurance: totalInsurance,
+        total_contributions: totalSavings + totalRepayments + totalInsurance
+      });
+    }
+
+    // Calculate overall totals
+    const totalRevenue = registrationTotal + insuranceTotal + interestTotal;
+    const totalMemberContributions = memberSummaries.reduce((sum, m) => sum + m.total_contributions, 0);
+
+    res.json({
+      company_overview: {
+        total_revenue: totalRevenue,
+        registration_fees: registrationTotal,
+        insurance_fees: insuranceTotal,
+        interest_bonuses: interestTotal,
+        total_member_contributions: totalMemberContributions,
+        net_position: totalRevenue - totalMemberContributions // This might be negative as expected
+      },
+      recent_transactions: companyTransactions.slice(0, 50).map(t => ({
+        id: t.id,
+        type: t.transaction_type,
+        amount: t.amount,
+        description: t.description,
+        member_id: t.member_id,
+        date: t.date
+      })),
+      member_summaries: memberSummaries,
+      transaction_breakdown: {
+        by_type: {
+          registration: registrationPayments.length,
+          insurance: insurancePayments.length,
+          interest: companyInterestRecords.length
+        },
+        by_month: {} // Could be enhanced to show monthly breakdown
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching company accounts:', error);
+    res.status(500).json({
+      error: 'Failed to fetch company accounts data'
+    });
+  }
+});
+
 export default router;

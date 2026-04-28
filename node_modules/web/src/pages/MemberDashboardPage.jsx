@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { User, Mail, Phone, Activity, Users, PiggyBank, Wallet, History, Award, Gift } from 'lucide-react';
+import { User, Mail, Phone, Activity, Users, PiggyBank, Wallet, History, Award, Gift, Shield } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
@@ -16,6 +16,7 @@ const MemberDashboardPage = () => {
   const [groupData, setGroupData] = useState(null);
   const [savingsBalance, setSavingsBalance] = useState(0);
   const [loanBalance, setLoanBalance] = useState(0);
+  const [collateralBalance, setCollateralBalance] = useState(0);
   const [achievements, setAchievements] = useState([]);
   const [bonuses, setBonuses] = useState([]);
 
@@ -34,6 +35,14 @@ const MemberDashboardPage = () => {
         setGroupData(memberGroup.expand.group_id);
         const savings = await pb.collection('savings').getFullList({ filter: `member_id="${currentUser.id}"`, $autoCancel: false });
         setSavingsBalance(savings.reduce((sum, s) => sum + s.amount, 0));
+
+        // Fetch collateral commitments
+        const collateralRecords = await pb.collection('loan_guarantors').getFullList({
+          filter: `guarantor_id="${currentUser.id}" && (status="acknowledged" || status="active")`,
+          $autoCancel: false
+        });
+        const totalCollateral = collateralRecords.reduce((sum, c) => sum + (c.collateral_amount || 0), 0);
+        setCollateralBalance(totalCollateral);
 
         const loans = await pb.collection('loans').getFullList({ filter: `member_id="${currentUser.id}" && (status="active" || status="partially_paid")`, $autoCancel: false });
         let totalLoanBal = 0;
@@ -95,13 +104,21 @@ const MemberDashboardPage = () => {
               {groupData && (
                 <div className="dashboard-card bg-gradient-to-br from-muted/30 to-background">
                   <h2 className="text-xl font-semibold text-foreground mb-6">Savings & Loans</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-[hsl(var(--savings)_/_0.05)] border border-[hsl(var(--savings)_/_0.1)] rounded-xl p-5">
                       <div className="flex items-center space-x-2 mb-2">
                         <PiggyBank className="w-5 h-5 text-[hsl(var(--savings))]" />
                         <span className="text-sm font-medium text-muted-foreground">Savings Balance</span>
                       </div>
                       <p className="text-2xl font-bold text-[hsl(var(--savings))] tabular-nums">KES {savingsBalance.toLocaleString()}</p>
+                    </div>
+                    <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-900/50 rounded-xl p-5">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Shield className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        <span className="text-sm font-medium text-muted-foreground">Collateral Committed</span>
+                      </div>
+                      <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 tabular-nums">KES {collateralBalance.toLocaleString()}</p>
+                      <p className="text-xs text-orange-700 dark:text-orange-500/80 mt-1">Locked as loan guarantees</p>
                     </div>
                     <div className="bg-[hsl(var(--loans)_/_0.05)] border border-[hsl(var(--loans)_/_0.1)] rounded-xl p-5">
                       <div className="flex items-center space-x-2 mb-2">

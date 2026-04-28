@@ -84,6 +84,7 @@ const AdminDashboardPage = () => {
           </p>
           <div className="flex gap-4">
              <a href="/analytics" className="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">View Analytics</a>
+             <a href="/admin-company-accounts" className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">Company Accounts</a>
              <a href="/admin-activity-log" className="px-5 py-2.5 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition-colors">Review Activity Log</a>
           </div>
         </div>

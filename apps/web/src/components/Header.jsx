@@ -91,6 +91,7 @@ const Header = () => {
             {isMember && (
               <>
                 <Link to="/member-dashboard" className={`text-sm font-medium transition-colors duration-200 ${isActive('/member-dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Dashboard</Link>
+                <Link to="/make-payment" className={`text-sm font-medium transition-colors duration-200 ${isActive('/make-payment') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Make Payment</Link>
                 <Link to="/group-dashboard" className={`text-sm font-medium transition-colors duration-200 ${isActive('/group-dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>My Group</Link>
                 
                 <div className="relative">

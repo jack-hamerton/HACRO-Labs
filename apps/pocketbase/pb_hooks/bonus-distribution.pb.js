@@ -1,5 +1,5 @@
 /// <reference path="../pb_data/types.d.ts" />
-onRecordAfterCreateSuccess((e) => {
+onRecordAfterCreateRequest((e) => {
   // Distribute interest earned from loans to savers
   const repaymentRecord = e.record;
   const loanId = repaymentRecord.get("loan_id");

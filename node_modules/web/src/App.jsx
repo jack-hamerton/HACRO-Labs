@@ -13,6 +13,7 @@ import RegistrationConfirmationPage from '@/pages/RegistrationConfirmationPage.j
 import MemberLoginPage from '@/pages/MemberLoginPage.jsx';
 import MemberDashboardPage from '@/pages/MemberDashboardPage.jsx';
 import MemberPaymentHistoryPage from '@/pages/MemberPaymentHistoryPage.jsx';
+import PaymentSelectionPage from '@/pages/PaymentSelectionPage.jsx';
 import GroupDashboardPage from '@/pages/GroupDashboardPage.jsx';
 import SavingsContributionPage from '@/pages/SavingsContributionPage.jsx';
 import LoanRequestPage from '@/pages/LoanRequestPage.jsx';
@@ -32,6 +33,7 @@ import AdminDashboardPage from '@/pages/AdminDashboardPage.jsx';
 import AdminManagementPage from '@/pages/AdminManagementPage.jsx';
 import AdminProfilePage from '@/pages/AdminProfilePage.jsx';
 import AdminActivityLogPage from '@/pages/AdminActivityLogPage.jsx';
+import AdminCompanyAccountsPage from '@/pages/AdminCompanyAccountsPage.jsx';
 
 function App() {
   return (
@@ -48,6 +50,7 @@ function App() {
             
             {/* Member Routes */}
             <Route path="/member-dashboard" element={<ProtectedRoute requireMember><MemberDashboardPage /></ProtectedRoute>} />
+            <Route path="/make-payment" element={<ProtectedRoute requireMember><PaymentSelectionPage /></ProtectedRoute>} />
             <Route path="/payment-history" element={<ProtectedRoute requireMember><MemberPaymentHistoryPage /></ProtectedRoute>} />
             <Route path="/group-dashboard" element={<ProtectedRoute requireMember><GroupDashboardPage /></ProtectedRoute>} />
             <Route path="/savings-contribution" element={<ProtectedRoute requireMember><SavingsContributionPage /></ProtectedRoute>} />
@@ -69,6 +72,7 @@ function App() {
             <Route path="/admin-manage-admins" element={<ProtectedAdminRoute requireSuperAdmin><AdminManagementPage /></ProtectedAdminRoute>} />
             <Route path="/admin-profile" element={<ProtectedAdminRoute><AdminProfilePage /></ProtectedAdminRoute>} />
             <Route path="/admin-activity-log" element={<ProtectedAdminRoute><AdminActivityLogPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-company-accounts" element={<ProtectedAdminRoute><AdminCompanyAccountsPage /></ProtectedAdminRoute>} />
             <Route path="/analytics" element={<ProtectedAdminRoute><AnalyticsDashboard /></ProtectedAdminRoute>} />
             
             <Route
