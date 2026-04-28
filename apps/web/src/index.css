@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --error: 0 84% 60%;
+    --error-foreground: 0 0% 100%;
+
+    --savings: 160 84% 39%;
+    --savings-foreground: 0 0% 100%;
+
+    --loans: 32 95% 53%;
+    --loans-foreground: 0 0% 100%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 160 84% 39%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --radius: 1rem;
+
+    /* Chart Colors */
+    --chart-1: 160 84% 39%;
+    --chart-2: 32 95% 53%;
+    --chart-3: 217 91% 60%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+  
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --error: 0 84% 60%;
+    --error-foreground: 0 0% 100%;
+    --savings: 160 84% 39%;
+    --savings-foreground: 0 0% 100%;
+    --loans: 32 95% 53%;
+    --loans-foreground: 0 0% 100%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 160 84% 39%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+  }
+
+  /* Admin Dashboard Theme Isolation */
+  .admin-theme {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --border: 214 32% 91%;
+    --muted: 210 40% 93%;
+    --muted-foreground: 215 16% 47%;
+    --ring: 221 83% 53%;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    overflow-x: clip;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .form-section {
+    @apply space-y-6 p-8 bg-card rounded-2xl border border-border shadow-sm;
+  }
+  
+  .form-label {
+    @apply text-sm font-medium text-foreground mb-2 block;
+  }
+  
+  .form-input {
+    @apply w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
+  }
+  
+  .dashboard-card {
+    @apply bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-md transition-all duration-300;
+  }
+  
+  .stat-card {
+    @apply bg-gradient-to-br from-muted/50 to-muted rounded-2xl p-6 border border-border/50;
+  }
+
+  .admin-stat-card {
+    @apply bg-card rounded-2xl p-6 border border-border shadow-sm hover:-translate-y-1 transition-transform duration-300;
+  }
+  
+  .badge-savings {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[hsl(var(--savings)_/_0.1)] text-[hsl(var(--savings))] border border-[hsl(var(--savings)_/_0.2)];
+  }
+  
+  .badge-loans {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[hsl(var(--loans)_/_0.1)] text-[hsl(var(--loans))] border border-[hsl(var(--loans)_/_0.2)];
+  }
+
+  .badge-pending {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-900/50;
+  }
+  
+  .badge-completed, .badge-success {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900/50;
+  }
+  
+  .badge-failed, .badge-danger {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50;
+  }
+  
+  .btn-primary {
+    @apply px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-3 bg-secondary text-secondary-foreground rounded-xl font-medium hover:bg-secondary/80 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-outline {
+    @apply px-6 py-3 border-2 border-primary text-primary rounded-xl font-medium hover:bg-primary hover:text-primary-foreground active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .table-header {
+    @apply bg-muted/50 text-muted-foreground text-xs font-semibold uppercase tracking-wider border-b border-border;
+  }
+  
+  .table-cell {
+    @apply px-6 py-4 text-sm text-foreground border-b border-border/50;
+  }
+
+  .timeline-container {
+    @apply relative border-l-2 border-muted ml-3 space-y-8 pb-4;
+  }
+
+  .timeline-item {
+    @apply relative pl-8;
+  }
+
+  .timeline-dot {
+    @apply absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 border-background;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
