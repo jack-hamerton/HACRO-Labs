@@ -27,7 +27,7 @@ const AdminManagementPage = () => {
 
   const fetchAdmins = async () => {
     try {
-      const records = await pb.collection('admins').getFullList({ sort: '-created', $autoCancel: false });
+      const records = await pb.collection('pbc_admins_auth').getFullList({ sort: '-created', $autoCancel: false });
       setAdmins(records);
     } catch (err) {
       toast.error('Failed to load admins');

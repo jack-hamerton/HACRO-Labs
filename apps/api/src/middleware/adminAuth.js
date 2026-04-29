@@ -38,7 +38,7 @@ export async function verifyAdminToken(req, res, next) {
   }
 
   // Get admin details
-  const admin = await pb.collection('admins').getOne(session.admin_id);
+  const admin = await pb.collection('pbc_admins_auth').getOne(session.admin_id);
 
   // Check if admin is active
   if (!admin.is_active) {

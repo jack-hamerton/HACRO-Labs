@@ -20,7 +20,8 @@ router.post('/login', async (req, res) => {
     });
   }
 
-  // Check rate limiting
+  // Check rate limiting (disabled for development)
+  /*
   const now = new Date();
   const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
 
@@ -35,14 +36,17 @@ router.post('/login', async (req, res) => {
       error: 'Account locked due to too many failed login attempts. Please try again in 15 minutes.',
     });
   }
+  */
 
   // Attempt authentication
   let authData;
   try {
-    authData = await pb.collection('admins').authWithPassword(email, password);
+    authData = await pb.collection('pbc_admins_auth').authWithPassword(email, password);
   } catch (error) {
     logger.warn(`Failed login attempt for ${email}:`, error.message);
 
+    // Increment failed attempts (disabled for development)
+    /*
     // Increment failed attempts
     if (attempts.length > 0) {
       await pb.collection('admin_login_attempts').update(attempts[0].id, {
@@ -54,16 +58,20 @@ router.post('/login', async (req, res) => {
         attempt_count: 1,
       });
     }
+    */
 
     return res.status(401).json({
       error: 'Invalid email or password',
     });
   }
 
+  // Clear failed attempts on successful login (disabled for development)
+  /*
   // Clear failed attempts on successful login
   if (attempts.length > 0) {
     await pb.collection('admin_login_attempts').delete(attempts[0].id);
   }
+  */
 
   // Generate session token
   const token = generateToken();
@@ -81,7 +89,7 @@ router.post('/login', async (req, res) => {
   });
 
   // Update last login
-  await pb.collection('admins').update(authData.record.id, {
+  await pb.collection('pbc_admins_auth').update(authData.record.id, {
     last_login: now.toISOString(),
   });
 
@@ -165,7 +173,7 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
   }
 
   // Check if email already exists
-  const existingAdmins = await pb.collection('admins').getFullList({
+  const existingAdmins = await pb.collection('pbc_admins_auth').getFullList({
     filter: `email = "${email}"`,
   });
 
@@ -179,7 +187,7 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
   const temporaryPassword = generatePassword();
 
   // Create admin
-  const newAdmin = await pb.collection('admins').create({
+  const newAdmin = await pb.collection('pbc_admins_auth').create({
     email,
     password: temporaryPassword,
     passwordConfirm: temporaryPassword,
@@ -236,11 +244,11 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
   }
 
   // Get admin record
-  const admin = await pb.collection('admins').getOne(req.adminId);
+  const admin = await pb.collection('pbc_admins_auth').getOne(req.adminId);
 
   // Verify current password
   try {
-    await pb.collection('admins').authWithPassword(admin.email, currentPassword);
+    await pb.collection('pbc_admins_auth').authWithPassword(admin.email, currentPassword);
   } catch (error) {
     logger.warn(`Failed password change attempt for ${admin.email}`);
     return res.status(401).json({
@@ -249,7 +257,7 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
   }
 
   // Update password
-  await pb.collection('admins').update(req.adminId, {
+  await pb.collection('pbc_admins_auth').update(req.adminId, {
     password: newPassword,
     passwordConfirm: newPassword,
   });
@@ -272,7 +280,7 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
  * Get current admin profile
  */
 router.get('/profile', verifyAdminToken, async (req, res) => {
-  const admin = await pb.collection('admins').getOne(req.adminId);
+  const admin = await pb.collection('pbc_admins_auth').getOne(req.adminId);
 
   res.json({
     id: admin.id,
@@ -305,7 +313,7 @@ router.put('/profile', verifyAdminToken, async (req, res) => {
   if (phone) updateData.phone = phone;
 
   // Update admin
-  const updatedAdmin = await pb.collection('admins').update(req.adminId, updateData);
+  const updatedAdmin = await pb.collection('pbc_admins_auth').update(req.adminId, updateData);
 
   // Log activity
   await pb.collection('admin_activity_log').create({
@@ -442,7 +450,7 @@ router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) =>
 
   // Check if email already exists (if changing email)
   if (email) {
-    const existingAdmins = await pb.collection('admins').getFullList({
+    const existingAdmins = await pb.collection('pbc_admins_auth').getFullList({
       filter: `email = "${email}" && id != "${adminId}"`,
     });
 
@@ -460,7 +468,7 @@ router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) =>
   if (is_active !== undefined) updateData.is_active = is_active;
 
   // Update admin
-  const updatedAdmin = await pb.collection('admins').update(adminId, updateData);
+  const updatedAdmin = await pb.collection('pbc_admins_auth').update(adminId, updateData);
 
   // Log activity
   await pb.collection('admin_activity_log').create({
@@ -497,7 +505,7 @@ router.delete('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res)
   }
 
   // Get admin before deletion for logging
-  const admin = await pb.collection('admins').getOne(adminId);
+  const admin = await pb.collection('pbc_admins_auth').getOne(adminId);
 
   // Delete all sessions for this admin
   const sessions = await pb.collection('admin_sessions').getFullList({
@@ -509,7 +517,7 @@ router.delete('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res)
   }
 
   // Delete admin
-  await pb.collection('admins').delete(adminId);
+  await pb.collection('pbc_admins_auth').delete(adminId);
 
   // Log activity
   await pb.collection('admin_activity_log').create({
@@ -539,7 +547,7 @@ router.post('/forgot-password', async (req, res) => {
   }
 
   // Find admin by email
-  const admins = await pb.collection('admins').getFullList({
+  const admins = await pb.collection('pbc_admins_auth').getFullList({
     filter: `email = "${email}"`,
   });
 
@@ -618,7 +626,7 @@ router.post('/reset-password', async (req, res) => {
   const adminId = resetRecord.admin_id;
 
   // Update password
-  await pb.collection('admins').update(adminId, {
+  await pb.collection('pbc_admins_auth').update(adminId, {
     password: newPassword,
     passwordConfirm: newPassword,
   });

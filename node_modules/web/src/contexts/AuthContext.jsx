@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const loginAdmin = async (email, password) => {
-    const authData = await pb.collection('admins').authWithPassword(email, password, { $autoCancel: false });
+    const authData = await pb.collection('pbc_admins_auth').authWithPassword(email, password, { $autoCancel: false });
     setCurrentUser(authData.record);
     setUserRole('admins');
     return authData;
