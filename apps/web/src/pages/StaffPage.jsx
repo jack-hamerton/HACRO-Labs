@@ -7,7 +7,7 @@ import apiServerClient from '@/lib/apiServerClient.js';
 
 const fallbackStaffMembers = [
   {
-    name: 'Jack Otieno',
+    name: 'Jack Hamerton',
     role: 'Founder & Executive Director',
     position: 'Executive Director',
     bio: 'Leading HACRO Labs with community-driven digital and financial empowerment programs.',
@@ -21,7 +21,7 @@ const fallbackStaffMembers = [
     }
   },
   {
-    name: 'Amina Mwangi',
+    name: 'Byrone Otieno',
     role: 'Operations Manager',
     position: 'Operations Manager',
     bio: 'Coordinates training, partnerships, and community outreach across Kenya.',
