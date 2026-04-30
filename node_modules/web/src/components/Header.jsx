@@ -79,7 +79,7 @@ const Header = () => {
 
           <nav className="hidden md:flex items-center space-x-6">
             <Link to="/" className={`text-sm font-medium transition-colors duration-200 ${isActive('/') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Home</Link>
-
+            <Link to="/staff" className={`text-sm font-medium transition-colors duration-200 ${isActive('/staff') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Staff</Link>            <Link to="/staff" className={`text-sm font-medium transition-colors duration-200 ${isActive('/staff') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Staff</Link>
             {!isAuthenticated && (
               <>
                 <Link to="/register" className={`text-sm font-medium transition-colors duration-200 ${isActive('/register') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Register</Link>
@@ -167,11 +167,25 @@ const Header = () => {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">
               <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/') ? 'text-primary' : 'text-foreground'}`}>Home</Link>
-              {/* Mobile links omitted for brevity, similar to desktop */}
+              <Link to="/staff" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/staff') ? 'text-primary' : 'text-foreground'}`}>Staff</Link>
+              {!isAuthenticated && (
+                <>
+                  <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Register</Link>
+                  <Link to="/member-login" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Member Login</Link>
+                  <Link to="/admin-login" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Admin Login</Link>
+                </>
+              )}
               {isMember && (
                 <>
                   <Link to="/member-dashboard" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Dashboard</Link>
                   <Link to="/notifications" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Notifications ({unreadCount})</Link>
+                  <button onClick={handleLogout} className="text-sm font-medium text-destructive text-left">Logout</button>
+                </>
+              )}
+              {isAdmin && (
+                <>
+                  <Link to="/admin-dashboard" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Admin Dashboard</Link>
+                  <Link to="/analytics" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Analytics</Link>
                   <button onClick={handleLogout} className="text-sm font-medium text-destructive text-left">Logout</button>
                 </>
               )}

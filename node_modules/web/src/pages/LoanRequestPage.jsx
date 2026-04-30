@@ -288,7 +288,7 @@ const LoanRequestPage = () => {
                   </p>
                   <p className="flex items-start">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span>Savings + bounce must ≥ loan amount + interest</span>
+                    <span>Savings + bonuses must ≥ loan amount + interest</span>
                   </p>
                 </div>
                 {!eligibility.eligibleForIL && (

@@ -21,6 +21,7 @@ import LoanVotingPage from '@/pages/LoanVotingPage.jsx';
 import LoanRepaymentPage from '@/pages/LoanRepaymentPage.jsx';
 import ContributionHistoryPage from '@/pages/ContributionHistoryPage.jsx';
 import NotificationCenter from '@/pages/NotificationCenter.jsx';
+import StaffPage from '@/pages/StaffPage.jsx';
 import AnalyticsDashboard from '@/pages/AnalyticsDashboard.jsx';
 import GroupMessaging from '@/pages/GroupMessaging.jsx';
 import LoanRepaymentTracker from '@/pages/LoanRepaymentTracker.jsx';
@@ -47,6 +48,7 @@ function App() {
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/registration-confirmation" element={<RegistrationConfirmationPage />} />
             <Route path="/member-login" element={<MemberLoginPage />} />
+            <Route path="/staff" element={<StaffPage />} />
             
             {/* Member Routes */}
             <Route path="/member-dashboard" element={<ProtectedRoute requireMember><MemberDashboardPage /></ProtectedRoute>} />

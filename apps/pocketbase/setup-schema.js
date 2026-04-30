@@ -602,6 +602,54 @@ async function main() {
     ]
   });
 
+  const staffMembersCollection = await createCollectionIfMissing({
+    name: 'staff_members',
+    type: 'base',
+    schema: [
+      { name: 'name', type: 'text', required: true },
+      { name: 'role', type: 'text', required: true },
+      { name: 'company_position', type: 'text', required: false },
+      { name: 'bio', type: 'text', required: false },
+      { name: 'linkedin', type: 'url', required: false },
+      { name: 'twitter', type: 'url', required: false },
+      { name: 'instagram', type: 'url', required: false },
+      { name: 'facebook', type: 'url', required: false },
+      { name: 'website', type: 'url', required: false },
+      {
+        name: 'photo',
+        type: 'file',
+        required: false,
+        options: {
+          maxSelect: 1,
+          maxSize: 5242880,
+          mimeTypes: ['image/jpeg', 'image/png'],
+          thumbs: []
+        }
+      },
+      { name: 'priority', type: 'number', required: false }
+    ]
+  });
+
+  if (staffMembersCollection) {
+    const existingFields = staffMembersCollection.schema.map(f => f.name);
+    const newFields = [
+      { name: 'company_position', type: 'text', required: false },
+      { name: 'linkedin', type: 'url', required: false },
+      { name: 'twitter', type: 'url', required: false },
+      { name: 'instagram', type: 'url', required: false },
+      { name: 'facebook', type: 'url', required: false },
+      { name: 'website', type: 'url', required: false }
+    ];
+
+    const fieldsToAdd = newFields.filter(f => !existingFields.includes(f.name));
+    if (fieldsToAdd.length > 0) {
+      staffMembersCollection.schema.push(...fieldsToAdd);
+      await updateCollection(staffMembersCollection.id, { schema: staffMembersCollection.schema });
+    } else {
+      console.log('✅ Staff members collection already up to date');
+    }
+  }
+
   if (loansCollection) {
     const existingFields = loansCollection.schema.map(f => f.name);
     const newFields = [

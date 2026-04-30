@@ -1,5 +1,5 @@
 import express from 'express';
-import pb from '../utils/pocketbaseClient.js';
+import pb, { authPb, authenticateSuperuser } from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 import { generateToken, generatePassword, validatePassword } from '../utils/adminUtils.js';
 import { verifyAdminToken, requireSuperAdmin } from '../middleware/adminAuth.js';
@@ -38,10 +38,12 @@ router.post('/login', async (req, res) => {
   }
   */
 
+  const now = new Date();
+
   // Attempt authentication
   let authData;
   try {
-    authData = await pb.collection('pbc_admins_auth').authWithPassword(email, password);
+    authData = await authPb.collection('admins').authWithPassword(email, password);
   } catch (error) {
     logger.warn(`Failed login attempt for ${email}:`, error.message);
 
@@ -79,6 +81,9 @@ router.post('/login', async (req, res) => {
   const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
   const userAgent = req.get('user-agent') || 'unknown';
 
+  // Authenticate superuser for privileged operations
+  await authenticateSuperuser();
+
   // Create session
   await pb.collection('admin_sessions').create({
     admin_id: authData.record.id,
@@ -88,10 +93,14 @@ router.post('/login', async (req, res) => {
     user_agent: userAgent,
   });
 
-  // Update last login
-  await pb.collection('pbc_admins_auth').update(authData.record.id, {
-    last_login: now.toISOString(),
-  });
+  // Update last login if the field exists
+  try {
+    await pb.collection('admins').update(authData.record.id, {
+      last_login: now.toISOString(),
+    });
+  } catch (error) {
+    logger.warn(`Could not update last_login for admin ${authData.record.id}:`, error.response?.message || error.message || error);
+  }
 
   // Log activity
   await pb.collection('admin_activity_log').create({
@@ -108,8 +117,8 @@ router.post('/login', async (req, res) => {
     admin: {
       id: authData.record.id,
       email: authData.record.email,
-      full_name: authData.record.full_name,
-      role: authData.record.role,
+      full_name: `${authData.record.first_name || ''} ${authData.record.last_name || ''}`.trim() || 'Admin User',
+      role: 'super_admin', // Default role for admins
     },
   });
 });
@@ -126,6 +135,9 @@ router.post('/logout', verifyAdminToken, async (req, res) => {
       error: 'Token is required',
     });
   }
+
+  // Authenticate superuser for privileged operations
+  await authenticateSuperuser();
 
   // Find and delete session
   const sessions = await pb.collection('admin_sessions').getFullList({
@@ -248,7 +260,7 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
 
   // Verify current password
   try {
-    await pb.collection('pbc_admins_auth').authWithPassword(admin.email, currentPassword);
+    await authPb.collection('pbc_admins_auth').authWithPassword(admin.email, currentPassword);
   } catch (error) {
     logger.warn(`Failed password change attempt for ${admin.email}`);
     return res.status(401).json({

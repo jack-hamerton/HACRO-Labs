@@ -117,6 +117,41 @@ const HomePage = () => {
           </div>
         </section>
 
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }} className="text-center mb-12">
+              <p className="text-sm uppercase tracking-[0.35em] text-primary">Meet the team</p>
+              <h2 className="mt-4 text-3xl md:text-4xl font-bold text-foreground">A dedicated team supporting every member</h2>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                HACRO Labs staff deliver member support, digital training, and community outreach so every member can thrive.
+              </p>
+            </motion.div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { name: 'Jack Hamerton', role: 'Founder & Executive Director' },
+                { name: 'Byrone Otieno', role: 'Operations Manager' },
+                { name: 'Samuel Karanja', role: 'Technology Lead' },
+                { name: 'Ruth Njeri', role: 'Community Engagement Specialist' },
+              ].map((member) => (
+                <div key={member.name} className="rounded-3xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary font-semibold">
+                    {member.name.split(' ').map((part) => part[0]).join('')}
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">{member.name}</h3>
+                  <p className="text-sm text-muted-foreground">{member.role}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link to="/staff" className="btn-primary inline-flex items-center justify-center">
+                Meet the full staff
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <section className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-12 border border-primary/20">
