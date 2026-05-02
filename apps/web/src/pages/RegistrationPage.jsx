@@ -11,7 +11,22 @@ import Footer from '@/components/Footer.jsx';
 const KENYA_REGIONS = [
   'Nairobi', 'Kisumu', 'Mombasa', 'Nakuru', 'Eldoret', 
   'Kericho', 'Kisii', 'Nyeri', 'Muranga', 'Machakos', 
-  'Naivasha', 'Isiolo', 'Garissa', 'Wajir', 'Turkana'
+  'Naivasha', 'Isiolo', 'Garissa', 'Wajir', 'Turkana', 
+  'Marsabit', 'Mandera', 'Lamu', 'Tana River',
+  'Kitui', 'Embu', 'Tharaka Nithi', 'Meru', 'Bungoma', 
+  'Busia', 'Vihiga', 'Siaya', 'Migori', 'Homa Bay', 
+  'Kakamega', 'Trans Nzoia', 'Uasin Gishu', 'Elgeyo Marakwet', 
+  'Nandi', 'Samburu', 'West Pokot', 'Bomet', 'Narok', 'Kajiado', 
+  'Laikipia', 'Nyandarua', 'Nyamira', 'Kirinyaga', 'Kwale', 'Kilifi', 
+  'Taita Taveta', 'Makueni', 'Mwingi','Bondo', 'Usenge', 'Osieko', 'Rongo',
+  'Awendo', 'Kendu Bay', 'Sindo', 'Bumala', 'Matayos', 'Bukhayo',
+  'Mumias', 'Butere', 'Chavakali', 'Lugari', 'Likuyani', 'Malava',
+  'Shinyalu', 'Navakholo', 'Matungu', 'Khwisero', 'Luanda','Mumias East', 
+  'Mumias West', 'Butere', 'Khwisero', 'Matungu', 'Shinyalu', 'Navakholo', 
+  'Lugari', 'Likuyani', 'Malava', 'Matayos', 'Kombewa', 'Awasi', 'Nyakach', 
+  'Seme', 'Muhoroni', 'Nyando', 'Kisumu West', 'Kisumu East','Wich Lum', 'Dunga', 
+  'Kisian', 'Nyaera', 'Maseno','Rangwe', 'Nyalenda A', 'Nyalenda B', 'Manyatta A',
+  'Manyatta B', 'Nyamasaria', 'Kondele', 
 ];
 
 const RegistrationPage = () => {
@@ -327,7 +342,7 @@ const RegistrationPage = () => {
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="form-label">Spouse / Next of kin name</label>
+                    <label className="form-label">Field Oficer name</label>
                     <input type="text" name="spouse_kin_name" value={formData.spouse_kin_name} onChange={handleInputChange} className="form-input" />
                   </div>
                 </div>
