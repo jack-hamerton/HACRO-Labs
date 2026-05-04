@@ -11,7 +11,7 @@ const fallbackStaffMembers = [
     role: 'Founder & Executive Director',
     position: 'Executive Director',
     bio: 'Leading HACRO Labs with community-driven digital and financial empowerment programs.',
-    photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+    photo: 'https://i.postimg.cc/P52ZvHBW/IMG-1064.jpg',
     socialLinks: {
       linkedin: 'https://www.linkedin.com/in/jack-otieno',
       twitter: 'https://twitter.com/jackotieno',
@@ -21,11 +21,11 @@ const fallbackStaffMembers = [
     }
   },
   {
-    name: 'Byrone Otieno',
+    name: 'Ruphence Chola',
     role: 'Operations Manager',
     position: 'Operations Manager',
     bio: 'Coordinates training, partnerships, and community outreach across Kenya.',
-    photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
+    photo: 'https://i.postimg.cc/ryhYLdVj/IMG-0096-(1).jpg',
     socialLinks: {
       linkedin: 'https://www.linkedin.com/in/amina-mwangi',
       twitter: '',
@@ -35,6 +35,62 @@ const fallbackStaffMembers = [
     }
   },
   {
+    name: 'Samuel Karanja',
+    role: 'Technology Lead',
+    position: 'Technology Lead',
+    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    photo: 'https://i.postimg.cc/x8FsGZpS/IMG-20221102-WA0006.jpg',
+    socialLinks: {
+      linkedin: 'https://www.linkedin.com/in/samuel-karanja',
+      twitter: '',
+      instagram: '',
+      facebook: '',
+      website: '',
+    }
+  },
+   {
+    name: 'Samuel Karanja',
+    role: 'Technology Lead',
+    position: 'Technology Lead',
+    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    photo: 'https://i.postimg.cc/tJSX3XHJ/IMG-20211105-081340-267.jpg',
+    socialLinks: {
+      linkedin: 'https://www.linkedin.com/in/samuel-karanja',
+      twitter: '',
+      instagram: '',
+      facebook: '',
+      website: '',
+    }
+  },
+   {
+    name: 'Samuel Karanja',
+    role: 'Technology Lead',
+    position: 'Technology Lead',
+    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    photo: 'https://i.postimg.cc/J7XRsQ9y/IMG-8869-1.jpg',
+    socialLinks: {
+      linkedin: 'https://www.linkedin.com/in/samuel-karanja',
+      twitter: '',
+      instagram: '',
+      facebook: '',
+      website: '',
+    }
+  },
+   {
+    name: 'Samuel Karanja',
+    role: 'Technology Lead',
+    position: 'Technology Lead',
+    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    photo: 'https://i.postimg.cc/CMv6VZhm/IMG-0433.jpg',
+    socialLinks: {
+      linkedin: 'https://www.linkedin.com/in/samuel-karanja',
+      twitter: '',
+      instagram: '',
+      facebook: '',
+      website: '',
+    }
+  },
+   {
     name: 'Samuel Karanja',
     role: 'Technology Lead',
     position: 'Technology Lead',

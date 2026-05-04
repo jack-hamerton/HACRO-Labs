@@ -30,7 +30,7 @@ const HomePage = () => {
 
         <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0" style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1542868727-1d2c316ed573)',
+          backgroundImage: 'url(https://i.postimg.cc/J7XRsQ9y/IMG-8869-1.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}>
