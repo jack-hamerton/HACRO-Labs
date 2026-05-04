@@ -96,10 +96,10 @@ const StaffPage = () => {
   return (
     <>
       <Helmet>
-        <title>HACRO Labs Staff</title>
+        <title>HACRO Labs Team</title>
         <meta
           name="description"
-          content="Meet the HACRO Labs staff who support community development, member services, and financial empowerment." 
+          content="Meet the HACRO Labs Team who support community development, member services, and financial empowerment." 
         />
       </Helmet>
 
@@ -109,7 +109,7 @@ const StaffPage = () => {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <section className="text-center mb-16">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">HACRO Labs</p>
-            <h1 className="mt-4 text-4xl font-bold md:text-5xl">Meet our staff</h1>
+            <h1 className="mt-4 text-4xl font-bold md:text-5xl">Meet our Team</h1>
             <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-muted-foreground">
               These are the people who keep HACRO Labs running, help members grow, and ensure the platform remains secure,
               supportive, and community-first.
@@ -178,7 +178,7 @@ const StaffPage = () => {
           )}
 
           <section className="mt-20 rounded-3xl border border-border bg-primary/5 p-10 text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Interested in joining the HACRO Labs community?</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Are you interested in joining the HACRO Labs community?</h2>
             <p className="mx-auto max-w-2xl text-base leading-8 text-muted-foreground">
               Our team is always working to build stronger networks, provide better resources, and invite new members into the journey.
               Everyone is welcome to explore and engage with HACRO Labs.
