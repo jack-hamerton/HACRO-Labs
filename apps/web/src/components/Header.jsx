@@ -168,7 +168,7 @@ const Header = () => {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">
               <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/') ? 'text-primary' : 'text-foreground'}`}>Home</Link>
-              <Link to="/staff" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/staff') ? 'text-primary' : 'text-foreground'}`}>Staff</Link>
+              <Link to="/staff" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/staff') ? 'text-primary' : 'text-foreground'}`}>Our Team</Link>
               {!isAuthenticated && (
                 <>
                   <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Register</Link>

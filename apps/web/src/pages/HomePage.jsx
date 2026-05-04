@@ -120,7 +120,7 @@ const HomePage = () => {
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }} className="text-center mb-12">
-              <p className="text-sm uppercase tracking-[0.35em] text-primary">Meet the team</p>
+              <p className="text-sm uppercase tracking-[0.35em] text-primary">Meet our team</p>
               <h2 className="mt-4 text-3xl md:text-4xl font-bold text-foreground">A dedicated team supporting every member</h2>
               <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
                 HACRO Labs staff deliver member support, digital training, and community outreach so every member can thrive.
@@ -146,7 +146,7 @@ const HomePage = () => {
 
             <div className="mt-10 text-center">
               <Link to="/staff" className="btn-primary inline-flex items-center justify-center">
-                Meet the full staff
+                Meet our full Team
               </Link>
             </div>
           </div>
