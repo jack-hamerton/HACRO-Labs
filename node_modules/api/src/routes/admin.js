@@ -176,9 +176,23 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
     });
   }
 
+  // Check if email belongs to a staff member - if so, make them super_admin
+  let assignedRole = role;
+  try {
+    const staffMembers = await pb.collection('staff_members').getFullList({
+      filter: `email = "${email}"`,
+      $autoCancel: false
+    });
+    if (staffMembers.length > 0) {
+      assignedRole = 'super_admin';
+    }
+  } catch (error) {
+    // Staff collection might not exist yet, continue with provided role
+  }
+
   // Validate role
   const validRoles = ['super_admin', 'admin', 'moderator'];
-  if (!validRoles.includes(role)) {
+  if (!validRoles.includes(assignedRole)) {
     return res.status(400).json({
       error: `Role must be one of: ${validRoles.join(', ')}`,
     });
@@ -204,7 +218,7 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
     password: temporaryPassword,
     passwordConfirm: temporaryPassword,
     full_name,
-    role,
+    role: assignedRole,
     is_active: true,
   });
 

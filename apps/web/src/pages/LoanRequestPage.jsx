@@ -23,6 +23,7 @@ const LoanRequestPage = () => {
     amount: '',
     purpose: '',
     loanType: 'IL', // Default to IL
+    repaymentPeriod: '2_months', // Default to 2 months
     selectedGuarantors: {}, // { memberId: collateralAmount }
   });
 
@@ -117,12 +118,24 @@ const LoanRequestPage = () => {
       return;
     }
 
+    // Calculate interest based on repayment period
+    const getInterestRate = (period) => {
+      switch (period) {
+        case '2_months': return 2; // 2%
+        case '4_months': return 4; // 4%
+        case '6_months': return 6; // 6%
+        default: return 2;
+      }
+    };
+
+    const interestRate = getInterestRate(formData.repaymentPeriod);
+    const interest = amount * (interestRate / 100);
+
     // Type-specific validation
     if (loanType === 'IL') {
       // Individual Loan: amount + interest ≤ user's savings
-      const interest = amount * 0.02;
       if (amount + interest > eligibility.savingsBalance) {
-        toast.error(`Loan amount + 2% interest (${(amount + interest).toLocaleString()}) cannot exceed your savings (${eligibility.savingsBalance.toLocaleString()})`);
+        toast.error(`Loan amount + ${interestRate}% interest (${(amount + interest).toLocaleString()}) cannot exceed your savings (${eligibility.savingsBalance.toLocaleString()})`);
         return;
       }
     } else if (loanType === 'GIL') {
@@ -138,7 +151,6 @@ const LoanRequestPage = () => {
 
       const guarantorTotal = selectedGuarantorsArray.reduce((sum, g) => sum + g.amount, 0);
       const totalCollateral = eligibility.savingsBalance + guarantorTotal;
-      const interest = amount * 0.02;
 
       if (Math.abs(amount - totalCollateral) > 0.01) { // Allow small floating-point differences
         toast.error(`Loan amount (${amount.toLocaleString()}) must equal your savings (${eligibility.savingsBalance.toLocaleString()}) + guarantors' collateral (${guarantorTotal.toLocaleString()})`);
@@ -148,6 +160,27 @@ const LoanRequestPage = () => {
 
     setSubmitting(true);
     try {
+      const getInterestRate = (period) => {
+        switch (period) {
+          case '2_months': return 2;
+          case '4_months': return 4;
+          case '6_months': return 6;
+          default: return 2;
+        }
+      };
+
+      const getRepaymentMonths = (period) => {
+        switch (period) {
+          case '2_months': return 2;
+          case '4_months': return 4;
+          case '6_months': return 6;
+          default: return 2;
+        }
+      };
+
+      const interestRate = getInterestRate(formData.repaymentPeriod);
+      const repaymentMonths = getRepaymentMonths(formData.repaymentPeriod);
+
       const gracePeriodEnd = new Date();
       gracePeriodEnd.setMonth(gracePeriodEnd.getMonth() + 1);
       const repaymentStart = new Date();
@@ -158,8 +191,8 @@ const LoanRequestPage = () => {
         member_id: currentUser.id,
         group_id: groupData.id,
         amount: amount,
-        interest_rate: 2, // 2% flat rate
-        repayment_period: 2, // Always 2 months
+        interest_rate: interestRate,
+        repayment_period: formData.repaymentPeriod,
         loan_type: loanType,
         status: 'pending',
         created_date: new Date().toISOString(),
@@ -390,7 +423,31 @@ const LoanRequestPage = () => {
                       required
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">2% flat interest rate. With interest, total = {(parseFloat(formData.amount) * 1.02).toLocaleString() || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {(() => {
+                      const rate = formData.repaymentPeriod === '2_months' ? 2 : formData.repaymentPeriod === '4_months' ? 4 : 6;
+                      return `${rate}% interest rate. With interest, total = KES ${(parseFloat(formData.amount || 0) * (1 + rate/100)).toLocaleString()}`;
+                    })()}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="form-label">Repayment Period <span className="text-destructive">*</span></label>
+                  <select
+                    value={formData.repaymentPeriod}
+                    onChange={(e) => setFormData({...formData, repaymentPeriod: e.target.value})}
+                    className="form-input"
+                    required
+                  >
+                    <option value="2_months">2 Months (2% interest)</option>
+                    <option value="4_months">4 Months (4% interest)</option>
+                    <option value="6_months">6 Months (6% interest)</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {formData.repaymentPeriod === '2_months' && 'Interest: 1% to company, 0.5% to group members, 0.5% to guarantors'}
+                    {formData.repaymentPeriod === '4_months' && 'Interest: 1% to company, 1.5% to group members, 1.5% to guarantors'}
+                    {formData.repaymentPeriod === '6_months' && 'Interest: 2% to company, 2% to group members, 2% to guarantors'}
+                  </p>
                 </div>
 
                 <div>

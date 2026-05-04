@@ -58,6 +58,34 @@ const SavingsContributionPage = () => {
       return;
     }
 
+    // Check minimum daily savings (100 KSH)
+    if (amount < 100) {
+      toast.error('Minimum daily savings contribution is 100 KSH');
+      return;
+    }
+
+    // Check monthly minimum (1000 KSH) - get current month's contributions
+    try {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      const monthlySavings = await pb.collection('savings').getFullList({
+        filter: `member_id="${currentUser.id}" && date >= "${startOfMonth.toISOString()}"`,
+        $autoCancel: false
+      });
+      
+      const monthlyTotal = monthlySavings.reduce((sum, s) => sum + s.amount, 0);
+      
+      if (monthlyTotal + amount < 1000) {
+        const remaining = 1000 - (monthlyTotal + amount);
+        toast.error(`Monthly savings requirement not met. You need to save at least ${remaining} KSH more this month to reach the minimum 1000 KSH.`);
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking monthly savings:', error);
+      // Continue with submission if check fails
+    }
+
     setSubmitting(true);
     try {
       const dateStr = new Date().toISOString();

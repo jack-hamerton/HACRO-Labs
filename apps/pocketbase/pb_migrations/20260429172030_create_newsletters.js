@@ -39,40 +39,55 @@ migrate((app) => {
         "type": "autodate"
       },
       {
-        "name": "email",
-        "type": "email",
-        "required": true,
-        "unique": true
-      },
-      {
-        "name": "full_name",
+        "name": "title",
         "type": "text",
-        "required": true
+        "required": true,
+        "presentable": true
       },
       {
-        "name": "phone",
+        "name": "description",
         "type": "text",
         "required": false
       },
       {
-        "name": "department",
-        "type": "text",
+        "name": "type",
+        "type": "select",
+        "required": true,
+        "values": ["newspaper", "report", "video"]
+      },
+      {
+        "name": "file",
+        "type": "file",
+        "required": true,
+        "maxSelect": 1,
+        "maxSize": 52428800, // 50MB
+        "mimeTypes": ["application/pdf", "video/mp4", "video/avi", "video/mov", "video/wmv"]
+      },
+      {
+        "name": "published",
+        "type": "bool",
+        "required": true,
+        "default": false
+      },
+      {
+        "name": "published_date",
+        "type": "date",
         "required": false
       }
     ],
-    "id": "pbc_4028823608",
+    "id": "newsletters",
     "indexes": [],
-    "listRule": null,
-    "name": "staff_members",
+    "listRule": "published = true",
+    "name": "newsletter_archive",
     "system": false,
     "type": "base",
     "updateRule": null,
-    "viewRule": null
+    "viewRule": "published = true"
   });
 
   return app.save(collection);
 }, (app) => {
-  const collection = app.findCollectionByNameOrId("pbc_4028823608");
+  const collection = app.findCollectionByNameOrId("newsletters");
 
   return app.delete(collection);
 })

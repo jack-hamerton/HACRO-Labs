@@ -1,5 +1,3 @@
-/// <reference path="../pb_data/types.d.ts" />
-/// <reference path="../pb_data/types.d.ts" />
 cronAdd("check_overdue_loans", "0 9 * * *", () => {
   // Daily check for overdue loans with new grace period and default rules
   console.log("Running daily overdue loan check...");
@@ -286,5 +284,220 @@ cronAdd("monthly_interest_distribution", "0 10 1 * *", () => {
 
   } catch (err) {
     console.log("Error in monthly interest distribution: " + err.message);
+  }
+});
+
+cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
+  // Monthly check for unpaid insurance fees - deduct from savings after 12 months
+  console.log("Running monthly insurance fee deduction check...");
+
+  try {
+    const today = new Date();
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(today.getMonth() - 12);
+
+    // Find all members
+    const allMembers = $app.findRecordsByFilter("members", "", { limit: 10000 });
+
+    allMembers.forEach((member) => {
+      const memberId = member.id;
+      const memberName = `${member.get("first_name")} ${member.get("last_name")}`;
+
+      // Check insurance payments in the last 12 months
+      const recentInsurancePayments = $app.findRecordsByFilter(
+        "payments",
+        `member_id = '${memberId}' && payment_type = 'insurance' && payment_status = 'completed' && created >= '${twelveMonthsAgo.toISOString()}'`,
+        { limit: 1000 }
+      );
+
+      if (recentInsurancePayments.length === 0) {
+        // No insurance payments in the last 12 months - deduct from savings
+        const memberSavings = $app.findRecordsByFilter("savings", `member_id = '${memberId}'`, { limit: 10000 });
+        let totalSavings = 0;
+
+        memberSavings.forEach((saving) => {
+          totalSavings += saving.get("amount") || 0;
+        });
+
+        // Assume insurance fee is 100 KSH per month for 12 months = 1200 KSH
+        const insuranceFee = 1200;
+
+        if (totalSavings >= insuranceFee) {
+          // Deduct from savings
+          let remainingDeduction = insuranceFee;
+          const updatedSavings = [];
+
+          // Sort savings by date (oldest first)
+          memberSavings.sort((a, b) => new Date(a.get("date")) - new Date(b.get("date")));
+
+          for (const saving of memberSavings) {
+            if (remainingDeduction <= 0) break;
+
+            const currentAmount = saving.get("amount") || 0;
+            const deduction = Math.min(remainingDeduction, currentAmount);
+
+            if (deduction > 0) {
+              saving.set("amount", currentAmount - deduction);
+              $app.save(saving);
+              remainingDeduction -= deduction;
+
+              // Create deduction history
+              const deductionHistory = new Record("contributions_history");
+              deductionHistory.set("member_id", memberId);
+              deductionHistory.set("group_id", member.get("group_id"));
+              deductionHistory.set("type", "insurance_fee_deduction");
+              deductionHistory.set("amount", -deduction);
+              deductionHistory.set("date", new Date().toISOString());
+              deductionHistory.set("description", "Insurance fee deduction for non-payment over 12 months");
+              deductionHistory.set("balance", totalSavings - insuranceFee);
+              $app.save(deductionHistory);
+            }
+          }
+
+          // Create company transaction record
+          const companyTransaction = new Record("company_transactions");
+          companyTransaction.set("transaction_type", "insurance_fee_deduction");
+          companyTransaction.set("amount", insuranceFee);
+          companyTransaction.set("member_id", memberId);
+          companyTransaction.set("description", `Insurance fee deduction from savings for ${memberName}`);
+          companyTransaction.set("date", new Date().toISOString());
+          $app.save(companyTransaction);
+
+          // Notify member
+          const notification = new Record("notifications");
+          notification.set("member_id", memberId);
+          notification.set("type", "insurance_fee_deduction");
+          notification.set("title", "Insurance Fee Deducted from Savings");
+          notification.set("message", `KES ${insuranceFee.toLocaleString()} has been deducted from your savings for unpaid insurance fees over the past 12 months. Please ensure timely payments to avoid future deductions.`);
+          notification.set("read_status", false);
+          $app.save(notification);
+
+          console.log(`Deducted ${insuranceFee} KSH insurance fee from savings of member ${memberId}`);
+        } else {
+          // Insufficient savings - notify member
+          const notification = new Record("notifications");
+          notification.set("member_id", memberId);
+          notification.set("type", "insurance_fee_overdue");
+          notification.set("title", "Insurance Fee Payment Required");
+          notification.set("message", `You have not paid insurance fees for the past 12 months. KES ${insuranceFee.toLocaleString()} is due. Please make payment immediately to avoid deductions from your savings.`);
+          notification.set("read_status", false);
+          $app.save(notification);
+
+          console.log(`Member ${memberId} has unpaid insurance fees but insufficient savings for deduction`);
+        }
+      }
+    });
+
+  } catch (err) {
+    console.log("Error in insurance fee deduction check: " + err.message);
+  }
+});
+
+cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
+  // Monthly check for members who haven't taken loans in 12 months - deduct 40% of bonuses
+  console.log("Running monthly bonus deduction check for non-loan takers...");
+
+  try {
+    const today = new Date();
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(today.getMonth() - 12);
+
+    // Find all members
+    const allMembers = $app.findRecordsByFilter("members", "", { limit: 10000 });
+
+    allMembers.forEach((member) => {
+      const memberId = member.id;
+
+      // Check if member has taken any loans in the last 12 months
+      const recentLoans = $app.findRecordsByFilter(
+        "loans",
+        `member_id = '${memberId}' && created >= '${twelveMonthsAgo.toISOString()}'`,
+        { limit: 1 }
+      );
+
+      if (recentLoans.length === 0) {
+        // No loans in 12 months - deduct 40% of bonuses and redistribute
+        const memberBonuses = $app.findRecordsByFilter(
+          "contributions_history",
+          `member_id = '${memberId}' && type = 'bonus' && created >= '${twelveMonthsAgo.toISOString()}'`,
+          { limit: 1000 }
+        );
+
+        let totalBonuses = 0;
+        memberBonuses.forEach((bonus) => {
+          totalBonuses += bonus.get("amount") || 0;
+        });
+
+        if (totalBonuses > 0) {
+          const deductionAmount = totalBonuses * 0.4; // 40% deduction
+
+          // Find members who took loans in the last 12 months
+          const loanTakers = [];
+          allMembers.forEach((m) => {
+            if (m.id !== memberId) {
+              const theirLoans = $app.findRecordsByFilter(
+                "loans",
+                `member_id = '${m.id}' && created >= '${twelveMonthsAgo.toISOString()}'`,
+                { limit: 1 }
+              );
+              if (theirLoans.length > 0) {
+                loanTakers.push(m);
+              }
+            }
+          });
+
+          if (loanTakers.length > 0) {
+            const bonusPerLoanTaker = (deductionAmount * 0.5) / loanTakers.length; // 50% goes to loan takers
+            const companyBonus = deductionAmount * 0.1; // 10% to company
+
+            // Distribute to loan takers
+            loanTakers.forEach((loanTaker) => {
+              // Add bonus to their contributions history
+              const bonusHistory = new Record("contributions_history");
+              bonusHistory.set("member_id", loanTaker.id);
+              bonusHistory.set("group_id", loanTaker.get("group_id"));
+              bonusHistory.set("type", "bonus_redistribution");
+              bonusHistory.set("amount", bonusPerLoanTaker);
+              bonusHistory.set("date", new Date().toISOString());
+              bonusHistory.set("description", "Bonus redistribution from non-loan takers");
+              bonusHistory.set("balance", 0); // Would need to calculate actual balance
+              $app.save(bonusHistory);
+
+              // Notify loan taker
+              const notification = new Record("notifications");
+              notification.set("member_id", loanTaker.id);
+              notification.set("type", "bonus_received");
+              notification.set("title", "Bonus Received");
+              notification.set("message", `You have received KES ${bonusPerLoanTaker.toFixed(2)} as bonus redistribution from members who haven't taken loans in the past 12 months.`);
+              notification.set("read_status", false);
+              $app.save(notification);
+            });
+
+            // Company gets 10%
+            const companyTransaction = new Record("company_transactions");
+            companyTransaction.set("transaction_type", "bonus_redistribution");
+            companyTransaction.set("amount", companyBonus);
+            companyTransaction.set("member_id", memberId);
+            companyTransaction.set("description", `Company bonus from ${member.get("first_name")} ${member.get("last_name")}'s bonus deduction`);
+            companyTransaction.set("date", new Date().toISOString());
+            $app.save(companyTransaction);
+
+            // Notify the member whose bonus was deducted
+            const deductionNotification = new Record("notifications");
+            deductionNotification.set("member_id", memberId);
+            deductionNotification.set("type", "bonus_deducted");
+            deductionNotification.set("title", "Bonus Deducted");
+            deductionNotification.set("message", `40% of your bonuses (KES ${deductionAmount.toFixed(2)}) have been deducted for not taking loans in the past 12 months. 50% distributed to loan takers, 10% to company.`);
+            deductionNotification.set("read_status", false);
+            $app.save(deductionNotification);
+
+            console.log(`Deducted ${deductionAmount.toFixed(2)} from bonuses of member ${memberId} and redistributed`);
+          }
+        }
+      }
+    });
+
+  } catch (err) {
+    console.log("Error in bonus deduction check: " + err.message);
   }
 });

@@ -79,7 +79,8 @@ const Header = () => {
 
           <nav className="hidden md:flex items-center space-x-6">
             <Link to="/" className={`text-sm font-medium transition-colors duration-200 ${isActive('/') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Home</Link>
-            <Link to="/staff" className={`text-sm font-medium transition-colors duration-200 ${isActive('/staff') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Staff</Link>            <Link to="/staff" className={`text-sm font-medium transition-colors duration-200 ${isActive('/staff') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Staff</Link>
+            <Link to="/newsletter" className={`text-sm font-medium transition-colors duration-200 ${isActive('/newsletter') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Newsletter</Link>
+            <Link to="/staff" className={`text-sm font-medium transition-colors duration-200 ${isActive('/staff') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Staff</Link>
             {!isAuthenticated && (
               <>
                 <Link to="/register" className={`text-sm font-medium transition-colors duration-200 ${isActive('/register') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Register</Link>

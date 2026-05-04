@@ -19,12 +19,13 @@ import SavingsContributionPage from '@/pages/SavingsContributionPage.jsx';
 import LoanRequestPage from '@/pages/LoanRequestPage.jsx';
 import LoanVotingPage from '@/pages/LoanVotingPage.jsx';
 import LoanRepaymentPage from '@/pages/LoanRepaymentPage.jsx';
+import LoanRepaymentTracker from '@/pages/LoanRepaymentTracker.jsx';
 import ContributionHistoryPage from '@/pages/ContributionHistoryPage.jsx';
 import NotificationCenter from '@/pages/NotificationCenter.jsx';
 import StaffPage from '@/pages/StaffPage.jsx';
 import AnalyticsDashboard from '@/pages/AnalyticsDashboard.jsx';
 import GroupMessaging from '@/pages/GroupMessaging.jsx';
-import LoanRepaymentTracker from '@/pages/LoanRepaymentTracker.jsx';
+import NewsletterPage from '@/pages/NewsletterPage.jsx';
 
 // Admin Routes
 import AdminLoginPage from '@/pages/AdminLoginPage.jsx';
@@ -75,7 +76,7 @@ function App() {
             <Route path="/admin-profile" element={<ProtectedAdminRoute><AdminProfilePage /></ProtectedAdminRoute>} />
             <Route path="/admin-activity-log" element={<ProtectedAdminRoute><AdminActivityLogPage /></ProtectedAdminRoute>} />
             <Route path="/admin-company-accounts" element={<ProtectedAdminRoute><AdminCompanyAccountsPage /></ProtectedAdminRoute>} />
-            <Route path="/analytics" element={<ProtectedAdminRoute><AnalyticsDashboard /></ProtectedAdminRoute>} />
+            <Route path="/newsletter" element={<NewsletterPage />} />
             
             <Route
               path="*"

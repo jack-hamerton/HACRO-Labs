@@ -9,8 +9,8 @@
  */
 
 const PB_URL = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
-const ADMIN_EMAIL = process.env.POCKETBASE_ADMIN_EMAIL || 'hamertonotieno99@gmail.com'; // Change this
-const ADMIN_PASSWORD = process.env.POCKETBASE_ADMIN_PASSWORD || 'E75p6p5!'; // Change this
+const ADMIN_EMAIL = process.env.POCKETBASE_ADMIN_EMAIL || process.env.POCKETBASE_SUPERUSER_EMAIL || 'hamertonotieno99@gmail.com';
+const ADMIN_PASSWORD = process.env.POCKETBASE_ADMIN_PASSWORD || process.env.POCKETBASE_SUPERUSER_PASSWORD || 'E75p6p5!';
 const ADMIN_TOKEN = process.env.POCKETBASE_ADMIN_TOKEN || null;
 
 let authToken = ADMIN_TOKEN;
@@ -22,7 +22,7 @@ async function authenticate() {
     return true;
   }
 
-  const result = await makeRequest('POST', '/api/admins/auth-with-password', {
+  const result = await makeRequest('POST', '/api/collections/_superusers/auth-with-password', {
     identity: ADMIN_EMAIL,
     password: ADMIN_PASSWORD
   });
@@ -774,6 +774,16 @@ async function main() {
         await updateCollection(guarantorsCollection.id, { schema: guarantorsCollection.schema });
       }
     }
+  }
+
+  const newslettersCollection = await getCollectionByName('newsletters');
+  if (newslettersCollection) {
+    await updateCollection(newslettersCollection.id, {
+      listRule: 'published = true',
+      viewRule: 'published = true'
+    });
+  } else {
+    console.log('⚠️  Newsletters collection not found; cannot enforce public access rules');
   }
 
   console.log('\n' + '='.repeat(70));

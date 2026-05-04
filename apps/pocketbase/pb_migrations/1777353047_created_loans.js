@@ -49,6 +49,36 @@ migrate((db) => {
           "min": "",
           "max": ""
         }
+      },
+      {
+        "system": false,
+        "id": "repayment_period",
+        "name": "repayment_period",
+        "type": "select",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "2_months",
+            "4_months",
+            "6_months"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "interest_rate",
+        "name": "interest_rate",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": 0,
+          "max": 100
+        }
       }
     ],
     "indexes": [],
