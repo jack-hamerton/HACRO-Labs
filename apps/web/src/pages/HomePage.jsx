@@ -54,7 +54,7 @@ const HomePage = () => {
                    Harnessing Community on Resource‑based  Outreach_ (HACRO) Labs
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed max-w-prose">
-                  HACRO Labs is a registered non‑profit in Kenya dedicated to digital and financial empowerment. Through training, support,
+                  HACRO Labs is a registered non‑profit organisation in Kenya dedicated to digital and financial empowerment. Through training, support,
                   and linkages, it helps members unlock their full potential and build scalable solutions for their communities.
                 </p>
 
