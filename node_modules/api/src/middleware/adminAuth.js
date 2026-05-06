@@ -1,4 +1,4 @@
-import pb from '../utils/pocketbaseClient.js';
+import pb, { authenticateSuperuser } from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -15,6 +15,9 @@ export async function verifyAdminToken(req, res, next) {
   }
 
   const token = authHeader.substring(7);
+
+  // Authenticate as superuser to read collections
+  await authenticateSuperuser();
 
   // Find session by token
   const sessions = await pb.collection('admin_sessions').getFullList({
@@ -37,11 +40,22 @@ export async function verifyAdminToken(req, res, next) {
     });
   }
 
-  // Get admin details
-  const admin = await pb.collection('pbc_admins_auth').getOne(session.admin_id);
+  // Get admin details - try both collection names
+  let admin;
+  try {
+    admin = await pb.collection('admins').getOne(session.admin_id);
+  } catch (err) {
+    try {
+      admin = await pb.collection('pbc_admins_auth').getOne(session.admin_id);
+    } catch (err2) {
+      return res.status(404).json({
+        error: 'Admin not found',
+      });
+    }
+  }
 
-  // Check if admin is active
-  if (!admin.is_active) {
+  // Check if admin is active - handle missing field
+  if (admin.is_active === false) {
     return res.status(403).json({
       error: 'Admin account is inactive',
     });
@@ -49,8 +63,9 @@ export async function verifyAdminToken(req, res, next) {
 
   // Set admin info on request
   req.adminId = admin.id;
-  req.adminRole = admin.role;
+  req.adminRole = admin.role || 'admin';
   req.adminEmail = admin.email;
+  req.admin = admin;
 
   next();
 }

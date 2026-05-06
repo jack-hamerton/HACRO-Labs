@@ -56,6 +56,10 @@ export const AdminAuthProvider = ({ children }) => {
     setToken(data.token);
     setCurrentAdmin(data.admin);
     localStorage.setItem('adminToken', data.token);
+    
+    // Store token for API requests
+    localStorage.setItem('pb_token', data.token);
+    
     return data;
   };
 
