@@ -10,10 +10,22 @@ export const AuthProvider = ({ children }) => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    if (pb.authStore.isValid && pb.authStore.model) {
-      setCurrentUser(pb.authStore.model);
-      setUserRole(pb.authStore.model.collectionName);
+    // Check if token exists in localStorage (for member login)
+    const token = localStorage.getItem('memberToken');
+    const userData = localStorage.getItem('memberData');
+    
+    if (token && userData) {
+      try {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+        setUserRole('members');
+      } catch (error) {
+        console.error('Error parsing stored member data:', error);
+        localStorage.removeItem('memberToken');
+        localStorage.removeItem('memberData');
+      }
     }
+    
     setInitialLoading(false);
   }, []);
 
@@ -28,11 +40,14 @@ export const AuthProvider = ({ children }) => {
 
     if (!res.ok) throw new Error(data.error || 'Invalid credentials');
 
-    // Store the token in PocketBase auth store for compatibility
-    pb.authStore.save(data.token, data.member);
-
+    // Store token and user data in localStorage
+    localStorage.setItem('memberToken', data.token);
+    localStorage.setItem('memberData', JSON.stringify(data.member));
+    
+    // Update context state
     setCurrentUser(data.member);
     setUserRole('members');
+    
     return data;
   };
 
@@ -51,22 +66,33 @@ export const AuthProvider = ({ children }) => {
 
     if (!res.ok) throw new Error(data.error || 'Invalid credentials');
 
-    // Store the token in PocketBase auth store for compatibility
-    pb.authStore.save(data.token, data.admin);
-
+    // Store token and admin data in localStorage
+    localStorage.setItem('adminToken', data.token);
+    localStorage.setItem('adminData', JSON.stringify(data.admin));
+    
+    // Update context state
     setCurrentUser(data.admin);
     setUserRole('admins');
+    
     return data;
   };
 
   const logout = () => {
-    pb.authStore.clear();
+    localStorage.removeItem('memberToken');
+    localStorage.removeItem('memberData');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminData');
     setCurrentUser(null);
     setUserRole(null);
   };
 
   const updateCurrentUser = (updatedUser) => {
     setCurrentUser(updatedUser);
+    if (userRole === 'members') {
+      localStorage.setItem('memberData', JSON.stringify(updatedUser));
+    } else if (userRole === 'admins') {
+      localStorage.setItem('adminData', JSON.stringify(updatedUser));
+    }
   };
 
   const value = {
@@ -76,7 +102,7 @@ export const AuthProvider = ({ children }) => {
     loginAdmin,
     logout,
     updateCurrentUser,
-    isAuthenticated: pb.authStore.isValid,
+    isAuthenticated: !!currentUser && !!userRole,
     isMember: userRole === 'members',
     isAdmin: userRole === 'admins',
   };

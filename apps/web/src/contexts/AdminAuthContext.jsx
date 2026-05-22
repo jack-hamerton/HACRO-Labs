@@ -11,10 +11,30 @@ export const AdminAuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchProfile = useCallback(async () => {
+  // Initialize admin from localStorage on mount
+  useEffect(() => {
+    const storedAdminData = localStorage.getItem('adminData');
+    const storedToken = localStorage.getItem('adminToken');
+    
+    if (storedAdminData && storedToken) {
+      try {
+        const adminData = JSON.parse(storedAdminData);
+        setCurrentAdmin(adminData);
+        setToken(storedToken);
+      } catch (error) {
+        console.error('Error parsing stored admin data:', error);
+        localStorage.removeItem('adminData');
+        localStorage.removeItem('adminToken');
+      }
+    }
+    
+    setLoading(false);
+  }, []);
+
+  const fetchProfile = useCallback(async (authToken) => {
     try {
       const res = await apiServerClient.fetch('/admin/profile', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${authToken}` }
       });
       if (res.ok) {
         const admin = await res.json();
@@ -25,18 +45,8 @@ export const AdminAuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Session error:', err);
       handleLogout();
-    } finally {
-      setLoading(false);
     }
-  }, [token]);
-
-  useEffect(() => {
-    if (token) {
-      fetchProfile();
-    } else {
-      setLoading(false);
-    }
-  }, [token, fetchProfile]);
+  }, []);
 
   const login = async (email, password) => {
     const res = await apiServerClient.fetch('/admin/login', {
@@ -53,12 +63,12 @@ export const AdminAuthProvider = ({ children }) => {
     
     if (!res.ok) throw new Error(data.error || 'Invalid credentials');
     
+    // Store token and admin data
+    localStorage.setItem('adminToken', data.token);
+    localStorage.setItem('adminData', JSON.stringify(data.admin));
+    
     setToken(data.token);
     setCurrentAdmin(data.admin);
-    localStorage.setItem('adminToken', data.token);
-    
-    // Store token for API requests
-    localStorage.setItem('pb_token', data.token);
     
     return data;
   };
@@ -67,6 +77,7 @@ export const AdminAuthProvider = ({ children }) => {
     setToken(null);
     setCurrentAdmin(null);
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminData');
   };
 
   const logout = async () => {
@@ -86,16 +97,29 @@ export const AdminAuthProvider = ({ children }) => {
     toast.success('Logged out successfully');
   };
 
+  const value = {
+    currentAdmin,
+    token,
+    isAuthenticated: !!currentAdmin && !!token,
+    login,
+    logout,
+    loading,
+    fetchProfile
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 admin-theme">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <AdminAuthContext.Provider value={{
-      currentAdmin,
-      token,
-      isAuthenticated: !!currentAdmin,
-      login,
-      logout,
-      loading,
-      fetchProfile
-    }}>
+    <AdminAuthContext.Provider value={value}>
       {children}
     </AdminAuthContext.Provider>
   );

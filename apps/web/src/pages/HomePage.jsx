@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Canvas } from '@react-three/fiber';
 import { Users, Shield, TrendingUp, Award, ArrowRight } from 'lucide-react';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
+import { EnergyScene } from '@/components/ui/EnergyScene.jsx';
 const HomePage = () => {
   const benefits = [{
     icon: Shield,
@@ -25,8 +27,23 @@ const HomePage = () => {
         <meta name="description" content="Join Hacro Labs to gain digital and financial skills, connect with supportive networks, and unlock your full potential while building solutions that uplift communities." />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <div className="relative min-h-screen bg-background text-white overflow-x-hidden">
         <Header />
+
+        <div className="fixed inset-0 z-0 pointer-events-none w-full h-full">
+          <Canvas
+            camera={{ position: [0, 0, 8], fov: 50 }}
+            style={{ width: '100%', height: '100%', display: 'block' }}
+          >
+            <ambientLight intensity={1} />
+            <pointLight position={[20, 20, 20]} intensity={2} />
+            <pointLight position={[-20, -20, 20]} intensity={1.5} color="#22c55e" />
+            <Suspense fallback={null}>
+              <EnergyScene />
+            </Suspense>
+          </Canvas>
+          <div className="absolute inset-0 bg-black/10" />
+        </div>
 
         <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0" style={{
@@ -34,7 +51,7 @@ const HomePage = () => {
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/90 to-background/80"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/70 to-black/90"></div>
           </div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -48,12 +65,12 @@ const HomePage = () => {
             }} transition={{
               duration: 0.6
             }}>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight text-balance" style={{
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight text-balance" style={{
                 letterSpacing: '-0.02em'
               }}>
-                   Harnessing Community on Resource‑based  Outreach_ (HACRO) Labs
+                   Harnessing Community on Resource‑based Outreach_ (HACRO) Labs
                 </h1>
-                <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed max-w-prose">
+                <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-prose">
                   HACRO Labs is a registered non‑profit organisation in Kenya dedicated to digital and financial empowerment. Through training, support,
                   and linkages, it helps members unlock their full potential and build scalable solutions for their communities.
                 </p>

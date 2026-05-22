@@ -9,15 +9,17 @@ const ProtectedAdminRoute = ({ children, requireSuperAdmin = false }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 admin-theme">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
       </div>
     );
   }
 
-  if (!isAuthenticated) {
+  // Check if user is authenticated (must have both token and currentAdmin)
+  if (!isAuthenticated || !currentAdmin) {
     return <Navigate to="/admin-login" replace />;
   }
 
+  // Check if super admin is required
   if (requireSuperAdmin && currentAdmin?.role !== 'super_admin') {
     return <Navigate to="/admin-dashboard" replace />;
   }
