@@ -23,7 +23,7 @@ const HomePage = () => {
   }];
   return <>
       <Helmet>
-        <title>HACRO Labs - Professional Membership Platform</title>
+        <title>HACRO Labs - Membership Platform</title>
         <meta name="description" content="Join Hacro Labs to gain digital and financial skills, connect with supportive networks, and unlock your full potential while building solutions that uplift communities." />
       </Helmet>
 
