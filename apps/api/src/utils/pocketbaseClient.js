@@ -1,6 +1,6 @@
 import PocketBase from 'pocketbase';
 
-const baseUrl = process.env.POCKETBASE_URL || 'http://localhost:8090';
+const baseUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
 
 const pb = new PocketBase(baseUrl);
 const authPb = new PocketBase(baseUrl);

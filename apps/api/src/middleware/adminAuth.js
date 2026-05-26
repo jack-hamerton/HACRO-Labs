@@ -43,10 +43,10 @@ export async function verifyAdminToken(req, res, next) {
   // Get admin details - try both collection names
   let admin;
   try {
-    admin = await pb.collection('admins').getOne(session.admin_id);
+    admin = await pb.collection('pbc_admins_auth').getOne(session.admin_id);
   } catch (err) {
     try {
-      admin = await pb.collection('pbc_admins_auth').getOne(session.admin_id);
+      admin = await pb.collection('admins').getOne(session.admin_id);
     } catch (err2) {
       return res.status(404).json({
         error: 'Admin not found',

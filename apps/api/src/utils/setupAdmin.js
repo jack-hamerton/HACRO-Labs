@@ -28,13 +28,13 @@ export async function setupAdminCredentials() {
     for (const adminData of testAdmins) {
       try {
         // Check if admin exists
-        const existing = await pb.collection('admins').getFullList({
+        const existing = await pb.collection('pbc_admins_auth').getFullList({
           filter: `email = "${adminData.email}"`,
         });
 
         if (existing.length > 0) {
           // Update password
-          await pb.collection('admins').update(existing[0].id, {
+          await pb.collection('pbc_admins_auth').update(existing[0].id, {
             password: adminData.password,
             passwordConfirm: adminData.password,
             full_name: adminData.full_name,
@@ -43,7 +43,7 @@ export async function setupAdminCredentials() {
           logger.info(`Updated admin password for: ${adminData.email}`);
         } else {
           // Create new admin
-          await pb.collection('admins').create({
+          await pb.collection('pbc_admins_auth').create({
             email: adminData.email,
             password: adminData.password,
             passwordConfirm: adminData.password,

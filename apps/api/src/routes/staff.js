@@ -7,7 +7,13 @@ router.get('/', async (req, res) => {
   try {
     await authenticateSuperuser();
 
-    const staffRecords = await pb.collection('staff_members').getFullList({ sort: 'priority' });
+    let staffRecords;
+    try {
+      staffRecords = await pb.collection('staff_members').getFullList({ sort: 'priority' });
+    } catch (error) {
+      // Fallback if the priority field does not exist or sorting fails
+      staffRecords = await pb.collection('staff_members').getFullList();
+    }
 
     const staff = staffRecords.map((record) => ({
       id: record.id,

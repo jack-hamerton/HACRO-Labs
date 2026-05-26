@@ -78,11 +78,11 @@ const AdminLayout = ({ children }) => {
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold uppercase">
-              {currentAdmin?.full_name?.charAt(0) || 'A'}
+              {(currentAdmin?.full_name || currentAdmin?.email || 'Admin').charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-sm font-medium text-white line-clamp-1">{currentAdmin?.full_name}</p>
-              <p className="text-xs text-slate-500 capitalize">{currentAdmin?.role.replace('_', ' ')}</p>
+              <p className="text-sm font-medium text-white line-clamp-1">{currentAdmin?.full_name || currentAdmin?.email || 'Admin User'}</p>
+              <p className="text-xs text-slate-500 capitalize">{(currentAdmin?.role || 'admin').replace('_', ' ')}</p>
             </div>
           </div>
 

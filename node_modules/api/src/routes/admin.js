@@ -1,10 +1,14 @@
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
 import pb, { authPb, authenticateSuperuser } from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 import { generateToken, generatePassword, validatePassword } from '../utils/adminUtils.js';
 import { verifyAdminToken, requireSuperAdmin } from '../middleware/adminAuth.js';
 
 const router = express.Router();
+const logFile = path.resolve(path.join(process.cwd(), 'logs', 'api.log'));
+function appendLog(...parts) { try { fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${parts.join(' ')}\n`); } catch (e) {} }
 
 /**
  * POST /admin/login
@@ -43,9 +47,11 @@ router.post('/login', async (req, res) => {
   // Attempt authentication
   let authData;
   try {
-    authData = await authPb.collection('admins').authWithPassword(email, password);
+    authData = await authPb.collection('pbc_admins_auth').authWithPassword(email, password);
   } catch (error) {
     logger.warn(`Failed login attempt for ${email}:`, error.message);
+    appendLog('[ADMIN LOGIN ERROR]', 'email=', email, 'error=', error.stack || error.message || error);
+    console.error('[ADMIN LOGIN ERROR]', error);
 
     // Increment failed attempts (disabled for development)
     /*
@@ -95,7 +101,7 @@ router.post('/login', async (req, res) => {
 
   // Update last login if the field exists
   try {
-    await pb.collection('admins').update(authData.record.id, {
+    await pb.collection('pbc_admins_auth').update(authData.record.id, {
       last_login: now.toISOString(),
     });
   } catch (error) {
@@ -117,8 +123,8 @@ router.post('/login', async (req, res) => {
     admin: {
       id: authData.record.id,
       email: authData.record.email,
-      full_name: `${authData.record.first_name || ''} ${authData.record.last_name || ''}`.trim() || 'Admin User',
-      role: 'super_admin', // Default role for admins
+      full_name: authData.record.full_name || `${authData.record.first_name || ''} ${authData.record.last_name || ''}`.trim() || authData.record.email,
+      role: authData.record.role || 'super_admin',
     },
   });
 });
@@ -311,8 +317,8 @@ router.get('/profile', verifyAdminToken, async (req, res) => {
   res.json({
     id: admin.id,
     email: admin.email,
-    full_name: admin.full_name,
-    role: admin.role,
+    full_name: admin.full_name || `${admin.first_name || ''} ${admin.last_name || ''}`.trim() || admin.email,
+    role: admin.role || 'admin',
     phone: admin.phone || null,
     created_date: admin.created,
     last_login: admin.last_login || null,
@@ -387,11 +393,11 @@ router.get('/activity-log', verifyAdminToken, async (req, res) => {
   }
 
   if (startDate) {
-    filters.push(`created_date >= "${startDate}"`);
+    filters.push(`created >= "${startDate}"`);
   }
 
   if (endDate) {
-    filters.push(`created_date <= "${endDate}"`);
+    filters.push(`created <= "${endDate}"`);
   }
 
   if (search) {
