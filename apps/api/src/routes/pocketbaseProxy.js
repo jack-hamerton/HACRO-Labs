@@ -1,33 +1,51 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 const pocketbaseUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
-const logFile = path.resolve(path.join(process.cwd(), 'logs', 'api.log'));
+const logFile = path.resolve(path.join(__dirname, '../../../logs', 'api.log'));
 
 function appendLog(...parts) {
   try {
+    fs.mkdirSync(path.dirname(logFile), { recursive: true });
     fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${parts.join(' ')}\n`);
   } catch (e) {
-    // ignore logging errors
+    console.error('[PB PROXY LOG ERROR]', e);
   }
 }
 
 router.use(async (req, res, next) => {
-  const targetPath = req.url || '/';
-  const targetUrl = `${pocketbaseUrl}${targetPath}`;
+  const rawPath = req.url || '/';
+  const mountedPrefix = req.baseUrl || '';
+  const targetPath = mountedPrefix && rawPath.startsWith(mountedPrefix)
+    ? rawPath.slice(mountedPrefix.length)
+    : rawPath;
+  const targetUrl = `${pocketbaseUrl}${targetPath || '/'}`;
   appendLog('[PB PROXY]', req.method, '->', targetUrl);
   const proxyHeaders = { ...req.headers };
   delete proxyHeaders.host;
   delete proxyHeaders['content-length'];
 
+  let proxyBody;
+  if (!['GET', 'HEAD'].includes(req.method)) {
+    if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+      proxyBody = JSON.stringify(req.body);
+      proxyHeaders['content-type'] = 'application/json';
+    } else {
+      proxyBody = undefined;
+    }
+  }
+
   try {
     const proxyResponse = await fetch(targetUrl, {
       method: req.method,
       headers: proxyHeaders,
-      body: ['GET', 'HEAD'].includes(req.method) ? undefined : req,
+      body: proxyBody,
       redirect: 'manual',
     });
 
@@ -60,7 +78,8 @@ router.use(async (req, res, next) => {
     const body = await proxyResponse.text();
     res.send(body);
   } catch (error) {
-    appendLog('[PB PROXY] ERROR', error.message || error);
+    appendLog('[PB PROXY] ERROR', error.stack || error.message || error);
+    console.error('[PB PROXY] ERROR', error);
     next(error);
   }
 });

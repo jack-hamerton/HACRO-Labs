@@ -68,7 +68,7 @@ app.use(express.urlencoded({
 	limit: BodyLimit,
 }));
 
-app.use('/api/pocketbase', pocketbaseProxy);
+app.use(['/api/pocketbase', '/pocketbase'], pocketbaseProxy);
 app.get('/api', (req, res) => {
 	res.json({
 		message: 'HACRO Labs API server',

@@ -87,17 +87,25 @@ router.post('/login', async (req, res) => {
   const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
   const userAgent = req.get('user-agent') || 'unknown';
 
-  // Authenticate superuser for privileged operations
-  await authenticateSuperuser();
-
-  // Create session
-  await pb.collection('admin_sessions').create({
-    admin_id: authData.record.id,
-    token,
-    expires_date: expiresDate.toISOString(),
-    ip_address: ipAddress,
-    user_agent: userAgent,
-  });
+  // Authenticate superuser for privileged operations and create a backend session if configured
+  let createdSession = false;
+  if (process.env.POCKETBASE_SUPERUSER_EMAIL && process.env.POCKETBASE_SUPERUSER_PASSWORD) {
+    try {
+      await authenticateSuperuser();
+      await pb.collection('admin_sessions').create({
+        admin_id: authData.record.id,
+        token,
+        expires_date: expiresDate.toISOString(),
+        ip_address: ipAddress,
+        user_agent: userAgent,
+      });
+      createdSession = true;
+    } catch (error) {
+      logger.warn('Skipping admin session creation:', error.message || error);
+    }
+  } else {
+    logger.warn('POCKETBASE_SUPERUSER_EMAIL and POCKETBASE_SUPERUSER_PASSWORD not configured; skipping admin session creation.');
+  }
 
   // Update last login if the field exists
   try {
@@ -109,17 +117,23 @@ router.post('/login', async (req, res) => {
   }
 
   // Log activity
-  await pb.collection('admin_activity_log').create({
-    admin_id: authData.record.id,
-    action: 'login',
-    ip_address: ipAddress,
-    user_agent: userAgent,
-  });
+  try {
+    await pb.collection('admin_activity_log').create({
+      admin_id: authData.record.id,
+      action: 'login',
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    });
+  } catch (error) {
+    logger.warn('Failed to write admin login activity log:', error.message || error);
+  }
 
   logger.info(`Admin logged in: ${email}`);
 
+  const responseToken = createdSession ? token : authData.token;
+
   res.json({
-    token,
+    token: responseToken,
     admin: {
       id: authData.record.id,
       email: authData.record.email,
@@ -142,27 +156,36 @@ router.post('/logout', verifyAdminToken, async (req, res) => {
     });
   }
 
-  // Authenticate superuser for privileged operations
-  await authenticateSuperuser();
+  if (process.env.POCKETBASE_SUPERUSER_EMAIL && process.env.POCKETBASE_SUPERUSER_PASSWORD) {
+    try {
+      await authenticateSuperuser();
+      const sessions = await pb.collection('admin_sessions').getFullList({
+        filter: `token = "${token}"`,
+      });
 
-  // Find and delete session
-  const sessions = await pb.collection('admin_sessions').getFullList({
-    filter: `token = "${token}"`,
-  });
+      if (sessions.length > 0) {
+        const adminId = sessions[0].admin_id;
+        await pb.collection('admin_sessions').delete(sessions[0].id);
 
-  if (sessions.length > 0) {
-    const adminId = sessions[0].admin_id;
-    await pb.collection('admin_sessions').delete(sessions[0].id);
+        // Log activity
+        try {
+          await pb.collection('admin_activity_log').create({
+            admin_id: adminId,
+            action: 'logout',
+            ip_address: req.ip || req.connection.remoteAddress || 'unknown',
+            user_agent: req.get('user-agent') || 'unknown',
+          });
+        } catch (err) {
+          logger.warn('Failed to write admin logout activity log:', err.message || err);
+        }
 
-    // Log activity
-    await pb.collection('admin_activity_log').create({
-      admin_id: adminId,
-      action: 'logout',
-      ip_address: req.ip || req.connection.remoteAddress || 'unknown',
-      user_agent: req.get('user-agent') || 'unknown',
-    });
-
-    logger.info(`Admin logged out: ${adminId}`);
+        logger.info(`Admin logged out: ${adminId}`);
+      }
+    } catch (error) {
+      logger.warn('Skipping admin session deletion during logout:', error.message || error);
+    }
+  } else {
+    logger.warn('POCKETBASE_SUPERUSER_EMAIL and POCKETBASE_SUPERUSER_PASSWORD not configured; skipping session cleanup on logout.');
   }
 
   res.json({ success: true });

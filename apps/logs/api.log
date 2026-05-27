@@ -1,0 +1,10 @@
+[2026-05-27T07:43:07.009Z] [PB PROXY] POST -> http://127.0.0.1:8090/api/collections/pbc_admins_auth/auth-with-password
+[2026-05-27T07:43:07.103Z] [PB PROXY] RESPONSE 200 http://127.0.0.1:8090/api/collections/pbc_admins_auth/auth-with-password
+[2026-05-27T07:43:40.203Z] [PB PROXY] GET -> http://127.0.0.1:8090/_/
+[2026-05-27T07:43:40.211Z] [PB PROXY] RESPONSE 200 http://127.0.0.1:8090/_/
+[2026-05-27T07:43:40.253Z] [PB PROXY] GET -> http://127.0.0.1:8090/_/
+[2026-05-27T07:43:40.262Z] [PB PROXY] RESPONSE 200 http://127.0.0.1:8090/_/
+[2026-05-27T08:29:21.146Z] [ERROR] ClientResponseError 403: Only superusers can perform this action.
+    at file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37329
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:433:19

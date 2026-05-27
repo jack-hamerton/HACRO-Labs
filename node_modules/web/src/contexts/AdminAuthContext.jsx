@@ -1,65 +1,89 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiServerClient from '@/lib/apiServerClient.js';
+import pb from '@/lib/pocketbaseClient.js';
 import { toast } from 'sonner';
 
 const AdminAuthContext = createContext(null);
 
 export const AdminAuthProvider = ({ children }) => {
   const [currentAdmin, setCurrentAdmin] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('adminToken'));
+  const [token, setToken] = useState(pb.authStore.token || localStorage.getItem('adminToken'));
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchProfile = useCallback(async () => {
-    try {
-      const res = await apiServerClient.fetch('/admin/profile', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const admin = await res.json();
-        setCurrentAdmin(admin);
-      } else {
-        throw new Error('Invalid session');
-      }
-    } catch (err) {
-      console.error('Session error:', err);
-      handleLogout();
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
-
   useEffect(() => {
-    if (token) {
-      fetchProfile();
-    } else {
+    const loadAdmin = async () => {
+      const storedToken = localStorage.getItem('adminToken') || pb.authStore.token;
+
+      if (pb.authStore.isValid && pb.authStore.model) {
+        setCurrentAdmin(pb.authStore.model);
+        setToken(pb.authStore.token);
+        setLoading(false);
+        return;
+      } else if (storedToken) {
+        try {
+          pb.authStore.save(storedToken, pb.authStore.model || null);
+          if (pb.authStore.isValid && pb.authStore.model) {
+            setCurrentAdmin(pb.authStore.model);
+            setToken(storedToken);
+            setLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.warn('Failed to restore admin token from storage:', error.message || error);
+        }
+
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('pb_token');
+        pb.authStore.clear();
+        setToken(null);
+        setCurrentAdmin(null);
+      }
       setLoading(false);
+    };
+
+    loadAdmin();
+  }, []);
+
+  const fetchProfile = async () => {
+    if (!pb.authStore.isValid) return null;
+
+    try {
+      const recordId = pb.authStore.model?.id;
+      if (!recordId) {
+        const auth = await pb.collection('pbc_admins_auth').authRefresh();
+        if (!auth?.record) return null;
+        setCurrentAdmin(auth.record);
+        setToken(auth.token);
+        localStorage.setItem('adminToken', auth.token);
+        localStorage.setItem('pb_token', auth.token);
+        return auth.record;
+      }
+
+      const admin = await pb.collection('pbc_admins_auth').getOne(recordId);
+      setCurrentAdmin(admin);
+      return admin;
+    } catch (error) {
+      console.error('Failed to fetch admin profile:', error.message || error);
+      return null;
     }
-  }, [token, fetchProfile]);
+  };
 
   const login = async (email, password) => {
-    const res = await apiServerClient.fetch('/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    
-    const data = await res.json();
-    
-    if (res.status === 429) {
-      throw new Error('Too many failed attempts. Please try again in 15 minutes.');
-    }
-    
-    if (!res.ok) throw new Error(data.error || 'Invalid credentials');
-    
+    const auth = await pb.collection('pbc_admins_auth').authWithPassword(email, password);
+    if (!auth || !auth.token) throw new Error('Invalid credentials');
+
+    const data = { token: auth.token, admin: auth.record };
     setToken(data.token);
     setCurrentAdmin(data.admin);
     localStorage.setItem('adminToken', data.token);
-    
-    // Store token for API requests
     localStorage.setItem('pb_token', data.token);
-    
+    try {
+      pb.authStore.save(data.token, data.admin);
+    } catch (e) {
+      console.error('Admin auth store save failed:', e);
+    }
+
     return data;
   };
 
@@ -67,20 +91,11 @@ export const AdminAuthProvider = ({ children }) => {
     setToken(null);
     setCurrentAdmin(null);
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('pb_token');
   };
 
   const logout = async () => {
-    if (token) {
-      try {
-        await apiServerClient.fetch('/admin/logout', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ token })
-        });
-      } catch (e) {
-        console.error('Logout error:', e);
-      }
-    }
+    pb.authStore.clear();
     handleLogout();
     navigate('/admin-login');
     toast.success('Logged out successfully');
@@ -94,7 +109,7 @@ export const AdminAuthProvider = ({ children }) => {
       login,
       logout,
       loading,
-      fetchProfile
+      fetchProfile,
     }}>
       {children}
     </AdminAuthContext.Provider>

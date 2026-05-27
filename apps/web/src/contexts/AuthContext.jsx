@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import pb from '@/lib/pocketbaseClient';
-import apiServerClient from '@/lib/apiServerClient.js';
 
 const AuthContext = createContext(null);
 
@@ -9,54 +8,39 @@ export const AuthProvider = ({ children }) => {
   const [userRole, setUserRole] = useState(null);
   const [initialLoading, setInitialLoading] = useState(true);
 
+  const resolveUserRole = (model) => {
+    if (!model) return null;
+    if (model.collectionName === 'members') return 'members';
+    if (['pbc_admins_auth', '_superusers', 'admins'].includes(model.collectionName)) return 'admins';
+    return model.collectionName;
+  };
+
   useEffect(() => {
     if (pb.authStore.isValid && pb.authStore.model) {
       setCurrentUser(pb.authStore.model);
-      setUserRole(pb.authStore.model.collectionName);
+      setUserRole(resolveUserRole(pb.authStore.model));
     }
     setInitialLoading(false);
   }, []);
 
   const loginMember = async (email, password) => {
-    const res = await apiServerClient.fetch('/members/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    const auth = await pb.collection('members').authWithPassword(email, password);
+    if (!auth || !auth.token) throw new Error('Invalid credentials');
 
-    const data = await res.json();
-
-    if (!res.ok) throw new Error(data.error || 'Invalid credentials');
-
-    // Store the token in PocketBase auth store for compatibility
-    pb.authStore.save(data.token, data.member);
-
-    setCurrentUser(data.member);
+    pb.authStore.save(auth.token, auth.record);
+    setCurrentUser(auth.record);
     setUserRole('members');
-    return data;
+    return { token: auth.token, member: auth.record };
   };
 
   const loginAdmin = async (email, password) => {
-    const res = await apiServerClient.fetch('/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    const auth = await pb.collection('pbc_admins_auth').authWithPassword(email, password);
+    if (!auth || !auth.token) throw new Error('Invalid credentials');
 
-    const data = await res.json();
-
-    if (res.status === 429) {
-      throw new Error('Too many failed attempts. Please try again in 15 minutes.');
-    }
-
-    if (!res.ok) throw new Error(data.error || 'Invalid credentials');
-
-    // Store the token in PocketBase auth store for compatibility
-    pb.authStore.save(data.token, data.admin);
-
-    setCurrentUser(data.admin);
+    pb.authStore.save(auth.token, auth.record);
+    setCurrentUser(auth.record);
     setUserRole('admins');
-    return data;
+    return { token: auth.token, admin: auth.record };
   };
 
   const logout = () => {
