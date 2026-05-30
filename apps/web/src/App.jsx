@@ -33,6 +33,8 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import AdminDashboardPage from '@/pages/AdminDashboardPage.jsx';
 import AdminManagementPage from '@/pages/AdminManagementPage.jsx';
+import AdminLoanManagementPage from '@/pages/AdminLoanManagementPage.jsx';
+import AdminPaymentManagementPage from '@/pages/AdminPaymentManagementPage.jsx';
 import AdminProfilePage from '@/pages/AdminProfilePage.jsx';
 import AdminActivityLogPage from '@/pages/AdminActivityLogPage.jsx';
 import AdminCompanyAccountsPage from '@/pages/AdminCompanyAccountsPage.jsx';
@@ -72,7 +74,10 @@ function App() {
 
             {/* Admin Protected Routes */}
             <Route path="/admin-dashboard" element={<ProtectedAdminRoute><AdminDashboardPage /></ProtectedAdminRoute>} />
+            <Route path="/analytics" element={<ProtectedAdminRoute><AnalyticsDashboard /></ProtectedAdminRoute>} />
             <Route path="/admin-manage-admins" element={<ProtectedAdminRoute requireSuperAdmin><AdminManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-loan-management" element={<ProtectedAdminRoute><AdminLoanManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-payment-management" element={<ProtectedAdminRoute><AdminPaymentManagementPage /></ProtectedAdminRoute>} />
             <Route path="/admin-profile" element={<ProtectedAdminRoute><AdminProfilePage /></ProtectedAdminRoute>} />
             <Route path="/admin-activity-log" element={<ProtectedAdminRoute><AdminActivityLogPage /></ProtectedAdminRoute>} />
             <Route path="/admin-company-accounts" element={<ProtectedAdminRoute><AdminCompanyAccountsPage /></ProtectedAdminRoute>} />

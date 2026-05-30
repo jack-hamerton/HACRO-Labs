@@ -378,9 +378,11 @@ async function main() {
         }
       },
       { name: 'amount', type: 'number', required: true },
-      { name: 'payment_date', type: 'date', required: true },
+      { name: 'payment_date', type: 'date', required: false },
       { name: 'mpesa_reference', type: 'text', required: false },
       { name: 'checkout_request_id', type: 'text', required: false },
+      { name: 'payment_type', type: 'select', required: false, options: { values: ['registration', 'registration_installment', 'insurance', 'loan_repayment', 'other'] } },
+      { name: 'scheduled_date', type: 'date', required: false },
       { name: 'payment_status', type: 'select', required: true, options: { values: ['pending', 'completed', 'failed'] } },
       {
         name: 'acknowledgment_file',

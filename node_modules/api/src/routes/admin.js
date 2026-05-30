@@ -722,7 +722,7 @@ router.get('/company-accounts', verifyAdminToken, async (req, res) => {
 
     // Aggregate registration fees
     const registrationPayments = await pb.collection('payments').getFullList({
-      filter: 'payment_type = "registration" && payment_status = "completed"',
+      filter: '(payment_type = "registration" || payment_type = "registration_installment") && payment_status = "completed"',
       $autoCancel: false
     });
 

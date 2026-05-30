@@ -487,7 +487,7 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
             deductionNotification.set("member_id", memberId);
             deductionNotification.set("type", "bonus_deducted");
             deductionNotification.set("title", "Bonus Deducted");
-            deductionNotification.set("message", `40% of your bonuses (KES ${deductionAmount.toFixed(2)}) have been deducted for not taking loans in the past 12 months. 50% distributed to loan takers, 10% to company.`);
+            deductionNotification.set("message", `60% of your bonuses (KES ${deductionAmount.toFixed(2)}) have been deducted for not taking loans in the past 12 months. 50% distributed to loan takers, 10% to company.`);
             deductionNotification.set("read_status", false);
             $app.save(deductionNotification);
 

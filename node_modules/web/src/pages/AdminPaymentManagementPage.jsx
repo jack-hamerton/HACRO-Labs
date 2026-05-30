@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { DollarSign, Search, Filter, Download } from 'lucide-react';
+import { DollarSign, Search, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
-import Header from '@/components/Header.jsx';
-import Footer from '@/components/Footer.jsx';
+import AdminLayout from '@/components/AdminLayout.jsx';
 
 const AdminPaymentManagementPage = () => {
   const [payments, setPayments] = useState([]);
@@ -33,15 +32,6 @@ const AdminPaymentManagementPage = () => {
     }
   };
 
-  const handleDownloadFile = (payment) => {
-    if (payment.acknowledgment_file) {
-      const fileUrl = pb.files.getUrl(payment, payment.acknowledgment_file);
-      window.open(fileUrl, '_blank');
-    } else {
-      toast.error('No acknowledgment file attached to this payment');
-    }
-  };
-
   const filteredPayments = payments.filter((payment) => {
     const memberName = payment.expand?.member_id 
       ? `${payment.expand.member_id.first_name} ${payment.expand.member_id.last_name}`.toLowerCase() 
@@ -54,33 +44,24 @@ const AdminPaymentManagementPage = () => {
     return matchesSearch && matchesStatus;
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <>
+    <AdminLayout>
       <Helmet>
         <title>Payment Management - Admin - Hacro Labs</title>
         <meta name="description" content="Manage all member payments and transactions." />
       </Helmet>
 
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Payment Management</h1>
+          <p className="text-muted-foreground">Monitor member payments with no header action buttons.</p>
+        </div>
 
-        <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Payment Management</h1>
-            <p className="text-muted-foreground">Monitor and manage all member transactions</p>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
-
+        ) : (
           <div className="dashboard-card mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="relative">
@@ -118,7 +99,7 @@ const AdminPaymentManagementPage = () => {
                     <th className="table-header">Amount</th>
                     <th className="table-header">M-Pesa Reference</th>
                     <th className="table-header">Status</th>
-                    <th className="table-header text-right">File</th>
+                    <th className="table-header text-right">Receipt</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -139,30 +120,18 @@ const AdminPaymentManagementPage = () => {
                         {payment.mpesa_reference || payment.checkout_request_id || '-'}
                       </td>
                       <td className="table-cell">
-                        <span
-                          className={
-                            payment.payment_status === 'completed'
-                              ? 'badge-completed'
-                              : payment.payment_status === 'pending'
-                              ? 'badge-pending'
-                              : 'badge-failed'
-                          }
-                        >
+                        <span className={
+                          payment.payment_status === 'completed'
+                            ? 'badge-completed'
+                            : payment.payment_status === 'pending'
+                            ? 'badge-pending'
+                            : 'badge-failed'
+                        }>
                           {payment.payment_status}
                         </span>
                       </td>
-                      <td className="table-cell text-right">
-                        {payment.acknowledgment_file ? (
-                          <button
-                            onClick={() => handleDownloadFile(payment)}
-                            className="inline-flex items-center justify-center p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                            title="Download attachment"
-                          >
-                            <Download className="w-4 h-4" />
-                          </button>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">No file</span>
-                        )}
+                      <td className="table-cell text-right text-xs text-slate-500">
+                        {payment.acknowledgment_file ? 'Attachment available' : 'No file'}
                       </td>
                     </tr>
                   ))}
@@ -179,11 +148,9 @@ const AdminPaymentManagementPage = () => {
               </table>
             </div>
           </div>
-        </div>
-
-        <Footer />
+        )}
       </div>
-    </>
+    </AdminLayout>
   );
 };
 

@@ -1,33 +1,224 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, User, Mail, CreditCard, Loader2, Upload } from 'lucide-react';
+import { ChevronRight, ChevronLeft, User, Mail, CreditCard, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import apiServerClient from '@/lib/apiServerClient.js';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 
-const KENYA_REGIONS = [
-  'Nairobi', 'Kisumu', 'Mombasa', 'Nakuru', 'Eldoret', 
-  'Kericho', 'Kisii', 'Nyeri', 'Muranga', 'Machakos', 
-  'Naivasha', 'Isiolo', 'Garissa', 'Wajir', 'Turkana', 
-  'Marsabit', 'Mandera', 'Lamu', 'Tana River',
-  'Kitui', 'Embu', 'Tharaka Nithi', 'Meru', 'Bungoma', 
-  'Busia', 'Vihiga', 'Siaya', 'Migori', 'Homa Bay', 
-  'Kakamega', 'Trans Nzoia', 'Uasin Gishu', 'Elgeyo Marakwet', 
-  'Nandi', 'Samburu', 'West Pokot', 'Bomet', 'Narok', 'Kajiado', 
-  'Laikipia', 'Nyandarua', 'Nyamira', 'Kirinyaga', 'Kwale', 'Kilifi', 
-  'Taita Taveta', 'Makueni', 'Mwingi','Bondo', 'Usenge', 'Osieko', 'Rongo',
-  'Awendo', 'Kendu Bay', 'Sindo', 'Bumala', 'Matayos', 'Bukhayo',
-  'Mumias', 'Butere', 'Chavakali', 'Lugari', 'Likuyani', 'Malava',
-  'Shinyalu', 'Navakholo', 'Matungu', 'Khwisero', 'Luanda','Mumias East', 
-  'Mumias West', 'Butere', 'Khwisero', 'Matungu', 'Shinyalu', 'Navakholo', 
-  'Lugari', 'Likuyani', 'Malava', 'Matayos', 'Kombewa', 'Awasi', 'Nyakach', 
-  'Seme', 'Muhoroni', 'Nyando', 'Kisumu West', 'Kisumu East','Wich Lum', 'Dunga', 
-  'Kisian', 'Nyaera', 'Maseno','Rangwe', 'Nyalenda A', 'Nyalenda B', 'Manyatta A',
-  'Manyatta B', 'Nyamasaria', 'Kondele', 
-];
+// Dynmic loctions
+const KENYA_LOCATION_DATA = {
+  'Siaya County': {
+    'Alego Usonga': {
+      'Central Alego': ['Oner', 'Boro', 'Kanyaboli', 'Nyajuok'],
+      'North Alego': ['Komolo', 'Hono', 'Nyamila', 'Kowet', 'Ulafu', 'Umala', 'Nyalgunga'],
+      'South East Alego': ['Bar-Agulu', 'Masumbi', 'Mur-Ngiya', 'Nyangoma Kogelo', 'Bar Olengo', 'Barding', 'Mur Malanga', 'Nyajuok', 'Randago'],
+      'West Alego': ['Gangu', 'Kabura Uhuyi', 'Kalkada Uradi', 'Kaugagi Hawinga', 'Kaugagi Udenda', 'Kodiere', 'Komenya Kalaka', 'Komenya Kowala', 'Mahola Ulawe', 'Sigoma Uranga'],
+      'Siaya Township': ['Karapul', 'Mulaha', 'Nyandiwa'],
+      'Usonga': ['Sumba', 'Nyadorera "A"', 'Nyadorera "B"']
+    },
+    'Bondo': {
+      'Central Sakwa': ['Nyangoma', 'Barkanyango', 'Uyawi', 'Ndeda / Oyamo'],
+      'North Sakwa': ['Ajigo', 'Bar Kowino', 'Bar Kowino West', 'Abom', 'Bar Chando'],
+      'South Sakwa': ['East Migwena', 'West Migwena', 'Got Abiero', 'Nyaguda'],
+      'West Sakwa': ['Maranda', 'Kapiyo', 'Nyawita', 'Usire','Utonga'],
+      'East Yimbo': ['Got Ramogi', 'Usigu', 'Barkanyango', 'Pala', 'Nyamonye', 'Othach'],
+      'West Yimbo': ['Usenge', 'Got Agulu', 'Mahanga', 'Mitundu']
+    },
+    'Gem': {
+      'Central Gem': ['Onera', 'Malele', 'Kathomo', 'Gero', 'Nyanza', 'Anyiko'],
+      'East Gem': ['Marenyo', 'Lihanda', 'Ramula'],
+      'North Gem': ['Ndere', 'Nyabeda', 'Malanga', 'Got Regea', 'Maliera', 'Lundha', 'Asayi', 'Sirembe'],
+      'South Gem': ['Rera', 'Kambare', 'Ndori', 'Gombe', 'Onyinyore', 'Kanyadet', 'Kaudha West', 'Kaudha East'],
+      'West Gem': ['Wagai East', 'Wagai West', 'Dienya East', 'Dienya West', 'Malunga East', 'Malunga Central', 'Malunga West', 'Uriri', 'Nguge', 'Ulamba'],
+      'Yala Township': ['Anyiko', 'Sauri', 'Nyamninia', 'Ulumbi', 'Umiru']
+    },
+     'Rarieda': {
+      'East Asembo': ['Omia Diere', 'Omia Malo', 'North Ramba', 'South Ramba'],
+      'West Asembo': ['Central Asembo', 'Mahaya', 'Nyagoko', 'Memba'],
+      'North Uyoma': ['North Ramba', 'South Ramba', 'Masala', 'Upper Katwenga', 'Lower Katwenga', 'Kochieng'],
+      'South Uyoma': ['Naya', 'Ndigwa', 'Kagwel', 'Kiwiro', 'Koyoko'],
+      'West Uyoma': ['Rachar', 'Kobong', 'Kokwiri', 'Kagwa']
+    },
+    'Ugenya': {
+      'East Ugenya': ['Anyiko', 'Sihay', 'Ramunde', 'Kathieno A', 'Kathieno B', 'Kathieno C'],
+      'North Ugenya': ['Sega', 'Masat', 'Sega Mission', 'Lifunga', 'Ligega', 'Yenga'],
+      'West Ugenya': ['Karadolo East', 'Karadolo West', 'Sifuyo East', 'Masat West', 'Sifuyo West', 'Nyalenya', 'Uyundo', 'Ndenga'],
+      'Ukwala': ['Doho East', 'Doho West', 'Simur', 'Simur-Kondiek', 'Siranga', 'Yenga']
+    },
+    'Ugunja': {
+      'Sidindi': ['Simenya', 'Rangala', 'Yiro East', 'Yiro West', 'Ruwe','Uhuyi'],
+      'Sigomere': ['Sigomere', 'Got Osimbo', 'Mungaoo', 'Tingare East', 'Tingare West', 'Asango East', 'Asango West', 'Madungu'],
+      'Ugunja': ['Ugunja', 'Uner East', 'Uner West', 'Rambula', 'Ngunya','Uholo East']
+    }
+  },
+  'Kisumu County': {
+    'Kisumu Central': {
+      'Railways': ['Bandari', 'Central', 'Nyawita','Obunga Central', 'Kamakowa', 'Kasarani','Sega Sega','Kanyakwar'],
+      'Migosi': ['Upper Migosi', 'Lower Migosi', 'Sigalagala', 'Car Wash'],
+      'Shaurimoyo/Kaloleni': ['Kaloleni Estate', 'Shaurimoyo Estate', 'Arina Estate', 'Kondele Borderline / Kibuye Borders'],
+      'Market Milimani': ['CBD', 'Upper Milimani', 'Lower Milimani', 'Anderson / Ondiek', 'Nairobi Area', 'Nyamlori', 'Lower Railways'],
+      'Kondele': ['Manyatta A / Manyatta Central', 'Kona Ya Choma', 'Kondele Central / Kondele Market area', 'Arina Borders', 'Afya Estate'],
+      'Manyatta A': ['Manyatta Corner', 'Manyatta Central', 'Manyatta Arab', 'Gonda', 'Kuoyo', 'Kondele Borders / Kona Ya Choma Fringes', 'Highrise', 'Metameta','Kanyakwar Borders'],
+      'Nyalenda B': ['Western', 'Kilo', 'Nanga', 'Dunga']
+    },
+    'Kisumu East': {
+      'Kajulu': ['Got Nyabondo', 'Kadero', 'Okok', 'Konya', 'Wathorego'],
+      'Kolwa East': ['Rweya / Buoye Center', 'Kamrongo Village', 'Barkorwa / Kasule Borders'],
+      'Manyatta B': ['Kuoyo', 'Upper Kanyakwar', 'Lower Kanyakwar', 'Gesoko', 'River Auji / Kothwuon Buffers', 'Kibos Settlement Area'],
+      'Kolwa Central': ['Nyamasaria / Mowlem Corridor', 'Nyamthowi (Nyamthoi)', 'Kasule Center', 'Ondiek Estate Fringes / Borderlines'],
+      'Nyalenda A': ['Central Nylenda A', 'Western Nylenda A', 'Kowino', 'Dago', 'Okonyo Welo', 'Budies', 'Kanyakwar']
+    },
+    'Seme': {
+      'West Seme': ['West Reru', 'East Reru', 'West Ngere', 'East Ngere', 'Angoga', 'Alwala', 'West Kadinga', 'East Kadinga', 'North Alungo','South Alungo'],
+      'Central Seme': ['Upper Kombewa', 'Lower Kombewa','East Kanyadwera','West Kanyadwera','East Othany', 'West Othany'],
+      'East Seme': ['West Kolunje', 'West Kolunje', 'Kaila', 'Kit Mikayi','Koker / Kajulu'],
+      'North Seme': ['East Katieno', 'West Katieno', 'Kadero', 'North Kowe', 'South Kowe', 'North Rata', 'South Rata']
+    },
+    'Nyando': {
+      'East Kano/Wawidhi': ['Achego', 'Ayweyo', 'Katolo', 'Magina', 'Nyakongo'],
+      'Awasi/Onjiko': ['Border I', 'Border II', 'Wanganga', 'Kobongo', 'Ayucha', 'Kakmie'],
+      'Ahero': ['Kakola Ahero', 'Kakola', 'Kakola Ombaka', 'Tura', 'Kochogo Central', 'Kochogo North'],
+      'Kabonyo/Kanyagwa': ['Kabonyo Irrigation Scheme', 'Ogenya', 'Nduru', 'Kapiyo', 'Central Bwanda', 'Upper Bwanda', 'Kolal', 'Anyuro', 'Ugwe', 'Kadhiambo', 'Kwa Kungu'],
+      'Kobura': ['Masogo', 'Rabour', 'Okana', 'Lela', 'Kotieno', 'Nyamware North', 'Kamayoga', 'Nyamware South']
+    },
+    'Muhoroni': {
+      'Miwani': ['Miwani Central', 'Miwani North', 'Miwani East', 'Miwani West', 'Kibigori'],
+      'Ombeyi': ['Kore', 'Obumba', 'Orego'],
+      'Masogo/nyangoma': ['Masogo', 'Nyangoma'],
+      'Chemelil': ['Chemelil', 'Kibigori', 'Nyangore', 'Got Abuoro', 'Songhor East', 'Songhor West', 'Tamu'],
+      'Muhoroni/Koru': ['Muhoroni Town', 'Koru', 'Fort Ternan', 'Owaga', 'Tonde', 'Orego', 'Nyando', 'Ochoria', 'Homa Line']
+    },
+    'Nyakach': {
+      'South West Nyakach': ['Kajimbo', 'Okanowach', 'Ramogi', 'Gari', 'West Kadianga'],
+      'North Nyakach': ['Gem Rae', 'Gem Nam', 'Agoro East', 'Agoro West', 'Jimo East', 'Jimo Middle', 'Awach', 'Lisana', 'Kasaye', 'Rarieda', 'Kandaria'],
+      'Central Nyakach': ['Sigoti', 'Andingo', 'Kabodho West', 'Kabodho North', 'Sango', 'Miriu'],
+      'West Nyakach': ['Nyakach Kadianga', 'Gethsemane', 'Koguta', 'Sega', 'Kabonyo', 'Kadianga'],
+      'South East Nyakach': ['East Koguta', 'East Kadianga', 'Siany', 'Ramogi']
+    },
+    'Kisumu West': {
+      'South West Kisumu': ['Ojola', 'Kisian', 'Otonglo'],
+      'Kisumu North': ['Bar "A"', 'Bar "B"', 'Dago', 'Mkendwa', 'Nyahera'],
+      'West Kisumu': ['North Kapuonja', 'South Kapuonja', 'Upper Kadongo', 'Lower Kadongo', 'Newa'],
+      'North West Kisumu': ['East Karateng', 'West Karateng', 'Marera','Sunga']
+    }
+  },
+  'Homa Bay County': {
+    'Homa Bay Town': {
+      'Homa Bay Central': ['Homa Bay Town', 'Arujo', 'Kanyabala'],
+      'Homa Bay West': ['North Kanyabala', 'South Kanyabala', 'Kotieno'],
+      'Homa Bay East': ['Upper Kothidha', 'Lower Kothidha', 'Genga', 'Kalanya Kanyango']
+    },
+    'Ndhiwa': {
+      'Kwabwai': ['Kamdar Rachar', 'Kamdar Kawanga', 'Kasirime Kawanga', 'Kadhola', 'Kamdar Kodondo', 'Kachuth'],
+      'Kanyadoto': ['Kabura North', 'Kabura South', 'Kaganda North', 'Kaganda South'],
+      'Kanyikela': ['North Kanyikela', 'South Kanyikela'],
+      'Kabuoch North': ['Kawuor', 'Karading', 'Konyango', 'East Kachieng', 'West Kachieng', 'Konyango-Kachwanya'],
+      'Kabuoch South / Pala': ['Koguta', 'Kobita', 'Kamenya / Kaguria'],
+      'Kanyamwa Kologi': ['Kadwet', 'Kajwang', 'Kachola', 'Komungu', 'Kakaeta', 'West Kochieng','East Kochieng'],
+      'Kanyamwa Kosewe': ['Kwamo', 'Kayambo', 'Kabonyo', 'Kwandiko']
+    },
+    'Mbita / Suba North': {
+      'Mfangano Island': ['Waware', 'Wakinga', 'Soklo North', 'Soklo South', 'Ywanya', 'Ringiti / Islands'],
+      'Rusinga Island': ['Kamasengre', 'Kamasengre West', 'Wawere North', 'Wawere South', 'Kaswanga', 'Wanyama'],
+      'Kasgunga': ['Kasgunga Central', 'Kasgunga East', 'Kasgunga West'],
+      'Gembe': ['Gembe East', 'Gembe West', 'Gembe Central'],
+      'Lambwe': ['Lambwe East', 'Lambwe West']
+    },
+    'Suba South': {
+      'Gwassi South': ['Nyandiwa', 'Nyabera', 'Gwassi Central', 'Tonga', 'Kigoto','Kiwiro'],
+      'Gwassi North': ['Nyandiwa', 'Nyagwethe', 'Uterere', 'Kisaku', 'Kitawa'],
+      'Kaksingri West': ['Kaksingri West', 'Rangwa East', 'Sindo'],
+      'Ruma-Kaksingri East': ['Kaksingri East', 'Sumba East', 'Sumba West', 'Ruma']
+    },
+    'Rangwe': {
+      'West Gem': ['..', '...', '....'],
+      'East Gem': ['Kotieno', 'Koyolo', 'Gongo'],
+      'Kagan': ['Kajulu', 'Kanyiriema', 'Central Kagan', 'Kokoko', 'Nyawita'],
+      'Kochia': ['Kamenya', 'Kanam', 'Kaura', 'Korayo', 'Kothidha','Kowili']
+    },
+     'Kasipul': {
+      'West Kasipul': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'South Kasipul': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'Central Kasipul': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'East Kamagak': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'West Kamagak': ['Kalanya', 'Kanyadaki', 'Kanyango']
+    },
+     'Karachuonyo': {
+      'West Karachuonyo': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'North Karachuonyo': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'Central Karachuonyo': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'Kanyaluo': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'Kibiri': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'Wangchieng': ['Town Centre', 'Arujo', 'Kanyabala'],
+      'Kendu Bay Town': ['Kalanya', 'Kanyadaki', 'Kanyango']
+    },
+    'Kabondo Kasipul': {
+      'Kabondo East': ['Ramba', 'Kabondo', 'Kadongo', 'Wangapala', 'Othoro', 'Soso'],
+      'Kabondo West': ['Kakangutu West', 'Kakumu', 'Kasewe "A"', 'Kasewe "B"', 'Kodumo West', 'Lower Kodhoch West', 'Upper Kodhoch West'],
+      'Kokwanyo / Kakelo': ['Kokwanyo East', 'Kokwanyo West', 'Kakelo Dudi', 'Kakelo Kamroth'],
+      'Kojwach': ['Kojwach Kamioro', 'Kojwach Kamuga', 'Kojwach Kawere', 'Kojwach East']
+    }
+  },
+  'Migori County': {
+    'Suna East': {
+      'God Jope': ['God Jope', 'Suna Sagegi', 'Upper Suna', 'Suna Rabuor'],
+      'Suna Central': ['Nyasere', 'Milimani', 'Ngege'],
+      'Kakrao': ['Kakrao', 'Anjego', 'Nyabisawa'],
+      'Kwa': ['Kwa', 'Sagegi', 'Opasi']
+    },
+    'Suna West': {
+      'Wiga': ['Wiga', 'Wasimbete', 'Nyamagagana', 'Saba'],
+      'Wasweta II': ['Wasweta', 'Bondo Nyironge', 'Giribe'],
+      'Ragana – Oruba': ['Ragana', 'Oruba', 'Kanyamkago', 'Kabuoch'],
+      'Wasimbete': ['Wasimbete', 'Giribe', 'Bondo Nyironge']
+    },
+    'Rongo': {
+      'North Kamagambo / Central Kamagambo': ['Kanyawanga', 'Kamagambo', 'Nyasare', 'Rongo (Central/Town)'],
+      'South Kamagambo': ['South Kamagambo', 'South Kanyawanga', 'Kitere']
+    },
+    'Awendo': {
+      'North East Sakwa': ['Sakwa East', 'North Sakwa', 'Kuja', 'Maroo'],
+      'South Sakwa': ['South Sakwa', 'Kogelo West', 'Gombe'],
+      'West Sakwa': ['West Sakwa', 'Kuja', 'Waware'],
+      'Central Sakwa': ['Central Sakwa', 'Mariwa', 'Kokuro']
+    },
+     'Uriri': {
+      'West Kanyamkago': ['West Kanyamkago', 'Bware', 'Thim Jope'],
+      'North Kanyamkago': ['North Kanyamkago', 'Kachieng', 'God-Jope'],
+      'Central Kanyamkago': ['Central Kanyamkago', 'Uriri', 'Onyalo'],
+      'East Kanyamkago': ['East Kanyamkago', 'Kachieng', 'Onyalo'],
+      'South Kanyamkago': ['South Kanyamkago', 'Bware', 'Thim Jope']
+    },
+    'Nyatike': {
+      'Kachieng': ['Kachieng', 'Kabuto', 'Kanyawanga'],
+      'Kanyasa': ['Muhuru', 'Kiwiro', 'Nyakweri'],
+      'North Kadem': ['Gokeharaka', 'Getambwega', 'Renjoka'],
+      'Macalder / Kanyarwanda': ['Ntimaru', 'Gokeharaka', 'Wath Onger'],
+      'Kaler': ['Kaler', 'Ochieng (or Kachieng)', 'Wath Onger'],
+      'Got Kachola': ['Got Kachola', 'Suna Center', 'Wasweta'],
+      'Muhuru': ['Bwiri Village', 'Oruba', 'Kanyasa']
+    },
+    'Kuria East': {
+      'Gokeharaka / Getambwega': ['Gokeharaka', 'Getambwega', 'Renjoka'],
+      'Ntimaru West': ['Ntimaru', 'Gokeharaka', 'Getambwega'],
+      'Ntimaru East': ['Ntimaru', 'Gokeharaka', 'Getambwega'],
+      'Nyabasi East': ['Nyabas', 'Gokeharaka', 'Getambwega'],
+      'Nyabasi West': ['Nyabasi', 'Gokeharaka', 'Getambwega']
+    },
+    'Kuria West': {
+      'Bukira East': ['Bukira', 'Kiamkama', 'Gwikonge'],
+      'Bukira Central / Ikerege': ['Ikerege', 'Bukira', 'Gwikonge'],
+      'Isibania': ['Isibania', 'Ikerege', 'Nyabasi'],
+      'Mokerero': ['Mokerero', 'Taragwiti', 'Nyametaburo'],
+      'Masaba': ['Masaba', 'Gwikonge', 'Kiamkama'],
+      'Tagare': ['Tagare', 'Gwikonge', 'Kiamkama'],
+      'Nyamosense / Komosoko': ['Nyamosense', 'Komosoko', 'Gwikonge']
+    }
+  }
+};
 
 const RegistrationPage = () => {
   const navigate = useNavigate();
@@ -36,6 +227,12 @@ const RegistrationPage = () => {
   const [polling, setPolling] = useState(false);
   const pollTimerRef = useRef(null);
 
+  // Added dynamic location state controls
+  const [selectedCounty, setSelectedCounty] = useState('');
+  const [selectedSubCounty, setSelectedSubCounty] = useState('');
+  const [selectedWard, setSelectedWard] = useState('');
+  const [selectedVillage, setSelectedVillage] = useState('');
+
   const [formData, setFormData] = useState({
     first_name: '',
     middle_name: '',
@@ -43,7 +240,6 @@ const RegistrationPage = () => {
     age: '',
     spouse_kin_name: '',
     category: 'Individual',
-    location: 'Nairobi',
     email: '',
     phone: '',
     password: '',
@@ -83,8 +279,12 @@ const RegistrationPage = () => {
   };
 
   const validateStep1 = () => {
-    if (!formData.first_name || !formData.last_name || !formData.age || !formData.category || !formData.location) {
-      toast.error('Please fill in all required fields');
+    if (!formData.first_name || !formData.last_name || !formData.age || !formData.category) {
+      toast.error('Please fill in all required personal fields');
+      return false;
+    }
+    if (!selectedCounty || !selectedSubCounty || !selectedWard || !selectedVillage) {
+      toast.error('Please complete your complete structural location mapping');
       return false;
     }
     if (formData.age < 18) {
@@ -235,6 +435,11 @@ const RegistrationPage = () => {
       Object.keys(formData).forEach(key => {
         if (key !== 'amount') memberFormData.append(key, formData[key]);
       });
+      
+      // Inject concatenated readable physical address structure into Pocketbase form data instance
+      const absoluteLocationString = `${selectedVillage}, ${selectedWard} Ward, ${selectedSubCounty} Sub-County, ${selectedCounty}`;
+      memberFormData.append('location', absoluteLocationString);
+
       if (profilePic) {
         memberFormData.append('profile_picture', profilePic);
       }
@@ -324,14 +529,7 @@ const RegistrationPage = () => {
                     <label className="form-label">Age <span className="text-destructive">*</span></label>
                     <input type="number" name="age" value={formData.age} onChange={handleInputChange} className="form-input" min="18" required />
                   </div>
-                  <div>
-                    <label className="form-label">Location / Region <span className="text-destructive">*</span></label>
-                    <select name="location" value={formData.location} onChange={handleInputChange} className="form-input" required>
-                      {KENYA_REGIONS.map(region => (
-                        <option key={region} value={region}>{region}</option>
-                      ))}
-                    </select>
-                  </div>
+                  
                   <div>
                     <label className="form-label">Category <span className="text-destructive">*</span></label>
                     <select name="category" value={formData.category} onChange={handleInputChange} className="form-input" required>
@@ -341,10 +539,89 @@ const RegistrationPage = () => {
                       <option value="Student">Student</option>
                     </select>
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="form-label">Field Oficer name</label>
+                  <div>
+                    <label className="form-label">Field Officer name</label>
                     <input type="text" name="spouse_kin_name" value={formData.spouse_kin_name} onChange={handleInputChange} className="form-input" />
                   </div>
+
+                  {/* Cascading Location Selection Segment */}
+                  <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-4 border-border">
+                    <div>
+                      <label className="form-label">County <span className="text-destructive">*</span></label>
+                      <select 
+                        value={selectedCounty} 
+                        onChange={(e) => {
+                          setSelectedCounty(e.target.value);
+                          setSelectedSubCounty('');
+                          setSelectedWard('');
+                          setSelectedVillage('');
+                        }} 
+                        className="form-input" 
+                        required
+                      >
+                        <option value="">Select County</option>
+                        {Object.keys(KENYA_LOCATION_DATA).map(county => (
+                          <option key={county} value={county}>{county}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="form-label">Sub County <span className="text-destructive">*</span></label>
+                      <select 
+                        value={selectedSubCounty} 
+                        onChange={(e) => {
+                          setSelectedSubCounty(e.target.value);
+                          setSelectedWard('');
+                          setSelectedVillage('');
+                        }} 
+                        className="form-input" 
+                        disabled={!selectedCounty}
+                        required
+                      >
+                        <option value="">Select Sub County</option>
+                        {selectedCounty && Object.keys(KENYA_LOCATION_DATA[selectedCounty]).map(subCounty => (
+                          <option key={subCounty} value={subCounty}>{subCounty}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="form-label">Ward <span className="text-destructive">*</span></label>
+                      <select 
+                        value={selectedWard} 
+                        onChange={(e) => {
+                          setSelectedWard(e.target.value);
+                          setSelectedVillage('');
+                        }} 
+                        className="form-input" 
+                        disabled={!selectedSubCounty}
+                        required
+                      >
+                        <option value="">Select Ward</option>
+                        {selectedSubCounty && Object.keys(KENYA_LOCATION_DATA[selectedCounty][selectedSubCounty]).map(ward => (
+                          <option key={ward} value={ward}>{ward}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="form-label">Village / Area Unit <span className="text-destructive">*</span></label>
+                      <select 
+                        value={selectedVillage} 
+                        onChange={(e) => setSelectedVillage(e.target.value)} 
+                        className="form-input" 
+                        disabled={!selectedWard}
+                        required
+                      >
+                        <option value="">Select Village/Unit</option>
+                        {selectedWard && KENYA_LOCATION_DATA[selectedCounty][selectedSubCounty][selectedWard].map(village => (
+                          <option key={village} value={village}>{village}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             )}

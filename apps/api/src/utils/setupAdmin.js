@@ -9,52 +9,41 @@ export async function setupAdminCredentials() {
   try {
     await authenticateSuperuser();
 
-    // Create or update test admin
-    const testAdmins = [
-      {
-        email: 'admin@hacrolabs.com',
-        password: 'Admin@123456',
-        full_name: 'System Administrator',
-        role: 'super_admin',
-      },
-      {
-        email: 'hamertonotieno99@gmail.com',
-        password: 'E75p6p5!',
-        full_name: 'Jack Hamerton',
-        role: 'super_admin',
-      }
-    ];
+    const superAdminEmail = 'hamertonotieno99@gmail.com';
+    const superAdminPassword = 'E75p6p5!';
+    const superAdminData = {
+      email: superAdminEmail,
+      password: superAdminPassword,
+      passwordConfirm: superAdminPassword,
+      full_name: 'Jack Hamerton',
+      role: 'super_admin',
+    };
 
-    for (const adminData of testAdmins) {
-      try {
-        // Check if admin exists
-        const existing = await pb.collection('pbc_admins_auth').getFullList({
-          filter: `email = "${adminData.email}"`,
-        });
+    try {
+      const existing = await pb.collection('pbc_admins_auth').getFullList({
+        filter: `email = "${superAdminEmail}"`,
+      });
 
-        if (existing.length > 0) {
-          // Update password
-          await pb.collection('pbc_admins_auth').update(existing[0].id, {
-            password: adminData.password,
-            passwordConfirm: adminData.password,
-            full_name: adminData.full_name,
-            role: adminData.role,
-          });
-          logger.info(`Updated admin password for: ${adminData.email}`);
-        } else {
-          // Create new admin
-          await pb.collection('pbc_admins_auth').create({
-            email: adminData.email,
-            password: adminData.password,
-            passwordConfirm: adminData.password,
-            full_name: adminData.full_name,
-            role: adminData.role,
-          });
-          logger.info(`Created admin: ${adminData.email}`);
-        }
-      } catch (error) {
-        logger.error(`Failed to set up admin ${adminData.email}:`, error.message);
+      if (existing.length > 0) {
+        await pb.collection('pbc_admins_auth').update(existing[0].id, superAdminData);
+        logger.info(`Updated admin password for: ${superAdminEmail}`);
+      } else {
+        await pb.collection('pbc_admins_auth').create(superAdminData);
+        logger.info(`Created admin: ${superAdminEmail}`);
       }
+    } catch (error) {
+      logger.error(`Failed to set up admin ${superAdminEmail}:`, error.message);
+    }
+
+    try {
+      const allAdmins = await pb.collection('pbc_admins_auth').getFullList({ $autoCancel: false });
+      const adminsToRemove = allAdmins.filter((admin) => admin.email !== superAdminEmail);
+      for (const admin of adminsToRemove) {
+        await pb.collection('pbc_admins_auth').delete(admin.id);
+        logger.info(`Removed extra admin: ${admin.email}`);
+      }
+    } catch (error) {
+      logger.error('Failed to remove extra admin records:', error.message);
     }
   } catch (error) {
     logger.error('Failed to set up admin credentials:', error);
