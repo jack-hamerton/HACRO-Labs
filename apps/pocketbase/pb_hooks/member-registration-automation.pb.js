@@ -31,7 +31,7 @@ onRecordAfterCreateSuccess((e) => {
       for (let group of existingGroups) {
         const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + group.id + "'", { limit: 1000 });
 
-        if (groupMembers.length < 30) {
+        if (groupMembers.length < 50) {
           assignedGroup = group;
           break;
         }

@@ -79,10 +79,8 @@ onRecordAfterCreateSuccess((e) => {
     }
 
     // 5. Check for inconsistent document patterns (if applicable)
-    // This would require additional document verification logic
 
     // 6. Check for geographic anomalies (if IP/location data available)
-    // This would require IP geolocation data
 
     // 7. Check for time-based anomalies (payments at unusual hours)
     const paymentHour = new Date().getHours();

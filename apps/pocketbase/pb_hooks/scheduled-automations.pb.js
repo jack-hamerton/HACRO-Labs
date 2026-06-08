@@ -319,8 +319,8 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
           totalSavings += saving.get("amount") || 0;
         });
 
-        // Assume insurance fee is 100 KSH per month for 12 months = 1200 KSH
-        const insuranceFee = 1200;
+        // Assume insurance fee is 150 KSH per month for 12 months = 1800 KSH
+        const insuranceFee = 1800;
 
         if (totalSavings >= insuranceFee) {
           // Deduct from savings

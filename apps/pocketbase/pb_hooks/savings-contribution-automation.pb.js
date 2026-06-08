@@ -57,7 +57,7 @@ onRecordAfterCreateSuccess((e) => {
     $app.save(contributionNotification);
 
     // 5. Check if member has reached loan eligibility threshold
-    const loanEligibilityThreshold = 5000; // This could be configurable
+    const loanEligibilityThreshold = 3000; // This could be configurable
     if (newSavings >= loanEligibilityThreshold && currentSavings < loanEligibilityThreshold) {
       const eligibilityNotification = new Record("notifications");
       eligibilityNotification.set("member_id", memberId);
