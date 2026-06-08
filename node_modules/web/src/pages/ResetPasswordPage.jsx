@@ -67,8 +67,8 @@ const ResetPasswordPage = () => {
           ) : (
             <>
               <div className="text-center">
-                <div className="mx-auto w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
-                  <ShieldCheck className="w-6 h-6 text-blue-600" />
+                <div className="mx-auto w-12 h-12 bg-[hsl(var(--primary)_/_0.06)] rounded-xl flex items-center justify-center mb-4">
+                  <ShieldCheck className="w-6 h-6 text-[hsl(var(--primary))]" />
                 </div>
                 <h2 className="text-2xl font-bold tracking-tight text-slate-900">Set New Password</h2>
                 <p className="mt-2 text-sm text-slate-500">Create a strong password to secure your account.</p>
@@ -84,7 +84,7 @@ const ResetPasswordPage = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                       />
                       <button
                         type="button"
@@ -103,7 +103,7 @@ const ResetPasswordPage = () => {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
@@ -121,7 +121,7 @@ const ResetPasswordPage = () => {
                 <button
                   type="submit"
                   disabled={!isValid || loading}
-                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition-all duration-200 disabled:opacity-50"
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white btn-primary disabled:opacity-50"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Reset Password'}
                 </button>

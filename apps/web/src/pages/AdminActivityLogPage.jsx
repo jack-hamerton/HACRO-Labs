@@ -83,7 +83,7 @@ const AdminActivityLogPage = () => {
                 placeholder="Search descriptions..." 
                 value={filters.search}
                 onChange={e => setFilters({...filters, search: e.target.value, page: 1})}
-                className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none"
+                className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ring focus:border-transparent transition-all outline-none"
               />
             </div>
             <div className="relative min-w-[200px]">
@@ -91,7 +91,7 @@ const AdminActivityLogPage = () => {
               <select 
                 value={filters.action}
                 onChange={e => setFilters({...filters, action: e.target.value, page: 1})}
-                className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none appearance-none"
+                className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ring focus:border-transparent transition-all outline-none appearance-none"
               >
                 <option value="">All Actions</option>
                 {ACTIONS.map(a => <option key={a} value={a}>{a.replace('_', ' ').toUpperCase()}</option>)}
@@ -102,7 +102,7 @@ const AdminActivityLogPage = () => {
           <div className="overflow-x-auto relative min-h-[400px]">
             {loading && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--primary))]" />
               </div>
             )}
             <table className="w-full text-left text-sm">

@@ -82,13 +82,13 @@ const AdminProfilePage = () => {
         <div className="lg:col-span-1 space-y-8">
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <User className="w-5 h-5 text-blue-600" />
+              <User className="w-5 h-5 text-[hsl(var(--primary))]" />
               <h3 className="font-bold text-slate-900">Profile Details</h3>
             </div>
             <form onSubmit={handleProfileSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
-                <input type="text" value={profileData.full_name} onChange={e => setProfileData({...profileData, full_name: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none" required />
+                <input type="text" value={profileData.full_name} onChange={e => setProfileData({...profileData, full_name: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-ring outline-none" required />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
@@ -96,9 +96,9 @@ const AdminProfilePage = () => {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Phone Number</label>
-                <input type="text" value={profileData.phone} onChange={e => setProfileData({...profileData, phone: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none" />
+                <input type="text" value={profileData.phone} onChange={e => setProfileData({...profileData, phone: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-ring outline-none" />
               </div>
-              <button type="submit" disabled={loading} className="w-full py-2.5 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 flex justify-center items-center mt-2">
+              <button type="submit" disabled={loading} className="w-full py-2.5 text-white rounded-xl font-medium btn-primary hover:bg-[hsl(var(--primary)_/_0.9)] flex justify-center items-center mt-2">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
               </button>
             </form>
@@ -106,20 +106,20 @@ const AdminProfilePage = () => {
 
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <KeyRound className="w-5 h-5 text-blue-600" />
+              <KeyRound className="w-5 h-5 text-[hsl(var(--primary))]" />
               <h3 className="font-bold text-slate-900">Change Password</h3>
             </div>
             <form onSubmit={handlePwdSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Current Password</label>
-                <input type="password" value={pwdData.currentPassword} onChange={e => setPwdData({...pwdData, currentPassword: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none" required />
+                <input type="password" value={pwdData.currentPassword} onChange={e => setPwdData({...pwdData, currentPassword: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-ring outline-none" required />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">New Password</label>
-                <input type="password" value={pwdData.newPassword} onChange={e => setPwdData({...pwdData, newPassword: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none" required />
+                <input type="password" value={pwdData.newPassword} onChange={e => setPwdData({...pwdData, newPassword: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-ring outline-none" required />
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">Min 8 chars, uppercase, lowercase, number, special char required.</p>
               </div>
-              <button type="submit" disabled={loading} className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 flex justify-center items-center mt-2">
+              <button type="submit" disabled={loading} className="w-full py-2.5 text-white rounded-xl font-medium btn-primary flex justify-center items-center mt-2">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Update Password'}
               </button>
             </form>
@@ -130,7 +130,7 @@ const AdminProfilePage = () => {
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-              <LogIn className="w-5 h-5 text-blue-600" />
+              <LogIn className="w-5 h-5 text-[hsl(var(--primary))]" />
               <h3 className="font-bold text-slate-900">Recent Login History</h3>
             </div>
             <div className="overflow-x-auto">
@@ -158,7 +158,7 @@ const AdminProfilePage = () => {
 
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-              <Activity className="w-5 h-5 text-blue-600" />
+              <Activity className="w-5 h-5 text-[hsl(var(--primary))]" />
               <h3 className="font-bold text-slate-900">Recent Account Activity</h3>
             </div>
             <div className="p-2">

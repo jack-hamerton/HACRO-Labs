@@ -119,3 +119,23 @@
     at file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37329
     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
     at async file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:433:19
+[2026-06-08T16:03:15.537Z] [ERROR] ClientResponseError 403: Only superusers can perform this action.
+    at file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:466:20
+[2026-06-08T16:06:33.513Z] [ERROR] ClientResponseError 403: Only superusers can perform this action.
+    at file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:433:19
+[2026-06-08T16:09:13.032Z] [ERROR] ClientResponseError 403: Only superusers can perform this action.
+    at file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:433:19
+[2026-06-08T16:09:25.970Z] [ERROR] ClientResponseError 403: Only superusers can perform this action.
+    at file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:371:24
+[2026-06-08T16:10:25.682Z] [ERROR] ClientResponseError 403: Only superusers can perform this action.
+    at file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Nicholus/OneDrive/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:433:19

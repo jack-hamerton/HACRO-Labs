@@ -81,7 +81,7 @@ const AdminLayout = ({ children }) => {
         
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold uppercase">
+            <div className="w-10 h-10 rounded-full bg-[hsl(var(--primary))] flex items-center justify-center text-white font-bold uppercase">
               {(currentAdmin?.full_name || currentAdmin?.email || 'Admin').charAt(0).toUpperCase()}
             </div>
             <div>
@@ -99,8 +99,8 @@ const AdminLayout = ({ children }) => {
                   to={link.path}
                   onClick={() => setIsMobileOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    active ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 hover:text-white'
-                  }`}
+                      active ? 'bg-[hsl(var(--primary))] text-white' : 'hover:bg-[hsl(var(--primary)_/_0.08)] hover:text-white'
+                    }`}
                 >
                   <link.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-slate-400'}`} />
                   {link.label}

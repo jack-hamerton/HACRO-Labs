@@ -46,7 +46,7 @@ const AdminLoginPage = () => {
         
         <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-2xl relative z-10">
           <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-600/30">
+            <div className="mx-auto w-16 h-16 bg-[hsl(var(--primary))] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[hsl(var(--primary)_/_0.3)]">
               <ShieldCheck className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900">Admin Portal</h2>
@@ -62,7 +62,7 @@ const AdminLoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   placeholder="admin@hacrolabs.com"
                 />
               </div>
@@ -75,7 +75,7 @@ const AdminLoginPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                     placeholder="••••••••"
                   />
                   <button
@@ -96,7 +96,7 @@ const AdminLoginPage = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-600 border-slate-300 rounded cursor-pointer"
+                  className="h-4 w-4 text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary))] border-slate-300 rounded cursor-pointer"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-600 cursor-pointer">
                   Remember me
@@ -104,7 +104,7 @@ const AdminLoginPage = () => {
               </div>
 
               <div className="text-sm">
-                <Link to="/admin-forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link to="/admin-forgot-password" className="font-medium text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)_/_0.9)]">
                   Forgot password?
                 </Link>
               </div>
@@ -113,7 +113,7 @@ const AdminLoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Secure Sign In'}
             </button>

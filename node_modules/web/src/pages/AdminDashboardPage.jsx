@@ -100,14 +100,14 @@ const AdminDashboardPage = () => {
     return (
       <AdminLayout>
         <div className="flex h-[60vh] items-center justify-center">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          <Loader2 className="w-8 h-8 text-[hsl(var(--primary))] animate-spin" />
         </div>
       </AdminLayout>
     );
   }
 
   const statCards = [
-    { title: 'Total Members', value: stats.members, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { title: 'Total Members', value: stats.members, icon: Users, color: 'text-[hsl(var(--primary))]', bg: 'bg-[hsl(var(--primary)_/_0.06)]' },
     { title: 'Active Groups', value: stats.groups, icon: LayoutGrid, color: 'text-indigo-600', bg: 'bg-indigo-50' },
     { title: 'Total Savings', value: `KES ${stats.savings.toLocaleString()}`, icon: PiggyBank, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { title: 'Active Loans Vol.', value: `KES ${stats.loans.toLocaleString()}`, icon: Wallet, color: 'text-orange-600', bg: 'bg-orange-50' },

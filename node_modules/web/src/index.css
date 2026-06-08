@@ -95,14 +95,14 @@
   .admin-theme {
     --background: 210 40% 98%;
     --foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --border: 214 32% 91%;
     --muted: 210 40% 93%;
     --muted-foreground: 215 16% 47%;
-    --ring: 221 83% 53%;
+    --ring: 160 84% 39%;
   }
   
   * {
