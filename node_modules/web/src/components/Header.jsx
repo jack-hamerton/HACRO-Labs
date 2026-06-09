@@ -12,6 +12,8 @@ const Header = () => {
   const { isAuthenticated, isMember, isAdmin, logout, currentUser } = useAuth();
   const location = useLocation();
 
+  const logoUrl = 'https://i.postimg.cc/vTKj3xtH/HACRO-logo-3-removebg-preview-(1).png';
+
   const isActive = (path) => location.pathname === path;
 
   useEffect(() => {
@@ -70,11 +72,15 @@ const Header = () => {
     <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm print:hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-primary-foreground" />
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="HACRO Labs" className="w-full h-full object-cover" />
+              ) : (
+                <Wallet className="w-8 h-8 text-primary-foreground" />
+              )}
             </div>
-            <span className="text-xl font-bold text-foreground tracking-tight">HACRO Labs</span>
+            <span className="text-2xl font-bold text-foreground tracking-tight">HACRO Labs</span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-6">
@@ -190,6 +196,7 @@ const Header = () => {
                   <button onClick={handleLogout} className="text-sm font-medium text-destructive text-left">Logout</button>
                 </>
               )}
+              <Link to="/newsletter" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Newsletter</Link>
             </nav>
           </div>
         )}

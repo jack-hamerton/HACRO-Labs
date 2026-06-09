@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, Filter, ArrowDownUp, PiggyBank, Wallet, ArrowUpRigh
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import Header from '@/components/Header.jsx';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 import Footer from '@/components/Footer.jsx';
 
 const ContributionHistoryPage = () => {
@@ -62,11 +62,8 @@ const ContributionHistoryPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -77,10 +74,8 @@ const ContributionHistoryPage = () => {
         <title>Contribution History - Hacro Labs</title>
       </Helmet>
 
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-
-        <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-12">
+      <MemberPortalLayout title="Contribution History" subtitle="See a full record of your savings and loan activity.">
+        <div className="max-w-4xl mx-auto w-full px-4 py-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Contribution History</h1>
@@ -156,7 +151,7 @@ const ContributionHistoryPage = () => {
         </div>
 
         <Footer />
-      </div>
+      </MemberPortalLayout>
     </>
   );
 };

@@ -18,7 +18,7 @@ const ProtectedAdminRoute = ({ children, requireSuperAdmin = false }) => {
     return <Navigate to="/admin-login" replace />;
   }
 
-  if (requireSuperAdmin && currentAdmin?.role !== 'super_admin') {
+  if (requireSuperAdmin && currentAdmin?.role !== 'super_admin' && currentAdmin?.role !== 'admin') {
     return <Navigate to="/admin-dashboard" replace />;
   }
 

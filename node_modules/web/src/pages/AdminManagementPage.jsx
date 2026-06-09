@@ -31,7 +31,7 @@ const AdminManagementPage = () => {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">System Administrators</h2>
-          <p className="text-slate-500 mt-1">Only the configured super admin remains in the system.</p>
+          <p className="text-slate-500 mt-1">All administrators now have full super admin privileges across the portal.</p>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">

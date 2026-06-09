@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import Header from '@/components/Header.jsx';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 import Footer from '@/components/Footer.jsx';
 import PaymentAcknowledgmentModal from '@/components/PaymentAcknowledgmentModal.jsx';
 
@@ -43,11 +43,8 @@ const MemberPaymentHistoryPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -59,10 +56,8 @@ const MemberPaymentHistoryPage = () => {
         <meta name="description" content="View your payment history and download receipts." />
       </Helmet>
 
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-
-        <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
+      <MemberPortalLayout title="Payment History" subtitle="View your past transactions and download receipts.">
+        <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Payment history</h1>
             <p className="text-muted-foreground">View your past transactions and download receipts</p>
@@ -139,7 +134,7 @@ const MemberPaymentHistoryPage = () => {
         )}
 
         <Footer />
-      </div>
+      </MemberPortalLayout>
     </>
   );
 };

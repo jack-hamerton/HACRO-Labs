@@ -244,7 +244,7 @@ const RegistrationPage = () => {
     phone: '',
     password: '',
     passwordConfirm: '',
-    amount: 300,
+    amount: 10,
   });
 
   const [profilePic, setProfilePic] = useState(null);
@@ -285,6 +285,10 @@ const RegistrationPage = () => {
     }
     if (!selectedCounty || !selectedSubCounty || !selectedWard || !selectedVillage) {
       toast.error('Please complete your complete structural location mapping');
+      return false;
+    }
+    if (formData.category === 'Corporate' && !formData.spouse_kin_name) {
+      toast.error('Corporate members must provide a spouse / next of kin name for group matching');
       return false;
     }
     if (formData.age < 18) {
@@ -540,8 +544,11 @@ const RegistrationPage = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="form-label">Field Officer name</label>
-                    <input type="text" name="spouse_kin_name" value={formData.spouse_kin_name} onChange={handleInputChange} className="form-input" />
+                    <label className="form-label">Spouse / Next of Kin {formData.category === 'Corporate' ? <span className="text-destructive">*</span> : null}</label>
+                    <input type="text" name="spouse_kin_name" value={formData.spouse_kin_name} onChange={handleInputChange} className="form-input" placeholder="Enter spouse or next of kin name" />
+                    {formData.category === 'Corporate' && (
+                      <p className="text-sm text-emerald-600 mt-2">Corporate registrations with matching location and spouse/next of kin details are prioritized into the same group.</p>
+                    )}
                   </div>
 
                   {/* Cascading Location Selection Segment */}
@@ -556,7 +563,7 @@ const RegistrationPage = () => {
                           setSelectedWard('');
                           setSelectedVillage('');
                         }} 
-                        className="form-input" 
+                        className="form-input border-emerald-400 bg-emerald-50 text-foreground focus:border-emerald-500 focus:ring-emerald-500" 
                         required
                       >
                         <option value="">Select County</option>
@@ -575,7 +582,7 @@ const RegistrationPage = () => {
                           setSelectedWard('');
                           setSelectedVillage('');
                         }} 
-                        className="form-input" 
+                        className="form-input border-emerald-400 bg-emerald-50 text-foreground focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedCounty}
                         required
                       >
@@ -594,7 +601,7 @@ const RegistrationPage = () => {
                           setSelectedWard(e.target.value);
                           setSelectedVillage('');
                         }} 
-                        className="form-input" 
+                        className="form-input border-emerald-400 bg-emerald-50 text-foreground focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedSubCounty}
                         required
                       >
@@ -610,7 +617,7 @@ const RegistrationPage = () => {
                       <select 
                         value={selectedVillage} 
                         onChange={(e) => setSelectedVillage(e.target.value)} 
-                        className="form-input" 
+                        className="form-input border-emerald-400 bg-emerald-50 text-foreground focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedWard}
                         required
                       >

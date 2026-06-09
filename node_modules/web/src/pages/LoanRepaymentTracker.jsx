@@ -5,7 +5,7 @@ import { Wallet, ArrowLeft, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import Header from '@/components/Header.jsx';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 import Footer from '@/components/Footer.jsx';
 
 const LoanRepaymentTracker = () => {
@@ -64,11 +64,8 @@ const LoanRepaymentTracker = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -81,9 +78,8 @@ const LoanRepaymentTracker = () => {
   return (
     <>
       <Helmet><title>Loan Tracker - Hacro Labs</title></Helmet>
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-12">
+      <MemberPortalLayout title="Loan Repayment Tracker" subtitle="Monitor your loan status, repayments, and penalties.">
+        <div className="max-w-4xl mx-auto w-full px-4 py-12">
           <button onClick={() => navigate(-1)} className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground mb-8 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </button>
@@ -133,7 +129,7 @@ const LoanRepaymentTracker = () => {
           </div>
         </div>
         <Footer />
-      </div>
+      </MemberPortalLayout>
     </>
   );
 };

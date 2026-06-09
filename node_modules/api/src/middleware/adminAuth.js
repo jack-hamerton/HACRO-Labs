@@ -106,10 +106,10 @@ export async function verifyAdminToken(req, res, next) {
  * Must be used after verifyAdminToken
  */
 export function requireSuperAdmin(req, res, next) {
-  if (req.adminRole !== 'super_admin') {
+  if (req.adminRole !== 'super_admin' && req.adminRole !== 'admin') {
     logger.warn(`Unauthorized access attempt by ${req.adminEmail} (role: ${req.adminRole})`);
     return res.status(403).json({
-      error: 'This action requires super_admin role',
+      error: 'This action requires super_admin privileges',
     });
   }
 

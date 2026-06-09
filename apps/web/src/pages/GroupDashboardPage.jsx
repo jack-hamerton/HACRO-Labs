@@ -5,7 +5,7 @@ import { Users, Wallet, PiggyBank, MessageSquare, AlertCircle } from 'lucide-rea
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import Header from '@/components/Header.jsx';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 import Footer from '@/components/Footer.jsx';
 
 const GroupDashboardPage = () => {
@@ -57,18 +57,16 @@ const GroupDashboardPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!groupData) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 max-w-3xl mx-auto w-full px-4 py-24 text-center">
+      <MemberPortalLayout title="Group Dashboard" subtitle="View your savings group and member activity.">
+        <div className="max-w-3xl mx-auto w-full px-4 py-24 text-center">
           <div className="bg-muted/50 rounded-3xl p-12 border border-border">
             <Users className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-foreground mb-2">No Group Assigned</h2>
@@ -77,15 +75,14 @@ const GroupDashboardPage = () => {
           </div>
         </div>
         <Footer />
-      </div>
+      </MemberPortalLayout>
     );
   }
 
   return (
     <>
       <Helmet><title>{groupData.group_name} - Group Dashboard</title></Helmet>
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
+      <MemberPortalLayout title="Group Dashboard" subtitle={`Group ${groupData.group_name} dashboard`}>
         <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
@@ -150,7 +147,7 @@ const GroupDashboardPage = () => {
           </div>
         </div>
         <Footer />
-      </div>
+      </MemberPortalLayout>
     </>
   );
 };

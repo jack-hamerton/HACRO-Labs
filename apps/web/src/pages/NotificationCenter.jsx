@@ -4,7 +4,7 @@ import { Bell, Check, Trash2, Filter, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import Header from '@/components/Header.jsx';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 import Footer from '@/components/Footer.jsx';
 
 const NotificationCenter = () => {
@@ -56,11 +56,8 @@ const NotificationCenter = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -68,9 +65,8 @@ const NotificationCenter = () => {
   return (
     <>
       <Helmet><title>Notifications - Hacro Labs</title></Helmet>
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-12">
+      <MemberPortalLayout title="Notifications" subtitle="Stay updated on your group and loan activities.">
+        <div className="max-w-4xl mx-auto w-full px-4 py-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Notifications</h1>
@@ -135,7 +131,7 @@ const NotificationCenter = () => {
           </div>
         </div>
         <Footer />
-      </div>
+      </MemberPortalLayout>
     </>
   );
 };

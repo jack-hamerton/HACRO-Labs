@@ -20,51 +20,8 @@ onRecordAfterCreateSuccess((e) => {
     welcomeNotification.set("read_status", false);
     $app.save(welcomeNotification);
 
-    // 2. Auto-assign to group based on location (enhancing existing logic)
-    if (location) {
-      // Find existing groups in the same location
-      const existingGroups = $app.findRecordsByFilter("groups", "location = '" + location + "'", { limit: 1000 });
-
-      let assignedGroup = null;
-
-      // Try to find a group with less than 30 members
-      for (let group of existingGroups) {
-        const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + group.id + "'", { limit: 1000 });
-
-        if (groupMembers.length < 50) {
-          assignedGroup = group;
-          break;
-        }
-      }
-
-      // If no suitable existing group, create a new one
-      if (!assignedGroup) {
-        const newGroup = new Record("groups");
-        newGroup.set("name", `${location} Group ${existingGroups.length + 1}`);
-        newGroup.set("location", location);
-        newGroup.set("created_date", new Date().toISOString());
-        newGroup.set("status", "active");
-        $app.save(newGroup);
-        assignedGroup = newGroup;
-      }
-
-      // Add member to the group
-      const groupMember = new Record("group_members");
-      groupMember.set("group_id", assignedGroup.id);
-      groupMember.set("member_id", memberId);
-      groupMember.set("joined_date", new Date().toISOString());
-      groupMember.set("status", "active");
-      $app.save(groupMember);
-
-      // Notify member about group assignment
-      const groupNotification = new Record("notifications");
-      groupNotification.set("member_id", memberId);
-      groupNotification.set("type", "group_assignment");
-      groupNotification.set("title", "Group Assignment");
-      groupNotification.set("message", `You have been assigned to "${assignedGroup.get("name")}" in ${location}`);
-      groupNotification.set("read_status", false);
-      $app.save(groupNotification);
-    }
+    // 2. Group assignment is delegated to the auto-group-assignment hook.
+    // This hook keeps registration automation focused on notifications and savings setup.
 
     // 3. Create initial savings record
     const initialSavings = new Record("savings");

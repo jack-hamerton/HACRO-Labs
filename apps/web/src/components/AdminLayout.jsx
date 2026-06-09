@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/AdminAuthContext.jsx';
-import { LayoutDashboard, Users, User, Activity, LogOut, Menu, X, ShieldAlert, ChartBar, Building, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Users, User, Activity, LogOut, Menu, X, ShieldAlert, ChartBar, Building, CreditCard, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AdminLayout = ({ children }) => {
@@ -53,7 +53,8 @@ const AdminLayout = ({ children }) => {
     { path: '/admin-company-accounts', label: 'Company Accounts', icon: Building },
     { path: '/admin-loan-management', label: 'Loan Management', icon: CreditCard },
     { path: '/admin-payment-management', label: 'Payment Management', icon: CreditCard },
-    ...(currentAdmin?.role === 'super_admin' ? [{ path: '/admin-manage-admins', label: 'Manage Admins', icon: ShieldAlert }] : []),
+    { path: '/admin-newsletter', label: 'Newsletters', icon: FileText },
+    ...(currentAdmin?.role === 'super_admin' || currentAdmin?.role === 'admin' ? [{ path: '/admin-manage-admins', label: 'Manage Admins', icon: ShieldAlert }] : []),
     { path: '/admin-profile', label: 'Profile', icon: User },
     { path: '/admin-activity-log', label: 'Activity Log', icon: Activity },
   ];

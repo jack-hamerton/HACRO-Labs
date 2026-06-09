@@ -4,7 +4,7 @@ import { CreditCard, PiggyBank, Wallet, Shield, DollarSign, Phone } from 'lucide
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import Header from '@/components/Header.jsx';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 import Footer from '@/components/Footer.jsx';
 
 const PaymentSelectionPage = () => {
@@ -169,10 +169,8 @@ const PaymentSelectionPage = () => {
         <meta name="description" content="Select payment type and make secure payments via M-Pesa." />
       </Helmet>
 
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-
-        <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
+      <MemberPortalLayout title="Make Payment" subtitle="Select your payment type and complete securely via M-Pesa.">
+        <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Make a Payment</h1>
             <p className="text-muted-foreground">Select your payment type and complete securely via M-Pesa</p>
@@ -305,7 +303,7 @@ const PaymentSelectionPage = () => {
         </div>
 
         <Footer />
-      </div>
+      </MemberPortalLayout>
     </>
   );
 };

@@ -26,6 +26,7 @@ import StaffPage from '@/pages/StaffPage.jsx';
 import AnalyticsDashboard from '@/pages/AnalyticsDashboard.jsx';
 import GroupMessaging from '@/pages/GroupMessaging.jsx';
 import NewsletterPage from '@/pages/NewsletterPage.jsx';
+import AdminNewsletterPage from '@/pages/AdminNewsletterPage.jsx';
 
 // Admin Routes
 import AdminLoginPage from '@/pages/AdminLoginPage.jsx';
@@ -81,6 +82,7 @@ function App() {
             <Route path="/admin-profile" element={<ProtectedAdminRoute><AdminProfilePage /></ProtectedAdminRoute>} />
             <Route path="/admin-activity-log" element={<ProtectedAdminRoute><AdminActivityLogPage /></ProtectedAdminRoute>} />
             <Route path="/admin-company-accounts" element={<ProtectedAdminRoute><AdminCompanyAccountsPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-newsletter" element={<ProtectedAdminRoute><AdminNewsletterPage /></ProtectedAdminRoute>} />
             <Route path="/newsletter" element={<NewsletterPage />} />
             
             <Route

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, Pin, Trash2, Loader2, ArrowLeft } from 'lucide-react';
+import { Send, Trash2, Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import Header from '@/components/Header.jsx';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 
 const GroupMessaging = () => {
   const { groupId } = useParams();
@@ -88,11 +88,8 @@ const GroupMessaging = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -100,9 +97,8 @@ const GroupMessaging = () => {
   return (
     <>
       <Helmet><title>Group Chat - Hacro Labs</title></Helmet>
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 flex flex-col h-[calc(100vh-64px)]">
+      <MemberPortalLayout title="Group Chat" subtitle="Collaborate with your group in real time.">
+        <div className="max-w-4xl mx-auto w-full px-4 py-8 flex flex-col h-[calc(100vh-64px)]">
           <div className="flex items-center mb-6">
             <button onClick={() => navigate('/group-dashboard')} className="mr-4 p-2 hover:bg-muted rounded-lg transition-colors">
               <ArrowLeft className="w-5 h-5" />
@@ -149,7 +145,7 @@ const GroupMessaging = () => {
             </form>
           </div>
         </div>
-      </div>
+      </MemberPortalLayout>
     </>
   );
 };

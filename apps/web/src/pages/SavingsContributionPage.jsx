@@ -5,7 +5,7 @@ import { PiggyBank, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import Header from '@/components/Header.jsx';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 import Footer from '@/components/Footer.jsx';
 
 const SavingsContributionPage = () => {
@@ -121,11 +121,8 @@ const SavingsContributionPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -136,10 +133,8 @@ const SavingsContributionPage = () => {
         <title>Make Savings Contribution - Hacro Labs</title>
       </Helmet>
 
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-
-        <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-12">
+      <MemberPortalLayout title="Savings Contribution" subtitle="Add funds to your group savings account.">
+        <div className="max-w-2xl mx-auto w-full px-4 py-12">
           <button 
             onClick={() => navigate('/group-dashboard')}
             className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground mb-8 transition-colors"
@@ -221,7 +216,7 @@ const SavingsContributionPage = () => {
         </div>
 
         <Footer />
-      </div>
+      </MemberPortalLayout>
     </>
   );
 };
