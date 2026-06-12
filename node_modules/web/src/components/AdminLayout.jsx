@@ -8,6 +8,7 @@ const AdminLayout = ({ children }) => {
   const { currentAdmin, logout } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const displayedRole = currentAdmin?.role === 'admin' ? 'super_admin' : currentAdmin?.role || 'admin';
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [warningShown, setWarningShown] = useState(false);
 
@@ -54,7 +55,7 @@ const AdminLayout = ({ children }) => {
     { path: '/admin-loan-management', label: 'Loan Management', icon: CreditCard },
     { path: '/admin-payment-management', label: 'Payment Management', icon: CreditCard },
     { path: '/admin-newsletter', label: 'Newsletters', icon: FileText },
-    ...(currentAdmin?.role === 'super_admin' || currentAdmin?.role === 'admin' ? [{ path: '/admin-manage-admins', label: 'Manage Admins', icon: ShieldAlert }] : []),
+    ...(displayedRole === 'super_admin' ? [{ path: '/admin-manage-admins', label: 'Manage Admins', icon: ShieldAlert }] : []),
     { path: '/admin-profile', label: 'Profile', icon: User },
     { path: '/admin-activity-log', label: 'Activity Log', icon: Activity },
   ];
@@ -87,7 +88,7 @@ const AdminLayout = ({ children }) => {
             </div>
             <div>
               <p className="text-sm font-medium text-white line-clamp-1">{currentAdmin?.full_name || currentAdmin?.email || 'Admin User'}</p>
-              <p className="text-xs text-slate-500 capitalize">{(currentAdmin?.role || 'admin').replace('_', ' ')}</p>
+              <p className="text-xs text-slate-500 capitalize">{displayedRole.replace('_', ' ')}</p>
             </div>
           </div>
 

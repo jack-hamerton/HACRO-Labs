@@ -88,9 +88,10 @@ export async function verifyAdminToken(req, res, next) {
     }
 
     req.adminId = admin.id;
-    req.adminRole = admin.role || 'admin';
+    const normalizedRole = admin.role === 'admin' ? 'super_admin' : admin.role || 'admin';
+    req.adminRole = normalizedRole;
     req.adminEmail = admin.email;
-    req.admin = admin;
+    req.admin = { ...admin, role: normalizedRole };
 
     next();
   } catch (err) {

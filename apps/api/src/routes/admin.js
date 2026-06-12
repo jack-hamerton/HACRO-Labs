@@ -132,13 +132,15 @@ router.post('/login', async (req, res) => {
 
   const responseToken = createdSession ? token : authData.token;
 
+  const normalizedRole = authData.record.role === 'admin' ? 'super_admin' : authData.record.role || 'super_admin';
+
   res.json({
     token: responseToken,
     admin: {
       id: authData.record.id,
       email: authData.record.email,
       full_name: authData.record.full_name || `${authData.record.first_name || ''} ${authData.record.last_name || ''}`.trim() || authData.record.email,
-      role: authData.record.role || 'super_admin',
+      role: normalizedRole,
     },
   });
 });
@@ -337,11 +339,13 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
 router.get('/profile', verifyAdminToken, async (req, res) => {
   const admin = await pb.collection('pbc_admins_auth').getOne(req.adminId);
 
+  const normalizedRole = admin.role === 'admin' ? 'super_admin' : admin.role || 'admin';
+
   res.json({
     id: admin.id,
     email: admin.email,
     full_name: admin.full_name || `${admin.first_name || ''} ${admin.last_name || ''}`.trim() || admin.email,
-    role: admin.role || 'admin',
+    role: normalizedRole,
     phone: admin.phone || null,
     created_date: admin.created,
     last_login: admin.last_login || null,

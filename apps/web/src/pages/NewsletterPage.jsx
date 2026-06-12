@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import Header from '@/components/Header.jsx';
-import Footer from '@/components/Footer.jsx';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -97,7 +96,6 @@ const NewsletterPage = () => {
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -330,7 +328,6 @@ const NewsletterPage = () => {
           </div>
         )}
 
-        <Footer />
       </div>
     </>
   );

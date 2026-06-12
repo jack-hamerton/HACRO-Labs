@@ -5,7 +5,6 @@ import { LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import Header from '@/components/Header.jsx';
-import Footer from '@/components/Footer.jsx';
 
 const MemberLoginPage = () => {
   const navigate = useNavigate();
@@ -98,10 +97,10 @@ const MemberLoginPage = () => {
           </div>
         </div>
 
-        <Footer />
       </div>
     </>
   );
 };
 
 export default MemberLoginPage;
+

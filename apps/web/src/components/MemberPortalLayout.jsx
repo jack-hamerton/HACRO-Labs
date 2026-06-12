@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { User, Users, Wallet, PiggyBank, MessageSquare, History, CreditCard, Bell, ShieldCheck } from 'lucide-react';
+import { User, Users, Wallet, PiggyBank, MessageSquare, History, CreditCard, Bell, ShieldCheck, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 
 const MemberPortalLayout = ({ title, subtitle, children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -82,6 +82,20 @@ const MemberPortalLayout = ({ title, subtitle, children }) => {
             );
           })}
         </nav>
+
+        <div className="mt-8 pt-4 border-t border-[hsl(var(--primary)_/_0.12)]">
+          <button
+            type="button"
+            onClick={() => {
+              logout();
+              setIsMobileOpen(false);
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold text-[hsl(var(--primary))] bg-white border border-[hsl(var(--primary)_/_0.16)] hover:bg-[hsl(var(--primary)_/_0.08)] transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Log out
+          </button>
+        </div>
       </aside>
 
       {isMobileOpen && <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setIsMobileOpen(false)} />}

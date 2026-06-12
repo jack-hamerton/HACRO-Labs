@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import apiServerClient from '@/lib/apiServerClient.js';
 import Header from '@/components/Header.jsx';
-import Footer from '@/components/Footer.jsx';
 
 // Dynmic loctions
 const KENYA_LOCATION_DATA = {
@@ -697,7 +696,6 @@ const RegistrationPage = () => {
             </div>
           </form>
         </div>
-        <Footer />
       </div>
     </>
   );

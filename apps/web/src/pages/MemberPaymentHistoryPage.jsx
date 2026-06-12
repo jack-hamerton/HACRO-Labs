@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
-import Footer from '@/components/Footer.jsx';
 import PaymentAcknowledgmentModal from '@/components/PaymentAcknowledgmentModal.jsx';
 
 const MemberPaymentHistoryPage = () => {
@@ -133,10 +132,10 @@ const MemberPaymentHistoryPage = () => {
           />
         )}
 
-        <Footer />
       </MemberPortalLayout>
     </>
   );
 };
 
 export default MemberPaymentHistoryPage;
+

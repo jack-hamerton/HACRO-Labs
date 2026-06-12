@@ -4,7 +4,6 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import Header from '@/components/Header.jsx';
-import Footer from '@/components/Footer.jsx';
 
 const RegistrationConfirmationPage = () => {
   const location = useLocation();
@@ -149,10 +148,10 @@ const RegistrationConfirmationPage = () => {
           </div>
         </div>
 
-        <Footer />
       </div>
     </>
   );
 };
 
 export default RegistrationConfirmationPage;
+

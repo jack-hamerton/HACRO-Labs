@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
-import Footer from '@/components/Footer.jsx';
 
 const GroupDashboardPage = () => {
   const { currentUser } = useAuth();
@@ -74,7 +73,6 @@ const GroupDashboardPage = () => {
             <Link to="/member-dashboard" className="btn-primary inline-flex items-center">Return to Dashboard</Link>
           </div>
         </div>
-        <Footer />
       </MemberPortalLayout>
     );
   }
@@ -146,7 +144,6 @@ const GroupDashboardPage = () => {
             ))}
           </div>
         </div>
-        <Footer />
       </MemberPortalLayout>
     </>
   );

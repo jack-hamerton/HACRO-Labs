@@ -57,10 +57,16 @@ const AdminManagementPage = () => {
                         <div className="text-slate-500">{admin.email}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border ${admin.role === 'super_admin' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
-                          {admin.role === 'super_admin' && <Shield className="w-3 h-3" />}
-                          {admin.role.replace('_', ' ')}
-                        </span>
+                        {(() => {
+                          const displayRole = admin.role === 'admin' ? 'super_admin' : admin.role;
+                          const isSuper = displayRole === 'super_admin';
+                          return (
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border ${isSuper ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                              {isSuper && <Shield className="w-3 h-3" />}
+                              {displayRole.replace('_', ' ')}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${admin.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Loader2, Twitter, Linkedin, Instagram, Facebook, Globe, Briefcase } from 'lucide-react';
 import Header from '@/components/Header.jsx';
-import Footer from '@/components/Footer.jsx';
 import apiServerClient from '@/lib/apiServerClient.js';
 
 const fallbackStaffMembers = [
@@ -242,10 +241,10 @@ const StaffPage = () => {
           </section>
         </main>
 
-        <Footer />
       </div>
     </>
   );
 };
 
 export default StaffPage;
+

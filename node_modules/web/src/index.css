@@ -132,6 +132,27 @@
   .form-input {
     @apply w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
   }
+
+  select,
+  select.form-input {
+    accent-color: hsl(var(--primary));
+  }
+
+  select option,
+  select.form-input option,
+  select option:checked,
+  select.form-input option:checked,
+  select option:hover,
+  select.form-input option:hover {
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+  }
+
+  select option:checked,
+  select.form-input option:checked {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
   
   .dashboard-card {
     @apply bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-md transition-all duration-300;

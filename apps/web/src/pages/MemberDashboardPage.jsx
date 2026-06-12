@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, Wallet, PiggyBank, MessageSquare, AlertCircle, User, Gift, Award, Shield, LogOut } from 'lucide-react';
+import { Users, Wallet, PiggyBank, MessageSquare, AlertCircle, User, Gift, Award, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
@@ -9,7 +9,7 @@ import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
 
 const MemberDashboardPage = () => {
   const navigate = useNavigate();
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(true);
   const [groupData, setGroupData] = useState(null);
@@ -22,11 +22,6 @@ const MemberDashboardPage = () => {
   useEffect(() => {
     fetchMemberData();
   }, [currentUser]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/member-login');
-  };
 
   const fetchMemberData = async () => {
     if (!currentUser) return;
@@ -101,14 +96,6 @@ const MemberDashboardPage = () => {
                 <p className="text-muted-foreground">Member ID: {member?.id}</p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="btn-outline inline-flex items-center gap-2 self-start lg:self-auto"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
           </div>
 
           <div className="rounded-3xl border border-[hsl(var(--primary)_/_0.16)] bg-[hsl(var(--primary)_/_0.06)] px-6 py-5 shadow-sm">

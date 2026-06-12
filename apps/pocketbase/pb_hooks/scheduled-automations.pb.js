@@ -130,6 +130,11 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
         // Note: Bonuses would be handled separately in a real system
       }
 
+      const remainingBalanceAfterRecovery = loanBalance - amountToRecover;
+      const remainingBalanceAfterGroupPenalty = remainingBalanceAfterRecovery > 0
+        ? deductGroupInterestPenalty(loan, remainingBalanceAfterRecovery, memberId)
+        : 0;
+
       // Create default recovery record
       const defaultHistory = new Record("contributions_history");
       defaultHistory.set("member_id", memberId);
@@ -143,7 +148,7 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
 
       // Update loan status
       loan.set("status", "defaulted");
-      loan.set("balance", loanBalance - amountToRecover);
+      loan.set("balance", Math.max(0, remainingBalanceAfterGroupPenalty));
       $app.save(loan);
 
       // Notify member
@@ -151,80 +156,206 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
       defaultNotification.set("member_id", memberId);
       defaultNotification.set("type", "loan_default");
       defaultNotification.set("title", "Loan Default Processed");
-      defaultNotification.set("message", `Your IL loan has defaulted. KES ${amountToRecover.toLocaleString()} has been recovered from your savings. Remaining balance: KES ${(loanBalance - amountToRecover).toLocaleString()}`);
+      let defaultMessage = `Your IL loan has defaulted. KES ${amountToRecover.toLocaleString()} has been recovered from your savings.`;
+      if (remainingBalanceAfterRecovery > 0 && remainingBalanceAfterGroupPenalty === 0) {
+        defaultMessage += ` The remaining KES ${remainingBalanceAfterRecovery.toLocaleString()} was covered by group interest deductions from your group.`;
+      } else {
+        defaultMessage += ` Remaining balance: KES ${Math.max(0, remainingBalanceAfterGroupPenalty).toLocaleString()}`;
+      }
+      defaultNotification.set("message", defaultMessage);
       defaultNotification.set("read_status", false);
       $app.save(defaultNotification);
 
     } else if (loanType === "GIL") {
-      // For GIL loans, distribute remaining balance to guarantors
-      const guarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loan.id + "' && status = 'active'", { limit: 1000 });
+      // For GIL loans, first use the borrower's savings to recover the loan.
+      const borrowerSavingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
+      let borrowerSavings = 0;
+      if (borrowerSavingsRecords.length > 0) {
+        borrowerSavings = borrowerSavingsRecords[0].get("total_savings") || 0;
+      }
 
-      if (guarantors.length > 0) {
-        const amountPerGuarantor = loanBalance / guarantors.length;
+      const amountFromBorrower = Math.min(loanBalance, borrowerSavings);
+      if (amountFromBorrower > 0 && borrowerSavingsRecords.length > 0) {
+        borrowerSavingsRecords[0].set("total_savings", borrowerSavings - amountFromBorrower);
+        $app.save(borrowerSavingsRecords[0]);
+
+        const borrowerRecoveryHistory = new Record("contributions_history");
+        borrowerRecoveryHistory.set("member_id", memberId);
+        borrowerRecoveryHistory.set("group_id", loan.get("group_id"));
+        borrowerRecoveryHistory.set("type", "loan_default_recovery");
+        borrowerRecoveryHistory.set("amount", amountFromBorrower);
+        borrowerRecoveryHistory.set("date", new Date().toISOString());
+        borrowerRecoveryHistory.set("description", `Borrower savings recovered for defaulted GIL loan ${loan.id}`);
+        borrowerRecoveryHistory.set("balance", borrowerSavings - amountFromBorrower);
+        $app.save(borrowerRecoveryHistory);
+      }
+
+      let remainingBalance = loanBalance - amountFromBorrower;
+      if (remainingBalance > 0) {
+        remainingBalance = deductGroupInterestPenalty(loan, remainingBalance, memberId);
+      }
+
+      const guarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loan.id + "' && status = 'active'", { limit: 1000 });
+      const guarantorCollateralTotal = guarantors.reduce((sum, guarantor) => sum + (guarantor.get("collateral_amount") || 0), 0);
+
+      if (remainingBalance <= 0) {
+        loan.set("status", "repaid");
+        loan.set("balance", 0);
+        $app.save(loan);
 
         guarantors.forEach((guarantor) => {
           const guarantorId = guarantor.get("guarantor_id");
           const collateralAmount = guarantor.get("collateral_amount") || 0;
-
-          // Calculate how much to deduct from this guarantor's collateral
-          const deductionAmount = Math.min(amountPerGuarantor, collateralAmount);
-
-          // Update guarantor collateral
-          guarantor.set("collateral_amount", collateralAmount - deductionAmount);
-          guarantor.set("status", "default_penalty");
-          $app.save(guarantor);
-
-          // Return remaining collateral to guarantor
-          const remainingCollateral = collateralAmount - deductionAmount;
-          if (remainingCollateral > 0) {
+          if (collateralAmount > 0) {
             const guarantorSavings = $app.findRecordsByFilter("savings", "member_id = '" + guarantorId + "'", { limit: 1 });
             if (guarantorSavings.length > 0) {
               const currentSavings = guarantorSavings[0].get("total_savings") || 0;
-              guarantorSavings[0].set("total_savings", currentSavings + remainingCollateral);
+              guarantorSavings[0].set("total_savings", currentSavings + collateralAmount);
               $app.save(guarantorSavings[0]);
 
-              // Create return history
               const returnHistory = new Record("contributions_history");
               returnHistory.set("member_id", guarantorId);
               returnHistory.set("group_id", loan.get("group_id"));
-              returnHistory.set("type", "collateral_partial_return");
-              returnHistory.set("amount", remainingCollateral);
+              returnHistory.set("type", "collateral_return");
+              returnHistory.set("amount", collateralAmount);
               returnHistory.set("date", new Date().toISOString());
-              returnHistory.set("description", `Partial collateral return after default for GIL loan ${loan.id}`);
-              returnHistory.set("balance", currentSavings + remainingCollateral);
+              returnHistory.set("description", `Collateral returned after defaulted GIL loan ${loan.id}`);
+              returnHistory.set("balance", currentSavings + collateralAmount);
               $app.save(returnHistory);
             }
           }
-
-          // Notify guarantor
-          const guarantorNotification = new Record("notifications");
-          guarantorNotification.set("member_id", guarantorId);
-          guarantorNotification.set("type", "guarantor_penalty");
-          guarantorNotification.set("title", "Guarantor Penalty Applied");
-          guarantorNotification.set("message", `KES ${deductionAmount.toLocaleString()} has been deducted from your collateral for defaulted GIL loan. Remaining collateral: KES ${remainingCollateral.toLocaleString()}`);
-          guarantorNotification.set("read_status", false);
-          $app.save(guarantorNotification);
+          guarantor.set("collateral_amount", 0);
+          guarantor.set("status", "completed");
+          $app.save(guarantor);
         });
-
-        // Mark loan as defaulted
+      } else {
         loan.set("status", "defaulted");
-        loan.set("balance", 0);
+        loan.set("balance", remainingBalance);
         $app.save(loan);
-
-        // Notify borrower
-        const defaultNotification = new Record("notifications");
-        defaultNotification.set("member_id", memberId);
-        defaultNotification.set("type", "loan_default");
-        defaultNotification.set("title", "GIL Loan Defaulted");
-        defaultNotification.set("message", `Your GIL loan has defaulted. The remaining balance has been distributed among your guarantors as penalties.`);
-        defaultNotification.set("read_status", false);
-        $app.save(defaultNotification);
       }
+
+      const defaultNotification = new Record("notifications");
+      defaultNotification.set("member_id", memberId);
+      defaultNotification.set("type", "loan_default");
+      defaultNotification.set("title", "GIL Loan Defaulted");
+      if (remainingBalance <= 0) {
+        defaultNotification.set("message", `Your GIL loan default has been recovered from your savings and group interest deductions. Guarantor collateral has been returned.`);
+      } else {
+        defaultNotification.set("message", `Your GIL loan has defaulted. KES ${remainingBalance.toLocaleString()} remains after savings and group interest deductions.`);
+      }
+      defaultNotification.set("read_status", false);
+      $app.save(defaultNotification);
+    }
     }
 
   } catch (err) {
     console.log("Error handling loan default: " + err.message);
   }
+}
+
+function deductGroupInterestPenalty(loan, remainingBalance, borrowerId) {
+  if (!remainingBalance || remainingBalance <= 0) {
+    return 0;
+  }
+
+  const groupId = loan.get("group_id");
+  if (!groupId) {
+    return remainingBalance;
+  }
+
+  const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", { limit: 1000 });
+  const eligibleMembers = groupMembers.filter((gm) => gm.get("member_id") !== borrowerId);
+  if (eligibleMembers.length === 0) {
+    return remainingBalance;
+  }
+
+  let totalInterest = 0;
+  const memberInterest = eligibleMembers.map((gm) => {
+    const memberId = gm.get("member_id");
+    const interestRecords = $app.findRecordsByFilter("contributions_history", "member_id = '" + memberId + "' && type = 'interest_earned'", { limit: 1000 });
+    let interestBalance = 0;
+    interestRecords.forEach((record) => {
+      interestBalance += record.get("amount") || 0;
+    });
+    totalInterest += interestBalance;
+    return { memberId, interestBalance };
+  });
+
+  let remaining = remainingBalance;
+  if (totalInterest > 0) {
+    memberInterest.forEach((item) => {
+      if (remaining <= 0) return;
+      const deductionShare = Math.min((item.interestBalance / totalInterest) * remaining, item.interestBalance);
+      if (deductionShare <= 0) return;
+
+      const savingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + item.memberId + "'", { limit: 1 });
+      if (savingsRecords.length === 0) return;
+
+      const currentSavings = savingsRecords[0].get("total_savings") || 0;
+      const deductionAmount = Math.min(deductionShare, currentSavings);
+      if (deductionAmount <= 0) return;
+
+      savingsRecords[0].set("total_savings", currentSavings - deductionAmount);
+      $app.save(savingsRecords[0]);
+
+      const penaltyHistory = new Record("contributions_history");
+      penaltyHistory.set("member_id", item.memberId);
+      penaltyHistory.set("group_id", groupId);
+      penaltyHistory.set("type", "interest_penalty");
+      penaltyHistory.set("amount", deductionAmount);
+      penaltyHistory.set("date", new Date().toISOString());
+      penaltyHistory.set("description", `Group interest deduction for defaulted loan ${loan.id}`);
+      penaltyHistory.set("balance", currentSavings - deductionAmount);
+      $app.save(penaltyHistory);
+
+      const penaltyNotification = new Record("notifications");
+      penaltyNotification.set("member_id", item.memberId);
+      penaltyNotification.set("type", "penalty");
+      penaltyNotification.set("title", "Group Interest Penalty");
+      penaltyNotification.set("message", `KES ${deductionAmount.toLocaleString()} has been deducted from your savings as group interest penalty to cover a defaulted loan.`);
+      penaltyNotification.set("read_status", false);
+      $app.save(penaltyNotification);
+
+      remaining -= deductionAmount;
+    });
+  } else {
+    const perMemberShare = remaining / eligibleMembers.length;
+    eligibleMembers.forEach((gm) => {
+      if (remaining <= 0) return;
+      const memberId = gm.get("member_id");
+      const savingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
+      if (savingsRecords.length === 0) return;
+
+      const currentSavings = savingsRecords[0].get("total_savings") || 0;
+      const deductionAmount = Math.min(perMemberShare, currentSavings);
+      if (deductionAmount <= 0) return;
+
+      savingsRecords[0].set("total_savings", currentSavings - deductionAmount);
+      $app.save(savingsRecords[0]);
+
+      const penaltyHistory = new Record("contributions_history");
+      penaltyHistory.set("member_id", memberId);
+      penaltyHistory.set("group_id", groupId);
+      penaltyHistory.set("type", "interest_penalty");
+      penaltyHistory.set("amount", deductionAmount);
+      penaltyHistory.set("date", new Date().toISOString());
+      penaltyHistory.set("description", `Group interest deduction for defaulted loan ${loan.id}`);
+      penaltyHistory.set("balance", currentSavings - deductionAmount);
+      $app.save(penaltyHistory);
+
+      const penaltyNotification = new Record("notifications");
+      penaltyNotification.set("member_id", memberId);
+      penaltyNotification.set("type", "penalty");
+      penaltyNotification.set("title", "Group Interest Penalty");
+      penaltyNotification.set("message", `KES ${deductionAmount.toLocaleString()} has been deducted from your savings as group interest penalty to cover a defaulted loan.`);
+      penaltyNotification.set("read_status", false);
+      $app.save(penaltyNotification);
+
+      remaining -= deductionAmount;
+    });
+  }
+
+  return remaining;
 }
 
 cronAdd("monthly_interest_distribution", "0 10 1 * *", () => {

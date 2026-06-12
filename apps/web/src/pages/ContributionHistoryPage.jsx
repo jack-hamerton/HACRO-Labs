@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
-import Footer from '@/components/Footer.jsx';
 
 const ContributionHistoryPage = () => {
   const { currentUser } = useAuth();
@@ -150,10 +149,10 @@ const ContributionHistoryPage = () => {
           </div>
         </div>
 
-        <Footer />
       </MemberPortalLayout>
     </>
   );
 };
 
 export default ContributionHistoryPage;
+
