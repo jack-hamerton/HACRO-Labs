@@ -12,7 +12,7 @@ const Header = () => {
   const { isAuthenticated, isMember, isAdmin, logout, currentUser } = useAuth();
   const location = useLocation();
 
-  const logoUrl = 'https://i.postimg.cc/vTKj3xtH/HACRO-logo-3-removebg-preview-(1).png';
+  const logoUrl = 'https://i.postimg.cc/85wkKPdm/Whats-App-Image-2026-06-14-at-15-13-25.jpg';
 
   const isActive = (path) => location.pathname === path;
 
@@ -165,7 +165,7 @@ const Header = () => {
             )}
           </nav>
 
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors duration-200">
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors duration-200 text-primary">
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>

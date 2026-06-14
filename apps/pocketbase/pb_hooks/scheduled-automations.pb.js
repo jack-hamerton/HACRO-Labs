@@ -246,7 +246,6 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
       defaultNotification.set("read_status", false);
       $app.save(defaultNotification);
     }
-    }
 
   } catch (err) {
     console.log("Error handling loan default: " + err.message);
