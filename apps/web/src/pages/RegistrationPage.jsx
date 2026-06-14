@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, User, Mail, CreditCard, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronRight, ChevronLeft, User, Mail, CreditCard, Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import apiServerClient from '@/lib/apiServerClient.js';
@@ -243,8 +243,11 @@ const RegistrationPage = () => {
     phone: '',
     password: '',
     passwordConfirm: '',
-    amount: 10,
+    amount: 50,
   });
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   const [profilePic, setProfilePic] = useState(null);
   const [profilePicPreview, setProfilePicPreview] = useState(null);
@@ -317,6 +320,10 @@ const RegistrationPage = () => {
     if (currentStep === 1 && validateStep1()) {
       setCurrentStep(2);
     } else if (currentStep === 2 && validateStep2()) {
+      if (!termsAccepted) {
+        toast.error('Please accept the Terms & Conditions before continuing.');
+        return;
+      }
       if (!mpesaPhone && formData.phone) {
         setMpesaPhone(formData.phone);
       }
@@ -646,12 +653,65 @@ const RegistrationPage = () => {
                   </div>
                   <div>
                     <label className="form-label">Password <span className="text-destructive">*</span></label>
-                    <input type="password" name="password" value={formData.password} onChange={handleInputChange} className="form-input" minLength="8" required />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        minLength="8"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label className="form-label">Confirm password <span className="text-destructive">*</span></label>
-                    <input type="password" name="passwordConfirm" value={formData.passwordConfirm} onChange={handleInputChange} className="form-input" required />
+                    <div className="relative">
+                      <input
+                        type={showPasswordConfirm ? 'text' : 'password'}
+                        name="passwordConfirm"
+                        value={formData.passwordConfirm}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label={showPasswordConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                      >
+                        {showPasswordConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
+                </div>
+                <div className="bg-muted border border-border rounded-3xl p-4 space-y-3">
+                  <div className="text-sm text-foreground font-semibold">Terms & Conditions Summary</div>
+                  <p className="text-sm text-muted-foreground">
+                    By registering, you agree to Hacro Labs automated loan and savings processing rules, including deductions for overdue loans, group interest penalties, guarantor collateral handling, and in-app notifications.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Read the full Terms & Conditions on the <Link to="/newsletter#terms" className="text-primary hover:underline">Newsletter page</Link>.
+                  </p>
+                  <label className="inline-flex items-start gap-3 text-sm text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                    />
+                    <span>I have read and agree to the <Link to="/newsletter#terms" className="text-primary hover:underline">Terms & Conditions</Link> and Privacy Policy.</span>
+                  </label>
                 </div>
               </div>
             )}

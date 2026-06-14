@@ -203,6 +203,104 @@ const NewsletterPage = () => {
           </div>
         </div>
 
+          <div className="mt-12 rounded-3xl border border-border bg-card p-8 shadow-sm" id="terms">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-sm uppercase tracking-[0.32em] text-muted-foreground">Effective Date</p>
+                <h2 className="text-3xl font-bold text-foreground">Terms & Conditions</h2>
+                <p className="text-sm text-muted-foreground mt-1">Effective June 14, 2026 | Version 1.0</p>
+              </div>
+            </div>
+
+            <div className="space-y-6 text-sm leading-relaxed text-muted-foreground">
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">1. Acceptance</h3>
+                <p>By using the Hacro Labs application, you agree to these Terms & Conditions and to the automated account and loan-processing behaviors implemented in the app’s backend hooks. You consent to electronic notifications, automatic calculations, and automated record updates relating to your account, savings, loans, penalties, and collateral.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">2. Account Responsibility</h3>
+                <p>You are responsible for providing accurate personal, contact, and financial information and for keeping your savings and account details up to date so that automated processes can operate correctly.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">3. Automated Processing & Consent</h3>
+                <p>Hacro Labs may run automated scripts and scheduled jobs that evaluate loans, apply interest, calculate penalties, create notifications, and update records. These processes include overdue checks, monthly interest distribution, penalty calculations, default handling, guarantor automation, and other backend automations implemented in the PocketBase hook files.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">4. Loan Repayments and Defaults</h3>
+                <p>Loans are subject to the app’s grace period, overdue policies, and default rules. When a loan becomes overdue, notifications are sent to the borrower and, when applicable, to group members. After repeated overdue notifications, loans may be marked as defaulted and automated recovery actions may be triggered.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">5. Recovery, Deductions, and Order of Priority</h3>
+                <p>For individual loans (IL), the system will first recover outstanding balances from the borrower’s savings and available bonuses. If the balance remains, group interest penalties or other group-based recovery mechanisms may apply.</p>
+                <p>For group loans (GIL), the system will first use borrower savings. If savings are insufficient, eligible group members may be charged proportionally from their interest balances or savings. Remaining balances may then be subject to guarantor collateral rules.</p>
+                <p>You authorize Hacro Labs to deduct funds from your savings, interest balances, and other on-platform balances as needed to recover outstanding loan balances and penalties.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">6. Guarantors & Collateral</h3>
+                <p>Members who accept to act as guarantors acknowledge a collateral commitment. Guarantor offers remain pending until acknowledged. Collateral remains flagged until disbursement or default events. When a loan is recovered successfully, collateral may be returned to guarantors’ savings and marked as completed.</p>
+                <p>If a GIL loan remains unpaid after borrower and group deductions, guarantor collateral may be consumed or handled according to the obligation rules defined by the app’s backend logic.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">7. Penalties & Interest</h3>
+                <p>Late repayment penalties may be applied automatically based on the app’s penalty calculation rules. Monthly savings interest may also be calculated and credited automatically through scheduled distribution processes.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">8. Fees & Insurance</h3>
+                <p>The app may automatically collect insurance fees, administrative fees, bonuses, and other charges according to its backend fee collection and account history logic.</p>
+                <p className="mt-2">Registration fee: a one-time fee of KES 50 is payable via M-Pesa at account creation to cover account setup and record processing. By creating an account you agree to pay this non-refundable registration fee through the payment flow presented during registration.</p>
+                <p className="mt-2">Membership fee: to become a full member and access member-only benefits, a membership fee of KES 500 is required and is payable through the member account payment portal. Members are expected to complete this payment after account creation as directed in the app.</p>
+                <p className="mt-2">Automated collection for unpaid membership fees: if the KES 500 membership fee is not paid within 12 months from the account creation date, you authorize Hacro Labs to recover the unpaid membership fee automatically by deducting available interest credited to your account (e.g., monthly interest earned on savings via the app). If interest balances are insufficient, further automated recovery actions may follow according to the recovery and deduction rules described elsewhere in these Terms.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">9. Notifications & Records</h3>
+                <p>The app generates in-app notifications for overdue loans, penalties, collateral acknowledgments, loan approvals, disbursements, repayments, collateral returns, and other events. Transaction history records are created automatically for audit and member transparency.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">10. Admin Actions & Review</h3>
+                <p>Some actions require admin review, such as loan disbursement and approval workflows. Authorized admins may review loan status, change records, and trigger manual processes as permitted by their roles.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">11. Fraud Detection & Rejection</h3>
+                <p>The system may run automated fraud checks and reject or flag suspicious transactions, guarantor applications, or loan requests. Accounts may be suspended or blocked pending investigation if fraud is suspected.</p>
+              </section>
+
+              <section id="privacy">
+                <h3 className="text-lg font-semibold text-foreground">12. Data Use & Privacy</h3>
+                <p>By using the app, you agree that Hacro Labs may process personal and financial data necessary for loan operations, notifications, fraud checks, and record-keeping. Data is processed in accordance with the app’s Privacy Policy.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">13. Disputes & Corrections</h3>
+                <p>If you dispute an automated deduction or record, contact support promptly via the app or at info@hacrolabs.com. Hacro Labs will review logs and records and respond according to its dispute procedures. Automated actions may be reversible only where the system rules allow.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">14. Limitations of Liability & Indemnity</h3>
+                <p>Hacro Labs is not liable for indirect losses arising from automated deductions except as required by law. Users agree to indemnify Hacro Labs for misuse of the service or fraudulent activity attributable to them.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">15. Changes to These Terms</h3>
+                <p>Hacro Labs may update these Terms & Conditions and the behavior of backend automations. Material changes will be communicated by notification, and continued use of the service after notification constitutes acceptance.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-foreground">16. Contact & Support</h3>
+                <p>For questions, disputes, or information about automated hooks and their effects, contact support via the app or at info@hacrolabs.com.</p>
+              </section>
+            </div>
+          </div>
+
         {/* PDF Viewer Modal */}
         {selectedPdf && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
