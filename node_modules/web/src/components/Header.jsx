@@ -91,7 +91,7 @@ const Header = () => {
               <>
                 <Link to="/register" className={`text-sm font-medium transition-colors duration-200 ${isActive('/register') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Register</Link>
                 <Link to="/member-login" className={`text-sm font-medium transition-colors duration-200 ${isActive('/member-login') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Member Login</Link>
-                <Link to="/admin-login" className={`text-sm font-medium transition-colors duration-200 ${isActive('/admin-login') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Admin Login</Link>
+               
               </>
             )}
 
@@ -179,7 +179,7 @@ const Header = () => {
                 <>
                   <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Register</Link>
                   <Link to="/member-login" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Member Login</Link>
-                  <Link to="/admin-login" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Admin Login</Link>
+                  
                 </>
               )}
               {isMember && (

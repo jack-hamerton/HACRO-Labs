@@ -85,7 +85,7 @@ const HomePage = () => {
                   </Link>
                 </div>
                 <p className="mt-4 text-sm text-white/80">
-                  Learn more about our loan and savings policies in the <Link to="/newsletter#terms" className="underline text-white">Terms & Conditions</Link>.
+                  Learn more about our policies in the <Link to="/newsletter#terms" className="underline text-white">Terms & Conditions</Link>.
                 </p>
               </motion.div>
             </div>
