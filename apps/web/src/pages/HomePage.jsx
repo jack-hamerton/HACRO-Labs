@@ -10,16 +10,16 @@ import { EnergyScene } from '@/components/ui/EnergyScene.jsx';
 const HomePage = () => {
   const benefits = [{
     icon: Shield,
-    title: 'Community Protection',
-    description: 'Join Hacro Labs with confidence — your personal data, contributions, and community trust are safeguarded by strong security measures and encryption designed to protect every member.”'
+    title: 'Community Financial Empowerment Protection',
+    description: 'We are digitizing the chama spirit to build a safety net for everyone. HACRO Labs provides a transparent, secure, and automated platform where communities can pool resources, access fair credit, and grow their wealth together. We protect your savings with robust digital protocols, ensuring that your financial journey is safe, predictable, and managed by the community, for the community.'
   }, {
     icon: TrendingUp,
-    title: 'Community Growth Opportunities',
-    description: 'Unlock exclusive financial training, shared resources, and collaborative networking that accelerate your skills, strengthen your career, and expand your community’s impact..'
+    title: 'Sustainable Agri-Business Growth',
+    description: 'Farming is the backbone of our economy, and we are committed to making it profitable. We equip our members with the skills to transform their harvests through value addition, modern farming techniques, and smarter market access. Our training programs turn basic yields into viable businesses, ensuring that hard work translates into consistent income and tangible growth.'
   }, {
     icon: Award,
-    title: 'Community Recognition & Protection',
-    description: 'At Hacro Labs, every community member is honored and safeguarded, your contributions are celebrated with awards and acknowledgment, while strong protections ensure your dignity and trust remain secure.'
+    title: 'Environmental Resilience & Stewardship',
+    description: 'True growth respects the land. We empower our members to thrive by adopting eco-friendly practices that reduce reliance on harmful chemicals and preserve our natural heritage. Through income-generating activities that prioritize environmental health, we show that you can build a prosperous future while ensuring that the land remains fertile and healthy for generations to come.'
   }];
   return <>
       <Helmet>
@@ -71,8 +71,8 @@ const HomePage = () => {
                    Harnessing Community on Resource‑based Outreach_ (HACRO) Labs
                 </h1>
                 <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-prose">
-                  HACRO Labs is a registered non‑profit organisation in Kenya dedicated to digital and financial empowerment. Through training, support,
-                  and linkages, it helps members unlock their full potential and build scalable solutions for their communities.
+                 HACRO Labs is a non-profit organization dedicated to fostering self-reliance and collective prosperity among our community members. By providing the digital tools, training, and resources necessary for growth, we empower our community members to turn their potential into scalable solutions,
+                  ensuring that every financial gain and agricultural harvest contributes to a more resilient, sustainable, and thriving community for all.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -106,11 +106,11 @@ const HomePage = () => {
             once: true
           }} className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground mb-4 text-balance">
-                Membership benefits
+                How We Work
               </h2>
               <p className="text-lg text-secondary-foreground/80 max-w-2xl mx-auto">
-                HACRO Labs membership protects every community member, supports collective growth through shared training and resources,
-                and honors contributions with recognition that uplifts the whole community.
+               At HACRO Labs, we believe that true empowerment is rooted in community. We work directly with our community members to build a future that is financially secure, agriculturally productive, and environmentally conscious.
+               Our community membership model is built on three core pillars designed to elevate every participant:.
               </p>
             </motion.div>
 
@@ -141,18 +141,18 @@ const HomePage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }} className="text-center mb-12">
               <p className="text-sm uppercase tracking-[0.35em] text-primary">Meet our team</p>
-              <h2 className="mt-4 text-3xl md:text-4xl font-bold text-foreground">A dedicated team supporting every member</h2>
+              <h2 className="mt-4 text-3xl md:text-4xl font-bold text-foreground">A dedicated team supporting every community member</h2>
               <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                HACRO Labs staff deliver member support, digital training, and community outreach so every member can thrive.
+                HACRO Labs staff deliver  support, digital training, and community outreach so every member can thrive.
               </p>
             </motion.div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { name: 'Jack Hamerton', role: 'Founder & Executive Director' },
-                { name: 'Byrone Otieno', role: 'Operations Manager' },
-                { name: 'Samuel Karanja', role: 'Technology Lead' },
-                { name: 'Ruth Njeri', role: 'Community Engagement Specialist' },
+                { name: 'Jack Hamerton', role: 'Founder & Executive Director/ Advisory Chairman' },
+                { name: 'Jessy Mala', role: 'Program Delivery Manager' },
+                { name: 'Chrispine Samwel', role: 'Development Gateway Manager' },
+                { name: 'Ruth Njeri', role: 'Community Outreach Coordinator' },
               ].map((member) => (
                 <div key={member.name} className="rounded-3xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary font-semibold">

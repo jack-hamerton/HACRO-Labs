@@ -8,26 +8,40 @@ const fallbackStaffMembers = [
   {
     name: 'Jack Hamerton',
     role: 'Founder & Executive Director',
-    position: 'Executive Director',
-    bio: 'Leading HACRO Labs with community-driven digital and financial empowerment programs.',
-    photo: 'https://i.postimg.cc/P52ZvHBW/IMG-1064.jpg',
+    position: 'Executive Director/ Advisory Chairman',
+    bio: 'Leading HACRO Labs with community-driven strategic oversight and governance for the organization, ensuring alignment with our mission and values for sustainability and lomg-term impact.',
+    photo: 'https://i.postimg.cc/zfb4gHmd/0Q4A0693.jpg',
     socialLinks: {
-      linkedin: 'https://www.linkedin.com/in/jack-otieno',
+      linkedin: 'https://www.linkedin.com/in/jack-hamerton-6206911a3',
       twitter: 'https://twitter.com/jackotieno',
       instagram: '',
       facebook: '',
       website: '',
     }
   },
-  {
-    name: 'Ruphence Chola',
-    role: 'Operations Manager',
-    position: 'Operations Manager',
-    bio: 'Coordinates training, partnerships, and community outreach across Kenya.',
-    photo: 'https://i.postimg.cc/ryhYLdVj/IMG-0096-(1).jpg',
+   {
+    name: 'Jessy Mala',
+    role: 'Programs Manager',
+    position: 'Program Delivery Manager',
+    bio: 'Oversees the planning,coordination and execution of programmes, ensuring they meet organizational goals, stakeholders expectations and community needs.',
+    photo: 'https://i.postimg.cc/j2DFxJbc/Whats-App-Image-2026-06-18-at-09-19-39-(1).jpg',
     socialLinks: {
-      linkedin: 'https://www.linkedin.com/in/amina-mwangi',
-      twitter: '',
+      linkedin: 'https://www.linkedin.com/in/chrispine-samwel-8ab695278?utm_source=share_via&utm_content=profile&utm_medium=member_android',
+      twitter: 'https://x.com/CHRISAMMY_254',
+      instagram: '',
+      facebook: '',
+      website: '',
+    }
+  },
+  {
+    name: 'Chrispine Samwel',
+    role: 'Development Gateway Manager',
+    position: 'Development Gateway Manager',
+    bio: 'Coordinates for information, resources and partnerships across development initiatives "Gateway" ensure donors and stakeholders are connected effectively to development opportunities.',
+    photo: 'https://i.postimg.cc/j2DFxJbc/Whats-App-Image-2026-06-18-at-09-19-39-(1).jpg',
+    socialLinks: {
+      linkedin: 'https://www.linkedin.com/in/chrispine-samwel-8ab695278?utm_source=share_via&utm_content=profile&utm_medium=member_android',
+      twitter: 'https://x.com/CHRISAMMY_254',
       instagram: '',
       facebook: '',
       website: '',
@@ -35,9 +49,9 @@ const fallbackStaffMembers = [
   },
   {
     name: 'Samuel Karanja',
-    role: 'Technology Lead',
-    position: 'Technology Lead',
-    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    role: 'Community Oureach Coordinator',
+    position: 'Community Oureach Coordinator',
+    bio: 'Plans and executes community outreach initiatives to engage and support local members and ensures the organization presence in local communities.',
     photo: 'https://i.postimg.cc/x8FsGZpS/IMG-20221102-WA0006.jpg',
     socialLinks: {
       linkedin: 'https://www.linkedin.com/in/samuel-karanja',
@@ -49,9 +63,9 @@ const fallbackStaffMembers = [
   },
    {
     name: 'Samuel Karanja',
-    role: 'Technology Lead',
-    position: 'Technology Lead',
-    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    role: 'Program Delivery Unit',
+    position: 'Program Delivery Unit Officer',
+    bio: 'Assist in developing delivery plans, timelines and execution strategies for programs objectives and deliverable milestones.',
     photo: 'https://i.postimg.cc/tJSX3XHJ/IMG-20211105-081340-267.jpg',
     socialLinks: {
       linkedin: 'https://www.linkedin.com/in/samuel-karanja',
@@ -63,9 +77,9 @@ const fallbackStaffMembers = [
   },
    {
     name: 'Samuel Karanja',
-    role: 'Technology Lead',
-    position: 'Technology Lead',
-    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    role: 'Program Delivery Unit',
+    position: 'Program Delivery Unit Officer',
+    bio: 'Assist in developing delivery plans, timelines and execution strategies for programs objectives and deliverable milestones.',
     photo: 'https://i.postimg.cc/J7XRsQ9y/IMG-8869-1.jpg',
     socialLinks: {
       linkedin: 'https://www.linkedin.com/in/samuel-karanja',
@@ -77,9 +91,9 @@ const fallbackStaffMembers = [
   },
    {
     name: 'Samuel Karanja',
-    role: 'Technology Lead',
-    position: 'Technology Lead',
-    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    role: 'Program Delivery Unit',
+    position: 'Program Delivery Unit Officer',
+    bio: 'Assist in developing delivery plans, timelines and execution strategies for programs objectives and deliverable milestones.',
     photo: 'https://i.postimg.cc/CMv6VZhm/IMG-0433.jpg',
     socialLinks: {
       linkedin: 'https://www.linkedin.com/in/samuel-karanja',
@@ -91,26 +105,12 @@ const fallbackStaffMembers = [
   },
    {
     name: 'Samuel Karanja',
-    role: 'Technology Lead',
-    position: 'Technology Lead',
-    bio: 'Builds and supports the HACRO Labs digital membership and operations platform.',
+    role: 'Program Delivery Unit',
+    position: 'Program Delivery Unit Officer',
+    bio: 'Assist in developing delivery plans, timelines and execution strategies for programs objectives and deliverable milestones.',
     photo: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=400&q=80',
     socialLinks: {
       linkedin: 'https://www.linkedin.com/in/samuel-karanja',
-      twitter: '',
-      instagram: '',
-      facebook: '',
-      website: '',
-    }
-  },
-  {
-    name: 'Ruth Njeri',
-    role: 'Community Engagement Specialist',
-    position: 'Community Engagement Specialist',
-    bio: 'Supports members with onboarding, group management, and local impact initiatives.',
-    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-    socialLinks: {
-      linkedin: 'https://www.linkedin.com/in/ruth-njeri',
       twitter: '',
       instagram: '',
       facebook: '',

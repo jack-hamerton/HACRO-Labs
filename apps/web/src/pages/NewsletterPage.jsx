@@ -276,7 +276,11 @@ const NewsletterPage = () => {
 
               <section id="privacy">
                 <h3 className="text-lg font-semibold text-foreground">12. Data Use & Privacy</h3>
-                <p>By using the app, you agree that Hacro Labs may process personal and financial data necessary for loan operations, notifications, fraud checks, and record-keeping. Data is processed in accordance with the app’s Privacy Policy.</p>
+                <p>By using the app, you agree that Hacro Labs may process personal and financial data necessary for loan operations, notifications, fraud checks, and record-keeping. Data is processed in accordance with the app’s Privacy Policy.
+                  Hacro Labs is committed to protecting your privacy in accordance with the Kenya Data Protection Act. We collect Personal Information (name, email and  contact), Financial Data (M-Pesa records sent to the app, savings, loan history) 
+                  to be used for service delivery, security and fraud prevention, communication, and regulatory compliance. We do not sell your data; it is shared solely for service functionality within your specific group or chama as required by law. To ensure a Digital Safe Harbor, we implement encryption, strict access control, and  Under the law, you retain the right to access, 
+                  correct, or request the deletion of your data, subject to our legal and financial retention requirements.
+                </p>
               </section>
 
               <section>
