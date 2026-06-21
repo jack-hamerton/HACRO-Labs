@@ -7,12 +7,12 @@ import { WaterDroplets } from '@/components/ui/WaterDroplets.jsx';
 const HERO_IMAGES = [
   'https://i.postimg.cc/J7XRsQ9y/IMG-8869-1.jpg',
   'https://i.postimg.cc/P52ZvHBW/IMG-1064.jpg',
-  'https://i.postimg.cc/CMv6VZhm/IMG-0433.jpg',
+  'https://i.postimg.cc/hj1np6Gj/IMG-0078.jpg',
   'https://i.postimg.cc/sDw6nvXs/0Q4A0683.jpg',
   'https://i.postimg.cc/ydjcV32V/IMG-0458.jpg',
   'https://i.postimg.cc/BZNB3RGY/IMG-0561.jpg',
+  'https://i.postimg.cc/MZ9qCkzd/IMG-0479.jpg',
   'https://i.postimg.cc/6p4rd3Gs/IMG-0572.jpg',
-  'https://i.postimg.cc/CKyjJgjK/IMG-0578.jpg',
   'https://i.postimg.cc/fyW7XfYC/IMG-0624.jpg',
 ];
 
