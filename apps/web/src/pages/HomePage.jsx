@@ -11,9 +11,9 @@ const HERO_IMAGES = [
   'https://i.postimg.cc/sDw6nvXs/0Q4A0683.jpg',
   'https://i.postimg.cc/ydjcV32V/IMG-0458.jpg',
   'https://i.postimg.cc/BZNB3RGY/IMG-0561.jpg',
-   'https://i.postimg.cc/6p4rd3Gs/IMG-0572.jpg',
-   'https://i.postimg.cc/CKyjJgjK/IMG-0578.jpg',
-   'https://i.postimg.cc/fyW7XfYC/IMG-0624.jpg',
+  'https://i.postimg.cc/6p4rd3Gs/IMG-0572.jpg',
+  'https://i.postimg.cc/CKyjJgjK/IMG-0578.jpg',
+  'https://i.postimg.cc/fyW7XfYC/IMG-0624.jpg',
 ];
 
 const HEADING = 'Harnessing Community on Resource‑based Outreach_ (HACRO) Labs';
