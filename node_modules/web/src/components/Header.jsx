@@ -12,25 +12,20 @@ const Header = () => {
   const { isAuthenticated, isMember, isAdmin, logout, currentUser } = useAuth();
   const location = useLocation();
 
-  const logoUrl = 'https://i.postimg.cc/85wkKPdm/Whats-App-Image-2026-06-14-at-15-13-25.jpg';
+  const logoUrl = 'https://i.postimg.cc/SKzrxybW/HACRO-logo-(4).png';
 
   const isActive = (path) => location.pathname === path;
 
   useEffect(() => {
     if (isMember && currentUser) {
       fetchNotifications();
-      
-      // Subscribe to real-time notifications
       pb.collection('notifications').subscribe('*', function (e) {
         if (e.action === 'create' && e.record.member_id === currentUser.id) {
           setNotifications(prev => [e.record, ...prev].slice(0, 5));
           setUnreadCount(prev => prev + 1);
         }
       });
-
-      return () => {
-        pb.collection('notifications').unsubscribe('*');
-      };
+      return () => { pb.collection('notifications').unsubscribe('*'); };
     }
   }, [isMember, currentUser]);
 
@@ -42,7 +37,6 @@ const Header = () => {
         $autoCancel: false
       });
       setNotifications(records.items);
-      
       const unread = await pb.collection('notifications').getList(1, 1, {
         filter: `member_id="${currentUser.id}" && read_status=false`,
         $autoCancel: false
@@ -63,48 +57,48 @@ const Header = () => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    setMobileMenuOpen(false);
-  };
+  const handleLogout = () => { logout(); setMobileMenuOpen(false); };
 
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm print:hidden">
+    <header className="bg-card border-b-2 border-green-500 fixed top-0 left-0 right-0 z-50 shadow-sm print:hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-3">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center overflow-hidden">
+
+          {/* LOGO — image only, no text */}
+          <Link to="/" className="flex items-center">
+            <div className="w-36 h-10 rounded-lg flex items-center justify-center overflow-hidden">
               {logoUrl ? (
-                <img src={logoUrl} alt="HACRO Labs" className="w-full h-full object-cover" />
+                <img src={logoUrl} alt="HACRO Labs" className="w-full h-full object-contain" />
               ) : (
                 <Wallet className="w-8 h-8 text-primary-foreground" />
               )}
             </div>
-            <span className="text-2xl font-bold text-foreground tracking-tight">HACRO Labs</span>
           </Link>
 
+          {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/" className={`text-sm font-medium transition-colors duration-200 ${isActive('/') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Home</Link>
-            <Link to="/newsletter" className={`text-sm font-medium transition-colors duration-200 ${isActive('/newsletter') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Newsletter</Link>
-            <Link to="/staff" className={`text-sm font-medium transition-colors duration-200 ${isActive('/staff') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Our Team</Link>
+            <Link to="/" className={`text-sm font-medium transition-colors duration-200 ${isActive('/') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Home</Link>
+            <Link to="/newsletter" className={`text-sm font-medium transition-colors duration-200 ${isActive('/newsletter') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Newsletter</Link>
+            <Link to="/staff" className={`text-sm font-medium transition-colors duration-200 ${isActive('/staff') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Our Team</Link>
+
             {!isAuthenticated && (
               <>
-                <Link to="/register" className={`text-sm font-medium transition-colors duration-200 ${isActive('/register') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Register</Link>
-                <Link to="/member-login" className={`text-sm font-medium transition-colors duration-200 ${isActive('/member-login') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Member Login</Link>
-               
+                <Link to="/register" className={`text-sm font-medium transition-colors duration-200 ${isActive('/register') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Register</Link>
+                <Link to="/member-login" className={`text-sm font-medium transition-colors duration-200 ${isActive('/member-login') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Member Login</Link>
               </>
             )}
 
             {isMember && (
               <>
-                <Link to="/member-dashboard" className={`text-sm font-medium transition-colors duration-200 ${isActive('/member-dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Dashboard</Link>
-                <Link to="/make-payment" className={`text-sm font-medium transition-colors duration-200 ${isActive('/make-payment') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Make Payment</Link>
-                <Link to="/group-dashboard" className={`text-sm font-medium transition-colors duration-200 ${isActive('/group-dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>My Group</Link>
-                
+                <Link to="/member-dashboard" className={`text-sm font-medium transition-colors duration-200 ${isActive('/member-dashboard') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Dashboard</Link>
+                <Link to="/make-payment" className={`text-sm font-medium transition-colors duration-200 ${isActive('/make-payment') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Make Payment</Link>
+                <Link to="/group-dashboard" className={`text-sm font-medium transition-colors duration-200 ${isActive('/group-dashboard') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>My Group</Link>
+
+                {/* NOTIFICATIONS BELL */}
                 <div className="relative">
-                  <button 
+                  <button
                     onClick={() => setNotificationsOpen(!notificationsOpen)}
-                    className="relative p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="relative p-2 text-muted-foreground hover:text-green-500 transition-colors"
                   >
                     <Bell className="w-5 h-5" />
                     {unreadCount > 0 && (
@@ -118,7 +112,7 @@ const Header = () => {
                     <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-lg overflow-hidden z-50">
                       <div className="p-4 border-b border-border flex justify-between items-center bg-muted/30">
                         <h3 className="font-semibold text-foreground">Notifications</h3>
-                        <Link to="/notifications" onClick={() => setNotificationsOpen(false)} className="text-xs text-primary hover:underline">View All</Link>
+                        <Link to="/notifications" onClick={() => setNotificationsOpen(false)} className="text-xs text-green-500 hover:underline">View All</Link>
                       </div>
                       <div className="max-h-80 overflow-y-auto">
                         {notifications.length > 0 ? (
@@ -127,7 +121,7 @@ const Header = () => {
                               <div className="flex justify-between items-start mb-1">
                                 <p className="text-sm font-medium text-foreground">{notif.title}</p>
                                 {!notif.read_status && (
-                                  <button onClick={() => markAsRead(notif.id)} className="text-[10px] text-primary hover:underline">Mark read</button>
+                                  <button onClick={() => markAsRead(notif.id)} className="text-[10px] text-green-500 hover:underline">Mark read</button>
                                 )}
                               </div>
                               <p className="text-xs text-muted-foreground line-clamp-2">{notif.message}</p>
@@ -142,6 +136,7 @@ const Header = () => {
                   )}
                 </div>
 
+                {/* PROFILE + LOGOUT */}
                 <div className="flex items-center space-x-3 pl-4 border-l border-border">
                   {currentUser?.profile_picture ? (
                     <img src={pb.files.getUrl(currentUser, currentUser.profile_picture)} alt="Profile" className="w-8 h-8 rounded-xl object-cover border border-border" />
@@ -157,46 +152,50 @@ const Header = () => {
 
             {isAdmin && (
               <>
-                <Link to="/admin-dashboard" className={`text-sm font-medium transition-colors duration-200 ${isActive('/admin-dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Dashboard</Link>
-                <Link to="/analytics" className={`text-sm font-medium transition-colors duration-200 ${isActive('/analytics') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Analytics</Link>
-                <Link to="/admin/loan-management" className={`text-sm font-medium transition-colors duration-200 ${isActive('/admin/loan-management') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Loans</Link>
+                <Link to="/admin-dashboard" className={`text-sm font-medium transition-colors duration-200 ${isActive('/admin-dashboard') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Dashboard</Link>
+                <Link to="/analytics" className={`text-sm font-medium transition-colors duration-200 ${isActive('/analytics') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Analytics</Link>
+                <Link to="/admin/loan-management" className={`text-sm font-medium transition-colors duration-200 ${isActive('/admin/loan-management') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Loans</Link>
                 <button onClick={handleLogout} className="text-sm font-medium text-muted-foreground hover:text-destructive transition-colors duration-200 ml-4">Logout</button>
               </>
             )}
           </nav>
 
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors duration-200 text-primary">
+          {/* MOBILE HAMBURGER */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors duration-200 text-primary"
+          >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
+        {/* MOBILE MENU */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/') ? 'text-primary' : 'text-foreground'}`}>Home</Link>
-              <Link to="/staff" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/staff') ? 'text-primary' : 'text-foreground'}`}>Our Team</Link>
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/') ? 'text-green-500' : 'text-foreground hover:text-green-500'}`}>Home</Link>
+              <Link to="/staff" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/staff') ? 'text-green-500' : 'text-foreground hover:text-green-500'}`}>Our Team</Link>
+              <Link to="/newsletter" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/newsletter') ? 'text-green-500' : 'text-foreground hover:text-green-500'}`}>Newsletter</Link>
               {!isAuthenticated && (
                 <>
-                  <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Register</Link>
-                  <Link to="/member-login" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Member Login</Link>
-                  
+                  <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground hover:text-green-500">Register</Link>
+                  <Link to="/member-login" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-green-500">Member Login</Link>
                 </>
               )}
               {isMember && (
                 <>
-                  <Link to="/member-dashboard" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Dashboard</Link>
-                  <Link to="/notifications" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Notifications ({unreadCount})</Link>
+                  <Link to="/member-dashboard" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground hover:text-green-500">Dashboard</Link>
+                  <Link to="/notifications" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground hover:text-green-500">Notifications ({unreadCount})</Link>
                   <button onClick={handleLogout} className="text-sm font-medium text-destructive text-left">Logout</button>
                 </>
               )}
               {isAdmin && (
                 <>
-                  <Link to="/admin-dashboard" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Admin Dashboard</Link>
-                  <Link to="/analytics" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Analytics</Link>
+                  <Link to="/admin-dashboard" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground hover:text-green-500">Admin Dashboard</Link>
+                  <Link to="/analytics" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground hover:text-green-500">Analytics</Link>
                   <button onClick={handleLogout} className="text-sm font-medium text-destructive text-left">Logout</button>
                 </>
               )}
-              <Link to="/newsletter" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground">Newsletter</Link>
             </nav>
           </div>
         )}
