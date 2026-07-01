@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Mail, Phone, MapPin } from 'lucide-react';
+import { Linkedin, Twitter, Facebook } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -24,12 +25,12 @@ const Footer = () => {
           <div className="flex-1">
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <Link to="/" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Home</Link>
-              <Link to="/register" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Register</Link>
-              <Link to="/member-login" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Login</Link>
-              <Link to="/donate" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Donate</Link>
-              <Link to="/newsletter" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Newsletter</Link>
-              <Link to="/staff" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Our Team</Link>
+              <Link to="/" className="opacity-80 hover:text-green-600 transition-colors duration-200">Home</Link>
+              <Link to="/register" className="opacity-80 hover:text-green-600 transition-colors duration-200">Register</Link>
+              <Link to="/member-login" className="opacity-80 hover:text-green-600 transition-colors duration-200">Login</Link>
+              <Link to="/donate" className="opacity-80 hover:text-green-600 transition-colors duration-200">Donate</Link>
+              <Link to="/newsletter" className="opacity-80 hover:text-green-600 transition-colors duration-200">Newsletter</Link>
+              <Link to="/staff" className="opacity-80 hover:text-green-600 transition-colors duration-200">Our Team</Link>
             </div>
           </div>
 
@@ -56,20 +57,35 @@ const Footer = () => {
           <div className="flex-1">
             <h3 className="font-semibold mb-4">Follow Us</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="https://linkedin.com/company/hacrolabs" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity duration-200">LinkedIn</a></li>
-              <li><a href="https://twitter.com/hacrolabs" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Twitter</a></li>
-              <li><a href="https://facebook.com/hacrolabs" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Facebook</a></li>
+              <li>
+                <a href="https://linkedin.com/company/hacrolabs" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 opacity-80 hover:text-green-600 transition-colors duration-200">
+                  <Linkedin className="w-4 h-4" />
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/hacrolabs" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 opacity-80 hover:text-green-600 transition-colors duration-200">
+                  <Twitter className="w-4 h-4" />
+                  Twitter
+                </a>
+              </li>
+              <li>
+                <a href="https://facebook.com/hacrolabs" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 opacity-80 hover:text-green-600 transition-colors duration-200">
+                  <Facebook className="w-4 h-4" />
+                  Facebook
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
-              {/* Copyright */}
+        {/* Copyright */}
         <div className="border-t border-green-500 mt-8 pt-8 text-center text-sm opacity-80" style={{ borderTopWidth: '1px' }}>
           <p>&copy; {new Date().getFullYear()} HACRO Labs. All rights reserved.</p>
         </div>
       </div>
     </footer>
   );
-}
- 
+};
+
 export default Footer;
