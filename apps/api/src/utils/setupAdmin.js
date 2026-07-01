@@ -1,10 +1,6 @@
 import pb, { authenticateSuperuser } from './pocketbaseClient.js';
 import logger from './logger.js';
 
-/**
- * Create or update admin credentials
- * Run this once to set up initial admin accounts
- */
 export async function setupAdminCredentials() {
   const superAdminEmail = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL || 'hamertonotieno99@gmail.com';
   const superAdminPassword = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD || 'E75p6p5!';

@@ -269,7 +269,7 @@ export default function HomePage() {
           <FadeIn className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">How We Work</h2>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              At HACRO Labs, we believe that true empowerment is rooted in community. Our membership model is
+              At HACRO Labs, we believe that true empowerment is rooted in community. Our community membership model is
               built on three core pillars designed to elevate every participant.
             </p>
           </FadeIn>
