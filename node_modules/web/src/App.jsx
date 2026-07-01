@@ -26,6 +26,10 @@ import StaffPage from '@/pages/StaffPage.jsx';
 import AnalyticsDashboard from '@/pages/AnalyticsDashboard.jsx';
 import GroupMessaging from '@/pages/GroupMessaging.jsx';
 import NewsletterPage from '@/pages/NewsletterPage.jsx';
+import DonatePage from '@/pages/DonatePage.jsx';
+import CommunityFinancialEmpowermentPage from '@/pages/CommunityFinancialEmpowermentPage.jsx';
+import GenderEqualityAndInclusionPage from '@/pages/GenderEqualityAndInclusionPage.jsx';
+import RegenerativeAgribusinessPage from '@/pages/RegenerativeAgribusinessPage.jsx';
 import AdminNewsletterPage from '@/pages/AdminNewsletterPage.jsx';
 
 // Admin Routes
@@ -53,6 +57,10 @@ function App() {
             <Route path="/registration-confirmation" element={<RegistrationConfirmationPage />} />
             <Route path="/member-login" element={<MemberLoginPage />} />
             <Route path="/staff" element={<StaffPage />} />
+            <Route path="/donate" element={<DonatePage />} />
+            <Route path="/community-financial-empowerment" element={<CommunityFinancialEmpowermentPage />} />
+            <Route path="/gender-equality-and-inclusion" element={<GenderEqualityAndInclusionPage />} />
+            <Route path="/regenerative-agribusiness" element={<RegenerativeAgribusinessPage />} />
             
             {/* Member Routes */}
             <Route path="/member-dashboard" element={<ProtectedRoute requireMember><MemberDashboardPage /></ProtectedRoute>} />

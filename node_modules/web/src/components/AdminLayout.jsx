@@ -9,6 +9,7 @@ const AdminLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const displayedRole = currentAdmin?.role === 'admin' ? 'super_admin' : currentAdmin?.role || 'admin';
+  const logoUrl = 'https://i.postimg.cc/SKzrxybW/HACRO-logo-(4).png';
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [warningShown, setWarningShown] = useState(false);
 
@@ -66,7 +67,11 @@ const AdminLayout = ({ children }) => {
     <div className="admin-theme min-h-screen bg-background flex flex-col md:flex-row text-foreground font-sans">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between bg-slate-900 text-white p-4">
-        <span className="text-xl font-bold tracking-tight">HACRO Admin</span>
+        <Link to="/" className="flex items-center">
+          <div className="w-28 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-white/90 px-1">
+            <img src={logoUrl} alt="HACRO Labs" className="w-full h-full object-contain" />
+          </div>
+        </Link>
         <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="p-2">
           {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -75,13 +80,17 @@ const AdminLayout = ({ children }) => {
       {/* Sidebar */}
       <aside className={`
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:translate-x-0 fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col transition-transform duration-300 ease-in-out
+        md:translate-x-0 fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col h-screen max-h-screen overflow-hidden transition-transform duration-300 ease-in-out
       `}>
-        <div className="h-16 flex items-center px-6 border-b border-slate-800">
-          <span className="text-xl font-bold text-white tracking-tight">HACRO Labs Admin</span>
+        <div className="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
+          <Link to="/" className="flex items-center">
+            <div className="w-32 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-white/90 px-1">
+              <img src={logoUrl} alt="HACRO Labs" className="w-full h-full object-contain" />
+            </div>
+          </Link>
         </div>
         
-        <div className="p-6">
+        <div className="flex-1 overflow-y-auto px-6 py-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-full bg-[hsl(var(--primary))] flex items-center justify-center text-white font-bold uppercase">
               {(currentAdmin?.full_name || currentAdmin?.email || 'Admin').charAt(0).toUpperCase()}
@@ -92,7 +101,7 @@ const AdminLayout = ({ children }) => {
             </div>
           </div>
 
-          <nav className="space-y-1">
+          <nav className="space-y-1 pb-4">
             {navLinks.map((link) => {
               const active = isActive(link.path);
               return (
@@ -112,7 +121,7 @@ const AdminLayout = ({ children }) => {
           </nav>
         </div>
 
-        <div className="mt-auto p-6 border-t border-slate-800">
+        <div className="p-6 border-t border-slate-800 shrink-0">
           <button
             onClick={logout}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
@@ -126,9 +135,16 @@ const AdminLayout = ({ children }) => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-h-screen overflow-hidden bg-slate-50">
         <header className="hidden md:flex h-16 bg-white border-b border-slate-200 items-center justify-between px-8 z-10">
-          <h1 className="text-lg font-semibold text-slate-800">
-            {navLinks.find(l => isActive(l.path))?.label || 'Administration'}
-          </h1>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center">
+              <div className="w-32 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-slate-100 px-1">
+                <img src={logoUrl} alt="HACRO Labs" className="w-full h-full object-contain" />
+              </div>
+            </Link>
+            <h1 className="text-lg font-semibold text-slate-800">
+              {navLinks.find(l => isActive(l.path))?.label || 'Administration'}
+            </h1>
+          </div>
           <div className="flex items-center gap-4 text-sm font-medium text-slate-600">
             <span className="hidden sm:inline-block">{currentAdmin?.email}</span>
           </div>

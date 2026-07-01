@@ -1,7 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
-import pb, { authPb, authenticateSuperuser } from '../utils/pocketbaseClient.js';
+import pb, { authPb, authenticateSuperuser, SUPERUSER_EMAIL, SUPERUSER_PASSWORD } from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 import { generateToken, generatePassword, validatePassword } from '../utils/adminUtils.js';
 import { verifyAdminToken, requireSuperAdmin } from '../middleware/adminAuth.js';
@@ -89,7 +89,7 @@ router.post('/login', async (req, res) => {
 
   // Authenticate superuser for privileged operations and create a backend session if configured
   let createdSession = false;
-  if (process.env.POCKETBASE_SUPERUSER_EMAIL && process.env.POCKETBASE_SUPERUSER_PASSWORD) {
+  if (SUPERUSER_EMAIL && SUPERUSER_PASSWORD) {
     try {
       await authenticateSuperuser();
       await pb.collection('admin_sessions').create({
@@ -104,7 +104,7 @@ router.post('/login', async (req, res) => {
       logger.warn('Skipping admin session creation:', error.message || error);
     }
   } else {
-    logger.warn('POCKETBASE_SUPERUSER_EMAIL and POCKETBASE_SUPERUSER_PASSWORD not configured; skipping admin session creation.');
+    logger.warn('POCKETBASE_SUPERUSER_EMAIL / POCKETBASE_ADMIN_EMAIL and POCKETBASE_SUPERUSER_PASSWORD / POCKETBASE_ADMIN_PASSWORD not configured; skipping admin session creation.');
   }
 
   // Update last login if the field exists
@@ -158,7 +158,7 @@ router.post('/logout', verifyAdminToken, async (req, res) => {
     });
   }
 
-  if (process.env.POCKETBASE_SUPERUSER_EMAIL && process.env.POCKETBASE_SUPERUSER_PASSWORD) {
+  if (SUPERUSER_EMAIL && SUPERUSER_PASSWORD) {
     try {
       await authenticateSuperuser();
       const sessions = await pb.collection('admin_sessions').getFullList({
@@ -187,7 +187,7 @@ router.post('/logout', verifyAdminToken, async (req, res) => {
       logger.warn('Skipping admin session deletion during logout:', error.message || error);
     }
   } else {
-    logger.warn('POCKETBASE_SUPERUSER_EMAIL and POCKETBASE_SUPERUSER_PASSWORD not configured; skipping session cleanup on logout.');
+    logger.warn('POCKETBASE_SUPERUSER_EMAIL / POCKETBASE_ADMIN_EMAIL and POCKETBASE_SUPERUSER_PASSWORD / POCKETBASE_ADMIN_PASSWORD not configured; skipping session cleanup on logout.');
   }
 
   res.json({ success: true });

@@ -6,18 +6,54 @@ import logger from './logger.js';
  * Run this once to set up initial admin accounts
  */
 export async function setupAdminCredentials() {
-  try {
-    await authenticateSuperuser();
+  const superAdminEmail = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL || 'hamertonotieno99@gmail.com';
+  const superAdminPassword = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD || 'E75p6p5!';
 
-    const superAdminEmail = 'hamertonotieno99@gmail.com';
-    const superAdminPassword = 'E75p6p5!';
-    const superAdminData = {
-      email: superAdminEmail,
-      password: superAdminPassword,
-      passwordConfirm: superAdminPassword,
-      full_name: 'Jack Hamerton',
-      role: 'super_admin',
-    };
+  const superAdminData = {
+    email: superAdminEmail,
+    password: superAdminPassword,
+    passwordConfirm: superAdminPassword,
+    full_name: 'Jack Hamerton',
+    role: 'super_admin',
+    is_active: true,
+  };
+
+  try {
+    let superuserAuthenticated = false;
+    try {
+      await pb.admins.authWithPassword(superAdminEmail, superAdminPassword);
+      logger.info(`Authenticated existing superuser: ${superAdminEmail}`);
+      superuserAuthenticated = true;
+    } catch (authError) {
+      logger.warn(`Superuser auth failed for ${superAdminEmail}, attempting creation...`, authError.message || authError);
+    }
+
+    if (!superuserAuthenticated) {
+      try {
+        await pb.admins.create({
+          email: superAdminEmail,
+          password: superAdminPassword,
+          passwordConfirm: superAdminPassword,
+        });
+        logger.info(`Created PocketBase superuser: ${superAdminEmail}`);
+        await pb.admins.authWithPassword(superAdminEmail, superAdminPassword);
+        superuserAuthenticated = true;
+      } catch (superuserError) {
+        logger.warn('Failed to create superuser via pb.admins.create, trying _superusers collection...', superuserError.message || superuserError);
+        try {
+          await pb.collection('_superusers').create({
+            email: superAdminEmail,
+            password: superAdminPassword,
+            passwordConfirm: superAdminPassword,
+          });
+          logger.info(`Created PocketBase superuser via _superusers: ${superAdminEmail}`);
+          await pb.admins.authWithPassword(superAdminEmail, superAdminPassword);
+          superuserAuthenticated = true;
+        } catch (createError) {
+          logger.error(`Unable to create or authenticate PocketBase superuser ${superAdminEmail}:`, createError.message || createError);
+        }
+      }
+    }
 
     try {
       const existing = await pb.collection('pbc_admins_auth').getFullList({
@@ -26,24 +62,13 @@ export async function setupAdminCredentials() {
 
       if (existing.length > 0) {
         await pb.collection('pbc_admins_auth').update(existing[0].id, superAdminData);
-        logger.info(`Updated admin password for: ${superAdminEmail}`);
+        logger.info(`Updated super admin record for: ${superAdminEmail}`);
       } else {
         await pb.collection('pbc_admins_auth').create(superAdminData);
-        logger.info(`Created admin: ${superAdminEmail}`);
+        logger.info(`Created super admin record: ${superAdminEmail}`);
       }
     } catch (error) {
-      logger.error(`Failed to set up admin ${superAdminEmail}:`, error.message);
-    }
-
-    try {
-      const allAdmins = await pb.collection('pbc_admins_auth').getFullList({ $autoCancel: false });
-      const adminsToRemove = allAdmins.filter((admin) => admin.email !== superAdminEmail);
-      for (const admin of adminsToRemove) {
-        await pb.collection('pbc_admins_auth').delete(admin.id);
-        logger.info(`Removed extra admin: ${admin.email}`);
-      }
-    } catch (error) {
-      logger.error('Failed to remove extra admin records:', error.message);
+      logger.error(`Failed to set up pbc_admins_auth super admin ${superAdminEmail}:`, error.message || error);
     }
   } catch (error) {
     logger.error('Failed to set up admin credentials:', error);

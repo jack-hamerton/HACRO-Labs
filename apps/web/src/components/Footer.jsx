@@ -19,23 +19,15 @@ const Footer = () => {
 
           <div>
             <h3 className="font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/" className="opacity-80 hover:opacity-100 transition-opacity duration-200">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/register" className="opacity-80 hover:opacity-100 transition-opacity duration-200">
-                  Register
-                </Link>
-              </li>
-              <li>
-                <Link to="/member-login" className="opacity-80 hover:opacity-100 transition-opacity duration-200">
-                  Member Login
-                </Link>
-              </li>
-            </ul>
+            {/* Grid container set to 3 columns to force 2 rows of 3 links */}
+            <div className="grid grid-cols-3 gap-y-3 gap-x-2 text-sm">
+              <Link to="/" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Home</Link>
+              <Link to="/register" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Register</Link>
+              <Link to="/member-login" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Login</Link>
+              <Link to="/donate" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Donate</Link>
+              <Link to="/newsletter" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Newsletter</Link>
+              <Link to="/staff" className="opacity-80 hover:opacity-100 transition-opacity duration-200">Our Team</Link>
+            </div>
           </div>
 
           <div>

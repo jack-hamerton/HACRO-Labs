@@ -1,4 +1,8 @@
-import pb, { authenticateSuperuser } from '../utils/pocketbaseClient.js';
+import pb, {
+  authenticateSuperuser,
+  SUPERUSER_EMAIL,
+  SUPERUSER_PASSWORD,
+} from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -37,7 +41,7 @@ export async function verifyAdminToken(req, res, next) {
   };
 
   const tryAdminSession = async () => {
-    if (!process.env.POCKETBASE_SUPERUSER_EMAIL || !process.env.POCKETBASE_SUPERUSER_PASSWORD) {
+    if (!SUPERUSER_EMAIL || !SUPERUSER_PASSWORD) {
       return null;
     }
 

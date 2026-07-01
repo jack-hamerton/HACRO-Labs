@@ -23,19 +23,22 @@ const BENEFITS = [
     icon: Shield,
     title: 'Community Financial Empowerment Protection',
     description:
-      'We are digitizing the chama spirit to build a safety net for everyone. HACRO Labs provides a transparent, secure, and automated platform where communities can pool resources, access fair credit, and grow their wealth together.',
+      'At HACRO Labs, we are reimagining the traditional chama spirit for the digital age, creating a robust financial safety net that is accessible to everyone. By leveraging modern technology, we provide a transparent, secure, and fully automated platform designed to bridge the gap in financial inclusion. We empower communities to pool resources collectively, access fair and responsible credit, and cultivate sustainable wealth.',
+    link: '/community-financial-empowerment',
   },
   {
     icon: TrendingUp,
-    title: 'Sustainable Agri-Business Growth',
+    title: 'Gender Equality and Social Inclusion (GESI)',
     description:
-      'Farming is the backbone of our economy, and we are committed to making it profitable. We equip our members with the skills to transform their harvests through value addition, modern farming techniques, and smarter market access.',
+      'We believe that true development is only possible when everyone has a seat at the table. By integrating inclusion into our programs, we dismantle the norms and obstacles that limit human potential. We empower our members by ensuring equitable access to resources, leadership, and decision-making, creating a society where every voice is heard, valued, and positioned to thrive.',
+    link: '/gender-equality-and-inclusion',
   },
   {
     icon: Award,
-    title: 'Environmental Resilience & Stewardship',
+    title: 'Regenerative Agribusiness',
     description:
-      'True growth respects the land. We empower our members to thrive by adopting eco-friendly practices that reduce reliance on harmful chemicals and preserve our natural heritage.',
+      'We believe that farming is the backbone of our economy and must be made profitable through modern techniques, value addition, and smarter market access. By replacing harmful chemicals with eco-friendly, regenerative practices, we transform environmental protection into a competitive advantage. This ensures that our growth respects the land, reduces input costs, and builds a resilient, sustainable legacy for our community.',
+    link: '/regenerative-agribusiness',
   },
 ];
 
@@ -125,45 +128,56 @@ function FadeIn({ children, delay = 0, className = '' }) {
 
 function HeroSlideshow() {
   const [current, setCurrent] = useState(0);
-  const [prev, setPrev]       = useState(null);
-  const [fading, setFading]   = useState(false);
+  const [next, setNext] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     if (HERO_IMAGES.length <= 1) return;
-    const id = setInterval(() => {
-      setPrev(current);
-      setFading(true);
-      setCurrent((c) => (c + 1) % HERO_IMAGES.length);
-      setTimeout(() => { setPrev(null); setFading(false); }, 1800);
-    }, 2000);
-    return () => clearInterval(id);
-  }, [current]);
+
+    const id = window.setInterval(() => {
+      setIsTransitioning(true);
+      setNext((currentIndex) => (currentIndex + 1) % HERO_IMAGES.length);
+
+      window.setTimeout(() => {
+        setCurrent((currentIndex) => (currentIndex + 1) % HERO_IMAGES.length);
+        setNext((currentIndex) => (currentIndex + 1) % HERO_IMAGES.length);
+        setIsTransitioning(false);
+      }, 2200);
+    }, 6000);
+
+    return () => window.clearInterval(id);
+  }, []);
+
+  const activeImage = HERO_IMAGES[current];
+  const upcomingImage = HERO_IMAGES[next];
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden">
-      {prev !== null && (
-        <div
-          key={`prev-${prev}`}
-          style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: `url(${HERO_IMAGES[prev]})`,
-            backgroundSize: 'cover', backgroundPosition: 'center',
-            opacity: fading ? 0 : 1,
-            transition: 'opacity 1.8s ease',
-          }}
-        />
-      )}
       <div
-        key={`cur-${current}`}
         style={{
           position: 'absolute', inset: 0,
-          backgroundImage: `url(${HERO_IMAGES[current]})`,
+          backgroundImage: `url(${activeImage})`,
           backgroundSize: 'cover', backgroundPosition: 'center',
-          opacity: 1,
-          transition: 'opacity 1.8s ease',
+          backgroundRepeat: 'no-repeat',
+          transform: 'scale(1.04)',
+          opacity: isTransitioning ? 0 : 1,
+          transition: 'opacity 2.2s ease-in-out, transform 2.2s ease-in-out',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `url(${upcomingImage})`,
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          transform: 'scale(1.04)',
+          opacity: isTransitioning ? 1 : 0,
+          transition: 'opacity 2.2s ease-in-out, transform 2.2s ease-in-out',
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/70 to-black/90" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.16),_transparent_36%)]" />
+      <div className="absolute inset-0 bg-black/10" />
     </div>
   );
 }
@@ -206,21 +220,29 @@ export default function HomePage() {
         <HeroSlideshow />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="max-w-3xl" style={{ animation: 'fadeUp 0.7s ease forwards' }}>
-            <h1
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
-              style={{ letterSpacing: '-0.02em', minHeight: '1.2em' }}
-            >
-              <TypeWriter text={HEADING} />
-            </h1>
-            <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-prose">
+          <div className="max-w-3xl opacity-100">
+            <div className="mb-6 relative overflow-hidden" style={{ minHeight: '3.2em' }}>
+              <h1
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
+                style={{ letterSpacing: '-0.02em', visibility: 'hidden' }}
+              >
+                {HEADING}
+              </h1>
+              <h1
+                className="absolute inset-0 text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
+                style={{ letterSpacing: '-0.02em' }}
+              >
+                <TypeWriter text={HEADING} />
+              </h1>
+            </div>
+            <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-prose" style={{ minHeight: '7.5rem' }}>
               HACRO Labs is a non-profit organization dedicated to fostering self-reliance and collective
               prosperity among our community members. By providing the digital tools, training, and resources
               necessary for growth, we empower our community members to turn their potential into scalable
               solutions, ensuring that every financial gain and agricultural harvest contributes to a more
               resilient, sustainable, and thriving community for all.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4" style={{ minHeight: '3.25rem' }}>
               <a
                 href="/register"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-green-500 hover:bg-green-400 text-black font-semibold transition-colors"
@@ -254,12 +276,19 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {BENEFITS.map((b, i) => (
               <FadeIn key={b.title} delay={i * 0.1}>
-                <div className="bg-[#1a1a1a] rounded-xl p-8 border border-white/10 hover:border-green-500/30 transition-all duration-200 h-full">
+                <div className="bg-[#1a1a1a] rounded-xl p-8 border border-white/10 hover:border-green-500/30 transition-all duration-200 h-full flex flex-col">
                   <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-6">
                     <b.icon className="w-6 h-6 text-green-400" />
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-3">{b.title}</h3>
                   <p className="text-gray-400 leading-relaxed">{b.description}</p>
+                  <a
+                    href={b.link}
+                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-green-400 transition hover:text-green-300"
+                  >
+                    Learn more
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
                 </div>
               </FadeIn>
             ))}
@@ -331,10 +360,6 @@ export default function HomePage() {
       <Footer />
 
       <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         @keyframes blink {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0; }

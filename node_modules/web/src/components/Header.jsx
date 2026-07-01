@@ -80,6 +80,7 @@ const Header = () => {
             <Link to="/" className={`text-sm font-medium transition-colors duration-200 ${isActive('/') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Home</Link>
             <Link to="/newsletter" className={`text-sm font-medium transition-colors duration-200 ${isActive('/newsletter') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Newsletter</Link>
             <Link to="/staff" className={`text-sm font-medium transition-colors duration-200 ${isActive('/staff') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Our Team</Link>
+            <Link to="/donate" className={`text-sm font-medium transition-colors duration-200 ${isActive('/donate') ? 'text-green-500' : 'text-muted-foreground hover:text-green-500'}`}>Donate</Link>
 
             {!isAuthenticated && (
               <>
@@ -176,6 +177,7 @@ const Header = () => {
               <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/') ? 'text-green-500' : 'text-foreground hover:text-green-500'}`}>Home</Link>
               <Link to="/staff" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/staff') ? 'text-green-500' : 'text-foreground hover:text-green-500'}`}>Our Team</Link>
               <Link to="/newsletter" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/newsletter') ? 'text-green-500' : 'text-foreground hover:text-green-500'}`}>Newsletter</Link>
+              <Link to="/donate" onClick={() => setMobileMenuOpen(false)} className={`text-sm font-medium ${isActive('/donate') ? 'text-green-500' : 'text-foreground hover:text-green-500'}`}>Donate</Link>
               {!isAuthenticated && (
                 <>
                   <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-foreground hover:text-green-500">Register</Link>
