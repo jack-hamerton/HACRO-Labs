@@ -161,7 +161,7 @@ const StaffPage = () => {
       <div className="min-h-screen bg-background text-foreground">
         <Header />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-20 sm:pt-24">
           <section className="text-center mb-16">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">HACRO Labs</p>
             <h1 className="mt-4 text-4xl font-bold md:text-5xl">Meet our Team</h1>

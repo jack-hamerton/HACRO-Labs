@@ -2,8 +2,10 @@ import { ArrowLeft, Sprout, Leaf, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
+import useScrollRestoration from '@/hooks/useScrollRestoration.js';
 
 export default function RegenerativeAgribusinessPage() {
+  useScrollRestoration();
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <Header />
@@ -47,21 +49,21 @@ export default function RegenerativeAgribusinessPage() {
             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 shadow-sm">
               <h2 className="text-2xl font-semibold text-gray-900">Our agribusiness focus</h2>
               <div className="mt-6 space-y-5">
-                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4">
+                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-green-500 hover:bg-green-50 hover:shadow-md cursor-pointer">
                   <Leaf className="mt-1 h-5 w-5 text-green-600" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Eco-friendly production</h3>
                     <p className="mt-1 text-sm leading-7 text-gray-600">We encourage regenerative methods that reduce harm to the soil, water, and surrounding ecosystems.</p>
                   </div>
                 </div>
-                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4">
+                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-green-500 hover:bg-green-50 hover:shadow-md cursor-pointer">
                   <Leaf className="mt-1 h-5 w-5 text-green-600" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Regenerative Resilience</h3>
                     <p className="mt-1 text-sm leading-7 text-gray-600">We combine practical support and long-term planning to help rural livelihoods become more sustainable while protecting the environment for future generations.</p>
                   </div>
                 </div>
-                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4">
+                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-green-500 hover:bg-green-50 hover:shadow-md cursor-pointer">
                   <BarChart3 className="mt-1 h-5 w-5 text-green-600" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Better value chains</h3>

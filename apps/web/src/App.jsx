@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext.jsx';
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext.jsx';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
+import WhatsAppWidget from '@/components/WhatsAppWidget.jsx';
 import ProtectedRoute from '@/components/ProtectedRoute.jsx';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute.jsx';
 
@@ -51,7 +52,8 @@ function App() {
         <AdminAuthProvider>
           <ScrollToTop />
           <Toaster position="top-right" richColors />
-          <div className="min-h-screen pt-20">
+          <WhatsAppWidget />
+          <div className="min-h-screen">
             <Routes>
               <Route path="/" element={<HomePage />} />
             <Route path="/register" element={<RegistrationPage />} />

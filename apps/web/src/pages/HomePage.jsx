@@ -212,11 +212,11 @@ export default function HomePage() {
 
       {/* Water droplet animation — fixed background */}
       {/* ── Hero ── */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden -mt-20 sm:-mt-24 pt-20 sm:pt-24">
         <HeroSlideshow />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
-          <div className="max-w-3xl opacity-100">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-28">
+          <div className="max-w-4xl opacity-100">
             <div className="mb-6 relative overflow-hidden" style={{ minHeight: '3.2em' }}>
               <h1
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
@@ -260,16 +260,16 @@ export default function HomePage() {
       </section>
 
       {/* ── How We Work ── */}
-      <section className="py-20 bg-[#111111]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeIn className="text-center mb-16">
+      <section className="py-24 sm:py-28 lg:py-32 bg-[#111111]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <FadeIn className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">How We Work</h2>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
               At HACRO Labs, we believe that true empowerment is rooted in community. Our community membership model is
               built on three core pillars designed to elevate every participant.
             </p>
           </FadeIn>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12">
             {BENEFITS.map((b, i) => (
               <FadeIn key={b.title} delay={i * 0.1}>
                 <div className="bg-[#1a1a1a] rounded-xl p-8 border border-white/10 hover:border-green-500/30 transition-all duration-200 h-full flex flex-col">
@@ -293,8 +293,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Team ── */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 sm:py-28 lg:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <FadeIn className="text-center mb-12">
             <p className="text-sm uppercase tracking-[0.35em] text-green-600">Meet our team</p>
             <h2 className="mt-4 text-3xl md:text-4xl font-bold text-gray-900">
@@ -304,7 +304,7 @@ export default function HomePage() {
               HACRO Labs staff deliver support, digital training, and community outreach so every member can thrive.
             </p>
           </FadeIn>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {TEAM.map((member, i) => (
               <FadeIn key={member.name} delay={i * 0.08}>
                 <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow duration-200 h-full">
@@ -329,8 +329,8 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-20 bg-[#0a0a0a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 sm:py-28 lg:py-32 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <FadeIn>
             <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-2xl p-12 border border-green-500/20">
               <div className="max-w-3xl mx-auto text-center">

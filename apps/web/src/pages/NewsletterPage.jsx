@@ -225,7 +225,7 @@ const NewsletterPage = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
 
-        <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-12">
+        <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-12 pt-20 sm:pt-24">
           <div className="mb-8 flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Newsletter & Media</h1>

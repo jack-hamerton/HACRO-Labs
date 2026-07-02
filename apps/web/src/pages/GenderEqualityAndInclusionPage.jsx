@@ -2,8 +2,10 @@ import { ArrowLeft, Users, HeartHandshake, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
+import useScrollRestoration from '@/hooks/useScrollRestoration.js';
 
 export default function GenderEqualityAndInclusionPage() {
+  useScrollRestoration();
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <Header />
@@ -47,21 +49,21 @@ export default function GenderEqualityAndInclusionPage() {
             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 shadow-sm">
               <h2 className="text-2xl font-semibold text-gray-900">Our inclusion approach</h2>
               <div className="mt-6 space-y-5">
-                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4">
+                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-green-500 hover:bg-green-50 hover:shadow-md cursor-pointer">
                   <HeartHandshake className="mt-1 h-5 w-5 text-green-600" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Inclusive Research</h3>
                     <p className="mt-1 text-sm leading-7 text-gray-600">We transform community members into active researchers, leveraging local data to drive evidence-based advocacy and shape meaningful development agendas.</p>
                   </div>
                 </div>
-                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4">
+                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-green-500 hover:bg-green-50 hover:shadow-md cursor-pointer">
                   <HeartHandshake className="mt-1 h-5 w-5 text-green-600" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Shifting Power Dynamics</h3>
                     <p className="mt-1 text-sm leading-7 text-gray-600">We actively dismantle systemic barriers to ensure that young people, especially women and marginalized youth—gain the influence necessary to lead local and national development.</p>
                   </div>
                 </div>
-                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4">
+                <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-green-500 hover:bg-green-50 hover:shadow-md cursor-pointer">
                   <Sparkles className="mt-1 h-5 w-5 text-green-600" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Safe Spaces</h3>

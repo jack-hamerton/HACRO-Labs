@@ -47,7 +47,7 @@ const MemberLoginPage = () => {
       <div className="min-h-screen bg-background">
         <Header />
 
-        <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-20 sm:pt-24">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
               <LogIn className="w-8 h-8 text-primary" />

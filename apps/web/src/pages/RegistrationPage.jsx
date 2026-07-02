@@ -481,7 +481,7 @@ const RegistrationPage = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
 
-        <div className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-20 sm:pt-24">
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance">Member registration</h1>
             <p className="text-muted-foreground">Complete the steps below to join Hacro Labs</p>
