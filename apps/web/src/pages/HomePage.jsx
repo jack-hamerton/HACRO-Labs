@@ -43,7 +43,7 @@ const BENEFITS = [
 ];
 
 const TEAM = [
-  { name: 'Jack Hamerton',    role: 'Founder & Executive Director / Advisory Chairman' },
+  { name: 'Jack Hamerton',    role: 'Founder & Executive Director' },
   { name: 'Jessy Mala',       role: 'Program Delivery Manager' },
   { name: 'Chrispine Samwel', role: 'Development Gateway Manager' },
   { name: 'Ruth Njeri',       role: 'Community Outreach Coordinator' },

@@ -8,7 +8,7 @@ const fallbackStaffMembers = [
   {
     name: 'Jack Hamerton',
     role: 'Founder & Executive Director',
-    position: 'Executive Director/ Advisory Chairman',
+    position: 'Executive Director',
     bio: 'Leading HACRO Labs with community-driven strategic oversight and governance for the organization, ensuring alignment with our mission and values for sustainability and lomg-term impact.',
     photo: 'https://i.postimg.cc/zfb4gHmd/0Q4A0693.jpg',
     socialLinks: {
