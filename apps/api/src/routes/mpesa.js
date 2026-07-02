@@ -11,7 +11,7 @@ const router = express.Router();
  * Initiate M-Pesa STK Push payment request
  */
 router.post('/stk-push', async (req, res) => {
-  const { phoneNumber, amount, email, firstName, lastName } = req.body;
+  const { phoneNumber, amount, email, firstName, lastName, purpose } = req.body;
 
   // Validate required fields
   if (!phoneNumber || !amount || !email || !firstName || !lastName) {
@@ -44,8 +44,25 @@ router.post('/stk-push', async (req, res) => {
     amount,
     firstName,
     lastName,
+    purpose,
     merchantRequestId: stkPushResponse.merchantRequestId,
   });
+
+  try {
+    await pb.collection('donations').create({
+      donor_name: `${firstName} ${lastName}`.trim(),
+      donor_email: email,
+      donor_phone: phoneNumber,
+      amount,
+      purpose: purpose || 'General support',
+      payment_status: 'pending',
+      checkout_request_id: stkPushResponse.checkoutRequestId,
+      merchant_request_id: stkPushResponse.merchantRequestId,
+    }, { $autoCancel: false });
+    logger.info(`Donation record created for ${email}:`, stkPushResponse.checkoutRequestId);
+  } catch (donationError) {
+    logger.warn('Unable to create donation record in PocketBase:', donationError?.message || donationError);
+  }
 
   logger.info(`STK Push cached for ${email}:`, stkPushResponse.checkoutRequestId);
 
@@ -131,40 +148,39 @@ router.post('/callback', async (req, res) => {
       phoneNumber,
     });
 
-    // Update payment record in PocketBase if email is available
+    // Update donation/payment record in PocketBase if email is available
     if (paymentInfo && paymentInfo.email) {
-      // Try to find and update payment record
-      // This assumes you have a 'payments' collection in PocketBase
-      // Adjust collection name and fields as needed
       const email = paymentInfo.email;
 
-      // Create or update payment record
-      const paymentRecord = {
-        email,
-        phone_number: phoneNumber,
+      const donationRecord = {
+        donor_name: `${paymentInfo.firstName || ''} ${paymentInfo.lastName || ''}`.trim() || email,
+        donor_email: email,
+        donor_phone: paymentInfo.phoneNumber || '',
         amount,
+        purpose: paymentInfo.purpose || 'General support',
         checkout_request_id: checkoutRequestId,
         merchant_request_id: merchantRequestId,
         mpesa_reference: mpesaReceiptNumber,
         payment_status: 'completed',
-        payment_date: transactionDate,
+        payment_date: transactionDate || new Date().toISOString(),
         result_code: resultCode,
         result_desc: resultDesc,
       };
 
-      // Try to update existing payment record or create new one
-      const existingPayments = await pb.collection('payments').getFullList({
-        filter: `checkout_request_id = "${checkoutRequestId}"`,
-      });
+      try {
+        const existingDonations = await pb.collection('donations').getFullList({
+          filter: `checkout_request_id = "${checkoutRequestId}"`,
+        });
 
-      if (existingPayments.length > 0) {
-        // Update existing record
-        await pb.collection('payments').update(existingPayments[0].id, paymentRecord);
-        logger.info(`Payment record updated in PocketBase for ${checkoutRequestId}`);
-      } else {
-        // Create new record
-        await pb.collection('payments').create(paymentRecord);
-        logger.info(`Payment record created in PocketBase for ${checkoutRequestId}`);
+        if (existingDonations.length > 0) {
+          await pb.collection('donations').update(existingDonations[0].id, donationRecord);
+          logger.info(`Donation record updated in PocketBase for ${checkoutRequestId}`);
+        } else {
+          await pb.collection('donations').create(donationRecord);
+          logger.info(`Donation record created in PocketBase for ${checkoutRequestId}`);
+        }
+      } catch (donationError) {
+        logger.warn('Unable to save completed donation record:', donationError?.message || donationError);
       }
     }
   } else {
@@ -173,12 +189,16 @@ router.post('/callback', async (req, res) => {
       resultDesc,
     });
 
-    // Update payment record with failure status if email is available
+    // Update donation record with failure status if email is available
     if (paymentInfo && paymentInfo.email) {
       const email = paymentInfo.email;
 
-      const paymentRecord = {
-        email,
+      const donationRecord = {
+        donor_name: `${paymentInfo.firstName || ''} ${paymentInfo.lastName || ''}`.trim() || email,
+        donor_email: email,
+        donor_phone: paymentInfo.phoneNumber || '',
+        amount: paymentInfo.amount,
+        purpose: paymentInfo.purpose || 'General support',
         checkout_request_id: checkoutRequestId,
         merchant_request_id: merchantRequestId,
         payment_status: 'failed',
@@ -186,16 +206,20 @@ router.post('/callback', async (req, res) => {
         result_desc: resultDesc,
       };
 
-      const existingPayments = await pb.collection('payments').getFullList({
-        filter: `checkout_request_id = "${checkoutRequestId}"`,
-      });
+      try {
+        const existingDonations = await pb.collection('donations').getFullList({
+          filter: `checkout_request_id = "${checkoutRequestId}"`,
+        });
 
-      if (existingPayments.length > 0) {
-        await pb.collection('payments').update(existingPayments[0].id, paymentRecord);
-        logger.info(`Payment failure recorded in PocketBase for ${checkoutRequestId}`);
-      } else {
-        await pb.collection('payments').create(paymentRecord);
-        logger.info(`Payment failure record created in PocketBase for ${checkoutRequestId}`);
+        if (existingDonations.length > 0) {
+          await pb.collection('donations').update(existingDonations[0].id, donationRecord);
+          logger.info(`Donation failure recorded in PocketBase for ${checkoutRequestId}`);
+        } else {
+          await pb.collection('donations').create(donationRecord);
+          logger.info(`Donation failure record created in PocketBase for ${checkoutRequestId}`);
+        }
+      } catch (donationError) {
+        logger.warn('Unable to save failed donation record:', donationError?.message || donationError);
       }
     }
   }

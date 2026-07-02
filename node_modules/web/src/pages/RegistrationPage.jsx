@@ -701,7 +701,7 @@ const RegistrationPage = () => {
                     By registering, you agree to Hacro Labs automated loan and savings processing rules, including deductions for overdue loans, group interest penalties, guarantor collateral handling, and in-app notifications.
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Read the full Terms & Conditions on the <Link to="/newsletter#terms" className="text-primary hover:underline">Newsletter page</Link>.
+                    Read the full Terms & Conditions on the <Link to="/community-financial-empowerment#terms" className="text-primary hover:underline">Community Financial Empowerment page</Link>.
                   </p>
                   <label className="inline-flex items-start gap-3 text-sm text-foreground">
                     <input
@@ -710,7 +710,7 @@ const RegistrationPage = () => {
                       onChange={(e) => setTermsAccepted(e.target.checked)}
                       className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
                     />
-                    <span>I have read and agree to the <Link to="/newsletter#terms" className="text-primary hover:underline">Terms & Conditions</Link> and Privacy Policy.</span>
+                    <span>I have read and agree to the <Link to="/community-financial-empowerment#terms" className="text-primary hover:underline">Terms & Conditions</Link> and Privacy Policy.</span>
                   </label>
                 </div>
               </div>

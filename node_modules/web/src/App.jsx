@@ -51,8 +51,9 @@ function App() {
         <AdminAuthProvider>
           <ScrollToTop />
           <Toaster position="top-right" richColors />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
+          <div className="min-h-screen pt-20">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/registration-confirmation" element={<RegistrationConfirmationPage />} />
             <Route path="/member-login" element={<MemberLoginPage />} />
@@ -107,7 +108,8 @@ function App() {
                 </div>
               }
             />
-          </Routes>
+            </Routes>
+          </div>
         </AdminAuthProvider>
       </AuthProvider>
     </Router>

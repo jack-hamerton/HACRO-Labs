@@ -430,6 +430,25 @@ async function main() {
     ]
   });
 
+  const donationsCollection = await createCollectionIfMissing({
+    name: 'donations',
+    type: 'base',
+    schema: [
+      { name: 'donor_name', type: 'text', required: false },
+      { name: 'donor_email', type: 'text', required: false },
+      { name: 'donor_phone', type: 'text', required: false },
+      { name: 'amount', type: 'number', required: true },
+      { name: 'purpose', type: 'text', required: false },
+      { name: 'payment_status', type: 'select', required: true, options: { values: ['pending', 'completed', 'failed'] } },
+      { name: 'checkout_request_id', type: 'text', required: false },
+      { name: 'merchant_request_id', type: 'text', required: false },
+      { name: 'mpesa_reference', type: 'text', required: false },
+      { name: 'payment_date', type: 'date', required: false },
+      { name: 'result_code', type: 'text', required: false },
+      { name: 'result_desc', type: 'text', required: false }
+    ]
+  });
+
   const contributionsHistoryCollection = await createCollectionIfMissing({
     name: 'contributions_history',
     type: 'base',
@@ -633,7 +652,7 @@ async function main() {
   });
 
   if (staffMembersCollection) {
-    const existingFields = staffMembersCollection.schema.map(f => f.name);
+    const existingFields = (staffMembersCollection.schema || []).map(f => f.name);
     const newFields = [
       { name: 'company_position', type: 'text', required: false },
       { name: 'linkedin', type: 'url', required: false },
@@ -645,7 +664,7 @@ async function main() {
 
     const fieldsToAdd = newFields.filter(f => !existingFields.includes(f.name));
     if (fieldsToAdd.length > 0) {
-      staffMembersCollection.schema.push(...fieldsToAdd);
+      staffMembersCollection.schema = [...(staffMembersCollection.schema || []), ...fieldsToAdd];
       await updateCollection(staffMembersCollection.id, { schema: staffMembersCollection.schema });
     } else {
       console.log('✅ Staff members collection already up to date');
@@ -653,7 +672,7 @@ async function main() {
   }
 
   if (loansCollection) {
-    const existingFields = loansCollection.schema.map(f => f.name);
+    const existingFields = (loansCollection.schema || []).map(f => f.name);
     const newFields = [
       { name: 'member_id', type: 'relation', required: true, options: { collectionId: membersCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
       { name: 'group_id', type: 'relation', required: true, options: { collectionId: groupsCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
@@ -671,7 +690,7 @@ async function main() {
 
     const fieldsToAdd = newFields.filter(f => !existingFields.includes(f.name));
     if (fieldsToAdd.length > 0) {
-      loansCollection.schema.push(...fieldsToAdd);
+      loansCollection.schema = [...(loansCollection.schema || []), ...fieldsToAdd];
       await updateCollection(loansCollection.id, { schema: loansCollection.schema });
     } else {
       console.log('✅ Loans collection already up to date');
@@ -682,7 +701,7 @@ async function main() {
 
   if (loanApprovalsCollection) {
     const approvalsCollection = loanApprovalsCollection;
-    const existingFields = approvalsCollection.schema.map(f => f.name);
+    const existingFields = (approvalsCollection.schema || []).map(f => f.name);
     const newFields = [
       { name: 'approved', type: 'bool', required: false },
       { name: 'vote_type', type: 'select', required: true, options: { values: ['approval', 'guarantor_confirmation'] } },
@@ -692,7 +711,7 @@ async function main() {
 
     const fieldsToAdd = newFields.filter(f => !existingFields.includes(f.name));
     if (fieldsToAdd.length > 0) {
-      approvalsCollection.schema.push(...fieldsToAdd);
+      approvalsCollection.schema = [...(approvalsCollection.schema || []), ...fieldsToAdd];
       await updateCollection(approvalsCollection.id, { schema: approvalsCollection.schema });
     } else {
       console.log('✅ Loan approvals collection already up to date');
@@ -711,7 +730,7 @@ async function main() {
   }
 
   if (savingsCollection) {
-    const existingFields = savingsCollection.schema.map(f => f.name);
+    const existingFields = (savingsCollection.schema || []).map(f => f.name);
     const newFields = [
       { name: 'member_id', type: 'relation', required: true, options: { collectionId: membersCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
       { name: 'group_id', type: 'relation', required: true, options: { collectionId: groupsCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
@@ -723,7 +742,7 @@ async function main() {
 
     const fieldsToAdd = newFields.filter(f => !existingFields.includes(f.name));
     if (fieldsToAdd.length > 0) {
-      savingsCollection.schema.push(...fieldsToAdd);
+      savingsCollection.schema = [...(savingsCollection.schema || []), ...fieldsToAdd];
       await updateCollection(savingsCollection.id, { schema: savingsCollection.schema });
     } else {
       console.log('✅ Savings collection already up to date');
@@ -734,7 +753,7 @@ async function main() {
 
   const guarantorsCollection = await getCollectionByName('loan_guarantors');
   if (guarantorsCollection) {
-    const existingFields = guarantorsCollection.schema.map(f => f.name);
+    const existingFields = (guarantorsCollection.schema || []).map(f => f.name);
     const newFields = [
       {
         name: 'loan_id',
@@ -764,7 +783,7 @@ async function main() {
 
     const fieldsToAdd = newFields.filter(f => !existingFields.includes(f.name));
     if (fieldsToAdd.length > 0) {
-      guarantorsCollection.schema.push(...fieldsToAdd);
+      guarantorsCollection.schema = [...(guarantorsCollection.schema || []), ...fieldsToAdd];
       await updateCollection(guarantorsCollection.id, { schema: guarantorsCollection.schema });
     }
 

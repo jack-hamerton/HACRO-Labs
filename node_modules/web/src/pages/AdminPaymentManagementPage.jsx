@@ -7,41 +7,63 @@ import pb from '@/lib/pocketbaseClient';
 import AdminLayout from '@/components/AdminLayout.jsx';
 
 const AdminPaymentManagementPage = () => {
-  const [payments, setPayments] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [typeFilter, setTypeFilter] = useState('All');
 
   useEffect(() => {
-    fetchPayments();
+    fetchTransactions();
   }, []);
 
-  const fetchPayments = async () => {
+  const fetchTransactions = async () => {
     try {
-      const records = await pb.collection('payments').getFullList({
-        sort: '-payment_date',
-        expand: 'member_id',
-        $autoCancel: false,
-      });
-      setPayments(records);
+      const [paymentsResponse, donationsResponse] = await Promise.all([
+        pb.collection('payments').getFullList({
+          sort: '-payment_date',
+          expand: 'member_id',
+          $autoCancel: false,
+        }),
+        pb.collection('donations').getFullList({
+          sort: '-payment_date',
+          $autoCancel: false,
+        }),
+      ]);
+
+      const normalizedPayments = paymentsResponse.map((payment) => ({
+        ...payment,
+        kind: 'payment',
+        displayName: payment.expand?.member_id
+          ? `${payment.expand.member_id.first_name} ${payment.expand.member_id.last_name}`
+          : payment.email || 'Unknown member',
+      }));
+
+      const normalizedDonations = donationsResponse.map((donation) => ({
+        ...donation,
+        kind: 'donation',
+        displayName: donation.donor_name || donation.donor_email || 'Anonymous donor',
+      }));
+
+      setTransactions([...normalizedPayments, ...normalizedDonations]);
     } catch (error) {
-      console.error('Error fetching payments:', error);
-      toast.error('Failed to load payments');
+      console.error('Error fetching transactions:', error);
+      toast.error('Failed to load payments and donations');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredPayments = payments.filter((payment) => {
-    const memberName = payment.expand?.member_id 
-      ? `${payment.expand.member_id.first_name} ${payment.expand.member_id.last_name}`.toLowerCase() 
-      : '';
-    const ref = (payment.mpesa_reference || payment.checkout_request_id || '').toLowerCase();
-    
-    const matchesSearch = memberName.includes(searchTerm.toLowerCase()) || ref.includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || payment.payment_status === statusFilter;
+  const filteredTransactions = transactions.filter((transaction) => {
+    const memberName = (transaction.displayName || '').toLowerCase();
+    const ref = (transaction.mpesa_reference || transaction.checkout_request_id || '').toLowerCase();
+    const purpose = (transaction.purpose || '').toLowerCase();
 
-    return matchesSearch && matchesStatus;
+    const matchesSearch = memberName.includes(searchTerm.toLowerCase()) || ref.includes(searchTerm.toLowerCase()) || purpose.includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'All' || transaction.payment_status === statusFilter;
+    const matchesType = typeFilter === 'All' || transaction.kind === typeFilter;
+
+    return matchesSearch && matchesStatus && matchesType;
   });
 
   return (
@@ -63,12 +85,12 @@ const AdminPaymentManagementPage = () => {
           </div>
         ) : (
           <div className="dashboard-card mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search by member name or reference..."
+                  placeholder="Search by donor, member, or reference..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="form-input pl-10"
@@ -88,6 +110,19 @@ const AdminPaymentManagementPage = () => {
                   <option value="failed">Failed</option>
                 </select>
               </div>
+
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="form-input pl-10"
+                >
+                  <option value="All">All Types</option>
+                  <option value="payment">Payments</option>
+                  <option value="donation">Donations</option>
+                </select>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -95,52 +130,56 @@ const AdminPaymentManagementPage = () => {
                 <thead>
                   <tr>
                     <th className="table-header">Date</th>
-                    <th className="table-header">Member</th>
+                    <th className="table-header">Name</th>
+                    <th className="table-header">Type</th>
                     <th className="table-header">Amount</th>
                     <th className="table-header">M-Pesa Reference</th>
                     <th className="table-header">Status</th>
-                    <th className="table-header text-right">Receipt</th>
+                    <th className="table-header text-right">Purpose</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredPayments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-muted/50 transition-colors duration-200">
+                  {filteredTransactions.map((transaction) => (
+                    <tr key={`${transaction.kind}-${transaction.id}`} className="hover:bg-muted/50 transition-colors duration-200">
                       <td className="table-cell whitespace-nowrap">
-                        {payment.payment_date ? format(new Date(payment.payment_date), 'MMM dd, yyyy') : '-'}
+                        {transaction.payment_date ? format(new Date(transaction.payment_date), 'MMM dd, yyyy') : '-'}
                       </td>
                       <td className="table-cell font-medium text-foreground">
-                        {payment.expand?.member_id 
-                          ? `${payment.expand.member_id.first_name} ${payment.expand.member_id.last_name}`
-                          : 'Unknown Member'}
+                        {transaction.displayName || 'Unknown'}
+                      </td>
+                      <td className="table-cell">
+                        <span className={transaction.kind === 'donation' ? 'badge-pending' : 'badge-completed'}>
+                          {transaction.kind === 'donation' ? 'Donation' : 'Payment'}
+                        </span>
                       </td>
                       <td className="table-cell font-semibold">
-                        KES {payment.amount?.toLocaleString()}
+                        KES {Number(transaction.amount || 0).toLocaleString()}
                       </td>
                       <td className="table-cell font-mono text-xs uppercase">
-                        {payment.mpesa_reference || payment.checkout_request_id || '-'}
+                        {transaction.mpesa_reference || transaction.checkout_request_id || '-'}
                       </td>
                       <td className="table-cell">
                         <span className={
-                          payment.payment_status === 'completed'
+                          transaction.payment_status === 'completed'
                             ? 'badge-completed'
-                            : payment.payment_status === 'pending'
+                            : transaction.payment_status === 'pending'
                             ? 'badge-pending'
                             : 'badge-failed'
                         }>
-                          {payment.payment_status}
+                          {transaction.payment_status}
                         </span>
                       </td>
                       <td className="table-cell text-right text-xs text-slate-500">
-                        {payment.acknowledgment_file ? 'Attachment available' : 'No file'}
+                        {transaction.purpose || (transaction.kind === 'donation' ? 'General support' : '-')}
                       </td>
                     </tr>
                   ))}
 
-                  {filteredPayments.length === 0 && (
+                  {filteredTransactions.length === 0 && (
                     <tr>
-                      <td colSpan="6" className="px-6 py-12 text-center text-muted-foreground">
+                      <td colSpan="7" className="px-6 py-12 text-center text-muted-foreground">
                         <DollarSign className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        <p>No payments found matching the filters.</p>
+                        <p>No transactions found matching the filters.</p>
                       </td>
                     </tr>
                   )}

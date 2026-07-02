@@ -67,6 +67,7 @@ const DonatePage = () => {
               email: form.email,
               firstName: form.fullName.split(' ')[0] || form.fullName,
               lastName: form.fullName.split(' ').slice(1).join(' ') || 'Donor',
+              purpose: form.purpose,
             }),
           });
 

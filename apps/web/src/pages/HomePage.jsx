@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Users, Shield, TrendingUp, Award, ArrowRight } from 'lucide-react';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
-import { WaterDroplets } from '@/components/ui/WaterDroplets.jsx';
 
 const HERO_IMAGES = [
+
   'https://i.postimg.cc/J7XRsQ9y/IMG-8869-1.jpg',
   'https://i.postimg.cc/P52ZvHBW/IMG-1064.jpg',
   'https://i.postimg.cc/hj1np6Gj/IMG-0078.jpg',
@@ -159,7 +159,7 @@ function HeroSlideshow() {
           backgroundImage: `url(${activeImage})`,
           backgroundSize: 'cover', backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          transform: 'scale(1.04)',
+          transform: 'scale(1.12)',
           opacity: isTransitioning ? 0 : 1,
           transition: 'opacity 2.2s ease-in-out, transform 2.2s ease-in-out',
         }}
@@ -170,7 +170,7 @@ function HeroSlideshow() {
           backgroundImage: `url(${upcomingImage})`,
           backgroundSize: 'cover', backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          transform: 'scale(1.04)',
+          transform: 'scale(1.12)',
           opacity: isTransitioning ? 1 : 0,
           transition: 'opacity 2.2s ease-in-out, transform 2.2s ease-in-out',
         }}
@@ -211,15 +211,11 @@ export default function HomePage() {
       <Header />
 
       {/* Water droplet animation — fixed background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <WaterDroplets />
-      </div>
-
       {/* ── Hero ── */}
-      <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
         <HeroSlideshow />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <div className="max-w-3xl opacity-100">
             <div className="mb-6 relative overflow-hidden" style={{ minHeight: '3.2em' }}>
               <h1
