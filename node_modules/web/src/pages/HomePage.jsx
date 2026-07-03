@@ -328,7 +328,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
       <section className="py-24 sm:py-28 lg:py-32 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <FadeIn>
@@ -337,8 +336,7 @@ export default function HomePage() {
                 <Users className="w-16 h-16 text-green-400 mx-auto mb-6" />
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to get started?</h2>
                 <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                  Join hundreds of community members who have empowered themselves, grown their skills, and
-                  uplifted others through HACRO Labs membership.
+                  Join hundreds of community members who have empowered themselves, grown their skills, and uplifted others through HACRO Labs membership.
                 </p>
                 <a
                   href="/register"

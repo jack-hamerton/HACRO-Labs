@@ -159,9 +159,9 @@ export default function CommunityFinancialEmpowermentPage() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-green-100 bg-gradient-to-br from-green-600 to-emerald-500 p-8 text-white shadow-lg">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-sm">
-                  <Sparkles className="h-4 w-4" />
+              <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 text-gray-900 shadow-sm">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-sm text-gray-900">
+                  <Sparkles className="h-4 w-4 text-green-700" />
                   Why members love it
                 </div>
                 <h2 className="text-2xl font-semibold">What this pillar delivers</h2>
@@ -169,14 +169,14 @@ export default function CommunityFinancialEmpowermentPage() {
                   {pillars.map((item) => {
                     const Icon = item.icon;
                     return (
-                      <div key={item.title} className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
+                      <div key={item.title} className="rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-green-400 hover:bg-green-50 hover:shadow-lg cursor-pointer">
                         <div className="flex items-start gap-3">
-                          <div className="rounded-xl bg-white/15 p-2">
+                          <div className="rounded-xl bg-green-50 p-2 text-green-700">
                             <Icon className="h-5 w-5" />
                           </div>
                           <div>
-                            <h3 className="font-semibold">{item.title}</h3>
-                            <p className="mt-1 text-sm leading-7 text-green-50/90">{item.description}</p>
+                            <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                            <p className="mt-1 text-sm leading-7 text-gray-600">{item.description}</p>
                           </div>
                         </div>
                       </div>
@@ -187,7 +187,7 @@ export default function CommunityFinancialEmpowermentPage() {
             </div>
           </div>
 
-          <section id="terms" className="mt-14 rounded-[2rem] border border-green-100 bg-white p-8 shadow-sm sm:p-10">
+          <section id="terms" className="mt-14 rounded-[2rem] border border-gray-200 bg-gray-50 p-8 shadow-sm sm:p-10">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.32em] text-green-700">Terms & Conditions</p>
@@ -202,7 +202,7 @@ export default function CommunityFinancialEmpowermentPage() {
 
             <div className="mt-8 space-y-6 text-sm leading-7 text-gray-600">
               {termsSections.map((section) => (
-                <div key={section.title} className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+                <div key={section.title} className="rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-200 hover:border-green-400 hover:bg-green-50 hover:shadow-lg cursor-pointer">
                   <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
                   <ul className="mt-3 space-y-2">
                     {section.points.map((point) => (

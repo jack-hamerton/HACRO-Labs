@@ -12,7 +12,7 @@ const MemberLoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
+    identity: '',
     password: '',
   });
 
@@ -26,12 +26,12 @@ const MemberLoginPage = () => {
     setLoading(true);
 
     try {
-      await loginMember(formData.email, formData.password);
+      await loginMember(formData.identity, formData.password);
       toast.success('Login successful!');
       navigate('/member-dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Invalid email or password');
+      toast.error('Invalid email or phone or password');
     } finally {
       setLoading(false);
     }
@@ -59,17 +59,17 @@ const MemberLoginPage = () => {
           <form onSubmit={handleSubmit} className="form-section">
             <div className="space-y-6">
               <div>
-                <label className="form-label">Email address</label>
+                <label className="form-label">Email or phone number</label>
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
+                  type="text"
+                  name="identity"
+                  value={formData.identity}
                   onChange={handleInputChange}
                   className="form-input"
+                  placeholder="Email or phone number"
                   required
                 />
               </div>
-
               <div>
                 <label className="form-label">Password</label>
                 <div className="relative">

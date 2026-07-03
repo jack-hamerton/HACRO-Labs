@@ -119,7 +119,7 @@ const RegistrationConfirmationPage = () => {
               <ul className="space-y-2 text-sm text-foreground">
                 <li className="flex items-start">
                   <span className="text-primary mr-2">•</span>
-                  <span>You can now log in to your member dashboard using your email and password.</span>
+                  <span>You can now log in to your member dashboard using your email or phone number plus password.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2">•</span>

@@ -9,19 +9,35 @@ export async function setupAdminCredentials() {
     email: superAdminEmail,
     password: superAdminPassword,
     passwordConfirm: superAdminPassword,
-    full_name: 'Jack Hamerton',
-    role: 'super_admin',
-    is_active: true,
+    first_name: 'Jack',
+    last_name: 'Hamerton',
+    verified: true,
   };
 
   try {
     let superuserAuthenticated = false;
-    try {
-      await pb.admins.authWithPassword(superAdminEmail, superAdminPassword);
-      logger.info(`Authenticated existing superuser: ${superAdminEmail}`);
-      superuserAuthenticated = true;
-    } catch (authError) {
-      logger.warn(`Superuser auth failed for ${superAdminEmail}, attempting creation...`, authError.message || authError);
+
+    // Wait for PocketBase to be reachable before attempting admin auth/create
+    const maxRetries = 12;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await pb.admins.authWithPassword(superAdminEmail, superAdminPassword);
+        logger.info(`Authenticated existing superuser: ${superAdminEmail}`);
+        superuserAuthenticated = true;
+        break;
+      } catch (authError) {
+        const msg = (authError && (authError.message || authError.toString())) || '';
+        // Connection refused or network error: retry
+        if (/ECONNREFUSED|connect .* 127.0.0.1:8090|Failed to fetch|fetch failed/i.test(msg) || (authError && authError.cause && authError.cause.code === 'ECONNREFUSED')) {
+          logger.warn(`PocketBase unreachable (attempt ${attempt}/${maxRetries}), retrying in 1s...`);
+          await new Promise((r) => setTimeout(r, 1000));
+          continue;
+        }
+
+        // Other auth error (invalid creds) - break to try create flow
+        logger.warn(`Superuser auth failed for ${superAdminEmail}, attempting creation...`, authError.message || authError);
+        break;
+      }
     }
 
     if (!superuserAuthenticated) {
@@ -57,8 +73,19 @@ export async function setupAdminCredentials() {
       });
 
       if (existing.length > 0) {
-        await pb.collection('pbc_admins_auth').update(existing[0].id, superAdminData);
-        logger.info(`Updated super admin record for: ${superAdminEmail}`);
+        try {
+          await pb.collection('pbc_admins_auth').update(existing[0].id, superAdminData);
+          logger.info(`Updated super admin record for: ${superAdminEmail}`);
+        } catch (updateError) {
+          logger.warn(`Update failed for pbc_admins_auth record, attempting delete+create fallback:`, updateError.message || updateError);
+          try {
+            await pb.collection('pbc_admins_auth').delete(existing[0].id);
+            await pb.collection('pbc_admins_auth').create(superAdminData);
+            logger.info(`Recreated super admin record via delete+create: ${superAdminEmail}`);
+          } catch (recreateError) {
+            logger.error(`Failed to recreate pbc_admins_auth record for ${superAdminEmail}:`, recreateError.message || recreateError);
+          }
+        }
       } else {
         await pb.collection('pbc_admins_auth').create(superAdminData);
         logger.info(`Created super admin record: ${superAdminEmail}`);

@@ -1,4 +1,5 @@
 /// <reference path="../pb_data/types.d.ts" />
+// Disabled duplicate migration: donations collection is created by 1777869848_created_donations.js
 migrate((app) => {
   const collection = new Collection({
     "createRule": null,

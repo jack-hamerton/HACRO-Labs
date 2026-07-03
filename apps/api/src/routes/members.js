@@ -8,15 +8,43 @@ const router = express.Router();
 
 /**
  * POST /members/login
- * Authenticate member with email and password
+ * Authenticate member with email or phone number and password
  */
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, identity, password } = req.body;
+  const loginField = identity ?? email;
+  const rawIdentity = String(loginField || '').trim();
 
   // Validate input
-  if (!email || !password) {
+  if (!rawIdentity || !password) {
     return res.status(400).json({
-      error: 'Email and password are required',
+      error: 'Email/phone and password are required',
+    });
+  }
+
+  const normalizedIdentity = rawIdentity.replace(/\s+/g, '');
+  const isPhone = /^\+?[0-9]{9,15}$/.test(normalizedIdentity);
+  const loginIdentity = isPhone ? normalizedIdentity.replace(/^\+/, '') : normalizedIdentity;
+
+  // Attempt authentication
+  let authData;
+  try {
+    if (isPhone) {
+      const members = await authPb.collection('members').getFullList({
+        filter: `phone = "${loginIdentity}"`,
+      });
+      if (members.length === 1 && members[0].email) {
+        authData = await authPb.collection('members').authWithPassword(members[0].email, password);
+      } else {
+        throw new Error('No matching member for phone login');
+      }
+    } else {
+      authData = await authPb.collection('members').authWithPassword(loginIdentity, password);
+    }
+  } catch (error) {
+    logger.warn(`Failed member login attempt for ${rawIdentity}:`, error.message);
+    return res.status(401).json({
+      error: 'Invalid email/phone or password',
     });
   }
 
@@ -26,12 +54,12 @@ router.post('/login', async (req, res) => {
   const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
 
   const attempts = await pb.collection('member_login_attempts').getFullList({
-    filter: `email = "${email}" && created_date > "${fifteenMinutesAgo.toISOString()}"`,
+    filter: `email = "${loginIdentity}" && created_date > "${fifteenMinutesAgo.toISOString()}"`,
   });
 
   // Check if locked out
   if (attempts.length > 0 && attempts[0].attempt_count >= 5) {
-    logger.warn(`Login attempt for locked account: ${email}`);
+    logger.warn(`Login attempt for locked account: ${loginIdentity}`);
     return res.status(429).json({
       error: 'Account locked due to too many failed login attempts. Please try again in 15 minutes.',
     });
@@ -39,33 +67,6 @@ router.post('/login', async (req, res) => {
   */
 
   const now = new Date();
-
-  // Attempt authentication
-  let authData;
-  try {
-    authData = await authPb.collection('members').authWithPassword(email, password);
-  } catch (error) {
-    logger.warn(`Failed login attempt for ${email}:`, error.message);
-
-    // Increment failed attempts (disabled for development)
-    /*
-    // Increment failed attempts
-    if (attempts.length > 0) {
-      await pb.collection('member_login_attempts').update(attempts[0].id, {
-        attempt_count: attempts[0].attempt_count + 1,
-      });
-    } else {
-      await pb.collection('member_login_attempts').create({
-        email,
-        attempt_count: 1,
-      });
-    }
-    */
-
-    return res.status(401).json({
-      error: 'Invalid email or password',
-    });
-  }
 
   // Clear failed attempts on successful login (disabled for development)
   /*

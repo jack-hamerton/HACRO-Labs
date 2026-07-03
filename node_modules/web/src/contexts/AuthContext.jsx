@@ -23,8 +23,25 @@ export const AuthProvider = ({ children }) => {
     setInitialLoading(false);
   }, []);
 
-  const loginMember = async (email, password) => {
-    const auth = await pb.collection('members').authWithPassword(email, password);
+  const loginMember = async (identity, password) => {
+    const rawIdentity = String(identity || '').trim();
+    const normalized = rawIdentity.replace(/\s+/g, '');
+    const isPhone = /^\+?[0-9]{9,15}$/.test(normalized);
+
+    let auth;
+    if (isPhone) {
+      const phone = normalized.replace(/^\+/, '');
+      const members = await pb.collection('members').getFullList({
+        filter: `phone = "${phone}"`,
+      });
+      if (members.length !== 1) {
+        throw new Error('Invalid credentials');
+      }
+      auth = await pb.collection('members').authWithPassword(members[0].email, password);
+    } else {
+      auth = await pb.collection('members').authWithPassword(normalized, password);
+    }
+
     if (!auth || !auth.token) throw new Error('Invalid credentials');
 
     pb.authStore.save(auth.token, auth.record);

@@ -550,6 +550,20 @@ async function main() {
     ]
   });
 
+  const newsletterSubscribersCollection = await createCollectionIfMissing({
+    name: 'newsletter_subscribers',
+    type: 'base',
+    schema: [
+      { name: 'email', type: 'email', required: true, unique: true },
+      { name: 'source', type: 'text', required: false }
+    ],
+    createRule: null,
+    listRule: null,
+    viewRule: null,
+    updateRule: null,
+    deleteRule: null
+  });
+
   const messagesCollection = await createCollectionIfMissing({
     name: 'messages',
     type: 'base',

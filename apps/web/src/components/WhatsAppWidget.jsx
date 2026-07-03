@@ -51,7 +51,7 @@ const WhatsAppWidget = () => {
         {/* Main WhatsApp Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center animate-bounce"
+          className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-2 animate-bounce flex items-center justify-center"
           aria-label="Open WhatsApp chat"
           title="Chat with us on WhatsApp"
         >

@@ -15,6 +15,7 @@ import { globalRateLimit } from './middleware/global-rate-limit.js';
 import logger from './utils/logger.js';
 import { BodyLimit } from './constants/common.js';
 import { setupAdminCredentials } from './utils/setupAdmin.js';
+import { waitForPocketBase } from './utils/pocketbaseClient.js';
 
 const app = express();
 
@@ -88,9 +89,21 @@ app.use((req, res) => {
 
 const port = process.env.PORT || 3001;
 
-app.listen(port, async () => {
-	await setupAdminCredentials();
-	logger.info(`API Server running on http://localhost:${port}`);
-});
+async function start() {
+	try {
+		logger.info('Waiting for PocketBase to be reachable...');
+		await waitForPocketBase({ timeoutMs: 30000, intervalMs: 500 });
+		logger.info('PocketBase reachable, starting API server');
+	} catch (err) {
+		logger.warn('PocketBase did not become reachable in time, continuing to start API:', err.message || err);
+	}
+
+	app.listen(port, async () => {
+		await setupAdminCredentials();
+		logger.info(`API Server running on http://localhost:${port}`);
+	});
+}
+
+start();
 
 export default app;
