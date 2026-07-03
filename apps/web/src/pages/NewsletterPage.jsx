@@ -321,16 +321,16 @@ const NewsletterPage = () => {
             </div>
           </section>
 
-          <section className="mb-12 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <section className="group mb-12 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-green-500 hover:bg-green-50 hover:shadow-lg hover:outline hover:outline-2 hover:outline-green-500/70 md:p-8">
             <div className="mb-5 text-center">
-              <p className="text-3xl font-extrabold uppercase tracking-[0.35em] text-green-700 sm:text-4xl">Our Partners</p>
-              <h3 className="mt-2 text-lg font-medium leading-snug text-slate-700 sm:text-xl">Working together with leading organizations to create lasting impact</h3>
+              <p className="text-3xl font-extrabold uppercase tracking-[0.35em] text-green-700 sm:text-4xl transition-colors duration-200 group-hover:text-green-700">Our Partners</p>
+              <h3 className="mt-2 text-lg font-medium leading-snug text-slate-700 transition-colors duration-200 group-hover:text-slate-900 sm:text-xl">Working together with leading organizations to create lasting impact</h3>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 py-4">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 py-4 transition-colors duration-200 group-hover:border-green-400 group-hover:bg-white/80">
               <div className="flex w-max animate-[marquee_18s_linear_infinite] items-center gap-8 px-4">
                 {[...partnerLogos, ...partnerLogos].map((partner, index) => (
-                  <div key={`${partner.name}-${index}`} className="flex h-16 min-w-[140px] items-center justify-center rounded-xl border border-slate-200 bg-white px-4 shadow-sm">
-                    <img src={partner.src} alt={partner.name} className="max-h-10 w-full object-contain opacity-80" />
+                  <div key={`${partner.name}-${index}`} className="flex h-16 min-w-[140px] items-center justify-center rounded-xl border border-slate-200 bg-white px-4 shadow-sm transition-all duration-200 hover:border-green-500 hover:bg-green-50 hover:shadow-md">
+                    <img src={partner.src} alt={partner.name} className="max-h-10 w-full object-contain opacity-80 transition duration-200 hover:opacity-100" />
                   </div>
                 ))}
               </div>

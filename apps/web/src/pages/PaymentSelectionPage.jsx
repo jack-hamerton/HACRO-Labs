@@ -120,7 +120,7 @@ const PaymentSelectionPage = () => {
       const payment = await pb.collection('payments').create(paymentData, { $autoCancel: false });
 
       // Trigger M-Pesa STK push via API
-      const stkResponse = await fetch('/api/mpesa/stkpush', {
+      const stkResponse = await fetch('/api/mpesa/stk-push', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,8 +128,7 @@ const PaymentSelectionPage = () => {
         body: JSON.stringify({
           phoneNumber: phoneNumber.replace('+', ''),
           amount: parseFloat(amount),
-          accountReference: `PAY-${payment.id}`,
-          transactionDesc: `${selectedPaymentType.replace('_', ' ').toUpperCase()} - ${member.first_name} ${member.last_name}`
+          purpose: `${selectedPaymentType.replace('_', ' ').toUpperCase()} - ${member.first_name} ${member.last_name}`,
         })
       });
 

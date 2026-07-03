@@ -426,6 +426,7 @@ const RegistrationPage = () => {
         email: formData.email,
         firstName: formData.first_name,
         lastName: formData.last_name,
+        purpose: 'Member Registration Fee',
       };
 
       const response = await apiServerClient.fetch('/mpesa/stk-push', {

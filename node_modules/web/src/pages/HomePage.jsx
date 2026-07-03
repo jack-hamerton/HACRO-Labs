@@ -307,12 +307,12 @@ export default function HomePage() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {TEAM.map((member, i) => (
               <FadeIn key={member.name} delay={i * 0.08}>
-                <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow duration-200 h-full">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-green-50 text-green-700 font-semibold text-sm">
+                <div className="group h-full rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-green-500 hover:bg-green-50 hover:shadow-lg">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-green-50 font-semibold text-sm text-green-700 transition-colors duration-200 group-hover:bg-green-600 group-hover:text-white">
                     {member.name.split(' ').map((p) => p[0]).join('')}
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{member.name}</h3>
-                  <p className="text-sm text-gray-500">{member.role}</p>
+                  <h3 className="mb-2 text-xl font-semibold text-gray-900 transition-colors duration-200 group-hover:text-green-700">{member.name}</h3>
+                  <p className="text-sm text-gray-500 transition-colors duration-200 group-hover:text-green-600">{member.role}</p>
                 </div>
               </FadeIn>
             ))}

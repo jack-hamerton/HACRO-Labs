@@ -118,6 +118,10 @@ onRecordAfterUpdateSuccess((e) => {
         adminNotification.set("read_status", false);
         $app.save(adminNotification);
       });
+    } else {
+      // Keep the loan blocked until every guarantor has acknowledged the collateral commitment
+      loan.set("status", "pending_guarantor_acknowledgment");
+      $app.save(loan);
     }
 
   } catch (err) {

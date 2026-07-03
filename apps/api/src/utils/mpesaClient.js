@@ -84,20 +84,18 @@ function generatePassword(timestamp) {
  * Initiate STK Push request
  * @param {string} phoneNumber - Customer phone number (format: 254XXXXXXXXX)
  * @param {number} amount - Amount to charge
- * @param {string} email - Customer email
- * @param {string} firstName - Customer first name
- * @param {string} lastName - Customer last name
+ * @param {string} purpose - Transaction description/purpose (optional)
  * @returns {Promise<Object>} STK Push response
  */
-export async function initiateStkPush(phoneNumber, amount, email, firstName, lastName) {
+export async function initiateStkPush(phoneNumber, amount, purpose) {
   const shortCode = process.env.MPESA_SHORTCODE;
 
   if (!shortCode) {
     throw new Error('M-Pesa configuration missing: MPESA_SHORTCODE');
   }
 
-  if (!phoneNumber || !amount || !email) {
-    throw new Error('Missing required parameters: phoneNumber, amount, email');
+  if (!phoneNumber || !amount) {
+    throw new Error('Missing required parameters: phoneNumber, amount');
   }
 
   const timestamp = generateTimestamp();
@@ -113,9 +111,9 @@ export async function initiateStkPush(phoneNumber, amount, email, firstName, las
     PartyA: phoneNumber,
     PartyB: shortCode,
     PhoneNumber: phoneNumber,
-    CallBackURL: 'https://yourdomain.com/hcgi/api/mpesa/callback',
-    AccountReference: email,
-    TransactionDesc: 'Hacro Labs Registration Fee',
+    CallBackURL: process.env.MPESA_CALLBACK_URL || 'https://yourdomain.com/hcgi/api/mpesa/callback',
+    AccountReference: purpose || 'Hacro Labs Payment',
+    TransactionDesc: purpose || 'Hacro Labs Payment',
   };
 
   try {

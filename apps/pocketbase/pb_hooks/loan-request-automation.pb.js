@@ -1,11 +1,12 @@
 /// <reference path="../pb_data/types.d.ts" />
-onRecordAfterCreateSuccess((e) => {
-  // Comprehensive loan request automation with new GIL/IL rules
+const roundCurrencyLoanRequest = (value) => Math.round((Number(value) || 0) * 100) / 100;
+
+onRecordAfterCreateSuccess(async (e) => {
   const loanRecord = e.record;
   const memberId = loanRecord.get("member_id");
   const groupId = loanRecord.get("group_id");
   const loanType = loanRecord.get("loan_type");
-  const requestedAmount = loanRecord.get("amount");
+  const requestedAmount = roundCurrencyLoanRequest(loanRecord.get("amount") || 0);
 
   if (!memberId || !groupId) {
     e.next();
@@ -13,109 +14,72 @@ onRecordAfterCreateSuccess((e) => {
   }
 
   try {
-    // Get member details
     const member = $app.findRecordById("members", memberId);
     if (!member) {
       e.next();
       return;
     }
 
-    // Check if member has been saving for 3 months (for IL loans)
+    const interestRate = Number(loanRecord.get("interest_rate") || (loanType === "IL" ? 0.02 : 0.01));
+    const interestAmount = roundCurrencyLoanRequest(requestedAmount * interestRate);
+    const totalRepayable = roundCurrencyLoanRequest(requestedAmount + interestAmount);
+
     if (loanType === "IL") {
       const registrationDate = new Date(member.get("created"));
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-      if (registrationDate > threeMonthsAgo) {
-        // Reject IL loan - member hasn't saved for 3 months
-        loanRecord.set("status", "rejected");
-        $app.save(loanRecord);
-
-        const rejectionNotification = new Record("notifications");
-        rejectionNotification.set("member_id", memberId);
-        rejectionNotification.set("type", "rejection");
-        rejectionNotification.set("title", "Loan Application Rejected");
-        rejectionNotification.set("message", "Individual Loans (IL) require 3 months of membership before application.");
-        rejectionNotification.set("read_status", false);
-        $app.save(rejectionNotification);
-
-        e.next();
-        return;
-      }
-
-      // For IL loans, check if savings + bonuses can cover loan + 2% interest
       const memberSavings = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
       let totalSavings = 0;
       if (memberSavings.length > 0) {
-        totalSavings = memberSavings[0].get("total_savings") || 0;
+        totalSavings = roundCurrencyLoanRequest(memberSavings[0].get("total_savings") || 0);
       }
 
-      // Calculate bonuses (from interest earned)
-      const bonusesEarned = $app.findRecordsByFilter("contributions_history",
-        "member_id = '" + memberId + "' && type = 'interest_earned'", { limit: 1000 });
+      const bonusesEarned = $app.findRecordsByFilter(
+        "contributions_history",
+        "member_id = '" + memberId + "' && type = 'interest_earned'",
+        { limit: 1000 }
+      );
       let totalBonuses = 0;
-      bonusesEarned.forEach(bonus => {
-        totalBonuses += bonus.get("amount") || 0;
+      bonusesEarned.forEach((bonus) => {
+        totalBonuses += roundCurrency(bonus.get("amount") || 0);
       });
 
-      const maxLoanAmount = (totalSavings + totalBonuses) / 1.02; // Loan + 2% interest
+      const maxLoanAmount = roundCurrencyLoanRequest((totalSavings + totalBonuses) / 1.02);
+      const eligibilityMessage = registrationDate > threeMonthsAgo
+        ? "Your request is pending admin review because the member has not yet completed the required savings period."
+        : requestedAmount > maxLoanAmount
+          ? `Your request is pending admin review because the requested amount exceeds the calculated eligibility of KES ${maxLoanAmount.toFixed(2)}.`
+          : "Your request is pending admin review and will be assessed by an administrator.";
 
-      if (requestedAmount > maxLoanAmount) {
-        // Reject IL loan - insufficient collateral
-        loanRecord.set("status", "rejected");
-        $app.save(loanRecord);
-
-        const rejectionNotification = new Record("notifications");
-        rejectionNotification.set("member_id", memberId);
-        rejectionNotification.set("type", "rejection");
-        rejectionNotification.set("title", "Loan Application Rejected");
-        rejectionNotification.set("message", `Insufficient collateral. Maximum loan amount: KES ${maxLoanAmount.toFixed(2)} (based on your savings + bonuses)`);
-        rejectionNotification.set("read_status", false);
-        $app.save(rejectionNotification);
-
-        e.next();
-        return;
-      }
-
-      // IL loan approved automatically
-      loanRecord.set("status", "approved");
-      loanRecord.set("interest_rate", 0.02); // 2% flat rate
-      loanRecord.set("repayment_period_months", 2); // 2 months repayment
-      loanRecord.set("grace_period_months", 1); // 1 month grace period
+      loanRecord.set("status", "pending");
       $app.save(loanRecord);
 
-      // Create notification
-      const approvalNotification = new Record("notifications");
-      approvalNotification.set("member_id", memberId);
-      approvalNotification.set("type", "approval");
-      approvalNotification.set("title", "Individual Loan Approved");
-      approvalNotification.set("message", `Your Individual Loan of KES ${requestedAmount.toLocaleString()} has been approved. Repayment over 2 months with 1 month grace period.`);
-      approvalNotification.set("read_status", false);
-      $app.save(approvalNotification);
+      const pendingNotification = new Record("notifications");
+      pendingNotification.set("member_id", memberId);
+      pendingNotification.set("type", "loan_request");
+      pendingNotification.set("title", "Individual Loan Request Submitted");
+      pendingNotification.set("message", `Your IL loan request of KES ${requestedAmount.toLocaleString()} is now pending admin review. Principal: KES ${requestedAmount.toLocaleString()}, interest: KES ${interestAmount.toLocaleString()}, estimated repayment total: KES ${totalRepayable.toLocaleString()}. ${eligibilityMessage}`);
+      pendingNotification.set("read_status", false);
+      $app.save(pendingNotification);
 
       e.next();
       return;
     }
 
-    // Handle GIL loans
     if (loanType === "GIL") {
-      // 1. Create loan request notification for the borrower
       const requestNotification = new Record("notifications");
       requestNotification.set("member_id", memberId);
       requestNotification.set("type", "loan_request");
       requestNotification.set("title", "GIL Request Submitted");
-      requestNotification.set("message", `Your Group Individual Loan request of KES ${requestedAmount.toLocaleString()} has been submitted. Please add guarantors from your group.`);
+      requestNotification.set("message", `Your GIL loan request of KES ${requestedAmount.toLocaleString()} is now pending admin review. Principal: KES ${requestedAmount.toLocaleString()}, interest: KES ${interestAmount.toLocaleString()}, estimated repayment total: KES ${totalRepayable.toLocaleString()}. Please add guarantors from your group.`);
       requestNotification.set("read_status", false);
       $app.save(requestNotification);
 
-      // 2. Get all group members for potential guarantors
       const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", { limit: 1000 });
 
-      // 3. Notify group members about new GIL request (they can volunteer as guarantors)
       groupMembers.forEach((gm) => {
         const gmMemberId = gm.get("member_id");
-
-        // Don't notify the borrower
         if (gmMemberId === memberId) {
           return;
         }
@@ -124,12 +88,11 @@ onRecordAfterCreateSuccess((e) => {
         groupNotification.set("member_id", gmMemberId);
         groupNotification.set("type", "gil_request");
         groupNotification.set("title", "GIL Request Available");
-        groupNotification.set("message", `A Group Individual Loan request of KES ${requestedAmount.toLocaleString()} is available. You can volunteer as a guarantor by providing collateral from your savings.`);
+        groupNotification.set("message", `A GIL loan request of KES ${requestedAmount.toLocaleString()} is pending admin review and is available for guarantor confirmation.`);
         groupNotification.set("read_status", false);
         $app.save(groupNotification);
       });
     }
-
   } catch (err) {
     console.log("Error in loan request automation: " + err.message);
   }

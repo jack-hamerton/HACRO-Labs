@@ -33,6 +33,69 @@ onRecordAfterCreateSuccess((e) => {
       loan.set("repayment_date", new Date().toISOString());
       $app.save(loan);
 
+      const loanType = loan.get("loan_type");
+      const loanAmount = Number(loan.get("amount") || 0);
+      const interestRate = Number(loan.get("interest_rate") || 0.02);
+      const interestAmount = Math.round((loanAmount * interestRate) * 100) / 100;
+
+      if (loanType === "GIL" && interestAmount > 0) {
+        const companyShare = interestAmount * 0.5;
+        const groupBonus = interestAmount * 0.25;
+        const guarantorBonus = interestAmount * 0.25;
+
+        const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + loan.get("group_id") + "'", { limit: 1000 });
+        const groupMemberCount = groupMembers.length;
+        const guarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loanId + "' && status = 'approved'", { limit: 1000 });
+        const guarantorCount = guarantors.length;
+
+        if (groupMemberCount > 0) {
+          const bonusPerGroupMember = groupBonus / groupMemberCount;
+          groupMembers.forEach((gm) => {
+            const memberSavings = $app.findRecordsByFilter("savings", "member_id = '" + gm.get("member_id") + "'", { limit: 1 });
+            if (memberSavings.length > 0) {
+              const currentSavings = memberSavings[0].get("total_savings") || 0;
+              memberSavings[0].set("total_savings", currentSavings + bonusPerGroupMember);
+              $app.save(memberSavings[0]);
+
+              const bonusHistory = new Record("contributions_history");
+              bonusHistory.set("member_id", gm.get("member_id"));
+              bonusHistory.set("group_id", loan.get("group_id"));
+              bonusHistory.set("type", "group_bonus");
+              bonusHistory.set("amount", bonusPerGroupMember);
+              bonusHistory.set("date", new Date().toISOString());
+              bonusHistory.set("description", `Group bonus from fully repaid GIL loan ${loanId}`);
+              bonusHistory.set("balance", currentSavings + bonusPerGroupMember);
+              $app.save(bonusHistory);
+            }
+          });
+        }
+
+        if (guarantorCount > 0) {
+          const bonusPerGuarantor = guarantorBonus / guarantorCount;
+          guarantors.forEach((guarantor) => {
+            const guarantorId = guarantor.get("guarantor_id");
+            const guarantorSavings = $app.findRecordsByFilter("savings", "member_id = '" + guarantorId + "'", { limit: 1 });
+            if (guarantorSavings.length > 0) {
+              const currentSavings = guarantorSavings[0].get("total_savings") || 0;
+              guarantorSavings[0].set("total_savings", currentSavings + bonusPerGuarantor);
+              $app.save(guarantorSavings[0]);
+
+              const bonusHistory = new Record("contributions_history");
+              bonusHistory.set("member_id", guarantorId);
+              bonusHistory.set("group_id", loan.get("group_id"));
+              bonusHistory.set("type", "guarantor_bonus");
+              bonusHistory.set("amount", bonusPerGuarantor);
+              bonusHistory.set("date", new Date().toISOString());
+              bonusHistory.set("description", `Guarantor bonus from fully repaid GIL loan ${loanId}`);
+              bonusHistory.set("balance", currentSavings + bonusPerGuarantor);
+              $app.save(bonusHistory);
+            }
+          });
+        }
+
+        console.log(`Interest distribution for fully repaid GIL loan ${loanId}: company=${companyShare}, group=${groupBonus}, guarantors=${guarantorBonus}`);
+      }
+
       // Handle full repayment - return collateral for GIL loans
       if (loanType === "GIL") {
         const guarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loanId + "' && status = 'active'", { limit: 1000 });

@@ -73,13 +73,17 @@ onRecordAfterCreateSuccess((e) => {
     acknowledgmentNotification.set("read_status", false);
     $app.save(acknowledgmentNotification);
 
-    // Check if total offered collateral meets loan requirements (but don't approve yet)
+    // Check whether all active guarantor commitments have been acknowledged before disbursement
     const allGuarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loanId + "'", { limit: 1000 });
 
-    let totalOfferedCollateral = 0;
+    let totalAcknowledgedCollateral = 0;
+    let allAcknowledged = true;
     allGuarantors.forEach(g => {
-      if (g.get("status") !== "rejected") {
-        totalOfferedCollateral += g.get("collateral_amount") || 0;
+      const gStatus = g.get("status");
+      if (gStatus === "acknowledged") {
+        totalAcknowledgedCollateral += g.get("collateral_amount") || 0;
+      } else if (gStatus !== "rejected") {
+        allAcknowledged = false;
       }
     });
 
@@ -93,40 +97,42 @@ onRecordAfterCreateSuccess((e) => {
     // Calculate required amount: loan + 2% interest
     const requiredAmount = requestedAmount * 1.02;
 
-    if (totalOfferedCollateral + borrowerSavingsAmount >= requiredAmount) {
-      // Sufficient collateral offered - notify borrower that loan is ready for admin review
-      loan.set("status", "ready_for_admin_review");
+    if (allAcknowledged && totalAcknowledgedCollateral + borrowerSavingsAmount >= requiredAmount) {
+      // Sufficient acknowledged collateral is now in place - loan is ready for admin disbursement
+      loan.set("status", "ready_for_disbursement");
       $app.save(loan);
 
       const readyNotification = new Record("notifications");
       readyNotification.set("member_id", memberId);
-      readyNotification.set("type", "loan_ready_for_review");
-      readyNotification.set("title", "Loan Ready for Admin Review");
-      readyNotification.set("message", `Your GIL loan application has sufficient collateral offers and is now awaiting admin approval for disbursement.`);
+      readyNotification.set("type", "loan_ready_for_disbursement");
+      readyNotification.set("title", "Loan Ready for Disbursement");
+      readyNotification.set("message", `All guarantors have acknowledged their collateral commitments. Your GIL loan is now awaiting admin approval for disbursement.`);
       readyNotification.set("read_status", false);
       $app.save(readyNotification);
 
-      // Notify admin about loan ready for review
       const adminUsers = $app.findRecordsByFilter("admins", "role != 'super_admin'", { limit: 100 });
       adminUsers.forEach(admin => {
         const adminNotification = new Record("notifications");
-        adminNotification.set("member_id", admin.id); // Assuming admins can receive notifications
-        adminNotification.set("type", "admin_loan_review");
-        adminNotification.set("title", "Loan Ready for Review");
-        adminNotification.set("message", `A GIL loan application for KES ${requestedAmount.toLocaleString()} is ready for your review and disbursement.`);
+        adminNotification.set("member_id", admin.id);
+        adminNotification.set("type", "admin_loan_disbursement");
+        adminNotification.set("title", "Loan Ready for Disbursement");
+        adminNotification.set("message", `A GIL loan application for KES ${requestedAmount.toLocaleString()} has all guarantor acknowledgments and is ready for your disbursement approval.`);
         adminNotification.set("read_status", false);
         $app.save(adminNotification);
       });
     } else {
-      // Notify borrower of progress
-      const progressAmount = totalOfferedCollateral + borrowerSavingsAmount;
+      // Keep the loan blocked from disbursement until every guarantor has acknowledged the collateral commitment
+      loan.set("status", "pending_guarantor_acknowledgment");
+      $app.save(loan);
+
+      const progressAmount = totalAcknowledgedCollateral + borrowerSavingsAmount;
       const remainingAmount = requiredAmount - progressAmount;
 
       const progressNotification = new Record("notifications");
       progressNotification.set("member_id", memberId);
       progressNotification.set("type", "collateral_progress");
       progressNotification.set("title", "GIL Collateral Progress");
-      progressNotification.set("message", `Collateral offered: KES ${progressAmount.toLocaleString()} / KES ${requiredAmount.toLocaleString()}. Need KES ${remainingAmount.toLocaleString()} more from additional guarantors.`);
+      progressNotification.set("message", `Collateral acknowledgments are still pending. Collected: KES ${progressAmount.toLocaleString()} / KES ${requiredAmount.toLocaleString()}. Need KES ${remainingAmount.toLocaleString()} more from acknowledged guarantor commitments before disbursement can proceed.`);
       progressNotification.set("read_status", false);
       $app.save(progressNotification);
     }

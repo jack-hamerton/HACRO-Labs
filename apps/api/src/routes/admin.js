@@ -825,4 +825,263 @@ router.get('/company-accounts', verifyAdminToken, async (req, res) => {
   }
 });
 
+/**
+ * GET /admin/members/search
+ * Search for members by name, email, phone, or ID
+ * Query params: q (search query), limit (default 50)
+ */
+router.get('/members/search', verifyAdminToken, async (req, res) => {
+  try {
+    const { q, limit = 50 } = req.query;
+
+    if (!q || q.trim().length === 0) {
+      return res.status(400).json({
+        error: 'Search query required'
+      });
+    }
+
+    const searchTerm = q.trim().toLowerCase();
+
+    // Search members by name, email, phone, or ID
+    const members = await pb.collection('members').getFullList({
+      $autoCancel: false
+    });
+
+    // Filter members based on search term
+    const filteredMembers = members.filter(member => {
+      const firstName = (member.first_name || '').toLowerCase();
+      const lastName = (member.last_name || '').toLowerCase();
+      const email = (member.email || '').toLowerCase();
+      const phone = (member.phone_number || '').toLowerCase();
+      const id = member.id.toLowerCase();
+
+      return firstName.includes(searchTerm) || 
+             lastName.includes(searchTerm) || 
+             email.includes(searchTerm) || 
+             phone.includes(searchTerm) || 
+             id.includes(searchTerm);
+    }).slice(0, limit);
+
+    // Get group info for each member
+    const membersWithGroups = await Promise.all(
+      filteredMembers.map(async (member) => {
+        try {
+          const groupMembers = await pb.collection('group_members').getFirstListItem(
+            `member_id="${member.id}"`,
+            { $autoCancel: false }
+          );
+          return {
+            ...member,
+            group_id: groupMembers.group_id,
+            group_name: groupMembers.expand?.group_id?.name || 'N/A'
+          };
+        } catch {
+          return {
+            ...member,
+            group_id: null,
+            group_name: 'Unassigned'
+          };
+        }
+      })
+    );
+
+    res.json({
+      total: filteredMembers.length,
+      members: membersWithGroups.map(m => ({
+        id: m.id,
+        first_name: m.first_name,
+        last_name: m.last_name,
+        email: m.email,
+        phone_number: m.phone_number,
+        group_id: m.group_id,
+        group_name: m.group_name,
+        created: m.created
+      }))
+    });
+
+  } catch (error) {
+    logger.error('Member search error:', error);
+    res.status(500).json({
+      error: 'Failed to search members'
+    });
+  }
+});
+
+/**
+ * GET /admin/members/:memberId/summary
+ * Get complete member summary: profile, savings, loans, payments, contributions
+ */
+router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
+  try {
+    const { memberId } = req.params;
+
+    // Get member profile
+    const member = await pb.collection('members').getOne(memberId, { $autoCancel: false });
+
+    // Get member's group
+    let groupInfo = null;
+    try {
+      const groupMember = await pb.collection('group_members').getFirstListItem(
+        `member_id="${memberId}"`,
+        { expand: 'group_id', $autoCancel: false }
+      );
+      groupInfo = groupMember.expand?.group_id || null;
+    } catch (e) {
+      // Member not in a group
+    }
+
+    // Get all savings
+    const savings = await pb.collection('savings').getFullList({
+      filter: `member_id="${memberId}"`,
+      sort: '-date',
+      $autoCancel: false
+    });
+
+    const totalSavings = savings.reduce((sum, s) => sum + s.amount, 0);
+
+    // Get all loans
+    const loans = await pb.collection('loans').getFullList({
+      filter: `member_id="${memberId}"`,
+      sort: '-created',
+      $autoCancel: false
+    });
+
+    const loansSummary = loans.map(loan => ({
+      id: loan.id,
+      amount: loan.amount,
+      status: loan.status,
+      created: loan.created,
+      interest_rate: loan.interest_rate,
+      repayment_period: loan.repayment_period
+    }));
+
+    const totalLoansBorrowed = loans.reduce((sum, l) => sum + l.amount, 0);
+
+    // Get loan repayments
+    const repayments = await pb.collection('loan_repayments').getFullList({
+      filter: `member_id="${memberId}"`,
+      sort: '-date',
+      $autoCancel: false
+    });
+
+    const totalRepaid = repayments.reduce((sum, r) => sum + r.amount, 0);
+
+    // Get all payments (donations + member payments)
+    const payments = await pb.collection('payments').getFullList({
+      filter: `member_id="${memberId}"`,
+      sort: '-payment_date',
+      $autoCancel: false
+    });
+
+    // Get contribution history
+    const contributionHistory = await pb.collection('contributions_history').getFullList({
+      filter: `member_id="${memberId}"`,
+      sort: '-date',
+      $autoCancel: false
+    });
+
+    const paymentsSummary = {
+      total_payments: payments.length,
+      by_type: {},
+      recent: payments.slice(0, 20).map(p => ({
+        id: p.id,
+        type: p.payment_type,
+        amount: p.amount,
+        status: p.payment_status,
+        date: p.payment_date,
+        reference: p.mpesa_reference
+      }))
+    };
+
+    // Group payments by type
+    payments.forEach(p => {
+      if (!paymentsSummary.by_type[p.payment_type]) {
+        paymentsSummary.by_type[p.payment_type] = { count: 0, total: 0 };
+      }
+      paymentsSummary.by_type[p.payment_type].count++;
+      if (p.payment_status === 'completed') {
+        paymentsSummary.by_type[p.payment_type].total += p.amount;
+      }
+    });
+
+    // Get donations (if any)
+    let donationsSummary = { total_donated: 0, donations: [] };
+    try {
+      const donations = await pb.collection('donations').getFullList({
+        filter: `donor_phone="${member.phone_number}"`,
+        sort: '-created',
+        $autoCancel: false
+      });
+      donationsSummary = {
+        total_donated: donations
+          .filter(d => d.payment_status === 'completed')
+          .reduce((sum, d) => sum + d.amount, 0),
+        donations: donations.slice(0, 10).map(d => ({
+          id: d.id,
+          amount: d.amount,
+          purpose: d.purpose,
+          status: d.payment_status,
+          date: d.payment_date
+        }))
+      };
+    } catch (e) {
+      // Donations collection might not exist
+    }
+
+    res.json({
+      member: {
+        id: member.id,
+        first_name: member.first_name,
+        last_name: member.last_name,
+        email: member.email,
+        phone_number: member.phone_number,
+        location: member.location,
+        profile_picture: member.profile_picture,
+        created: member.created,
+        group: groupInfo ? { id: groupInfo.id, name: groupInfo.name } : null
+      },
+      savings: {
+        total_saved: totalSavings,
+        contribution_count: savings.length,
+        recent_contributions: savings.slice(0, 20)
+      },
+      loans: {
+        total_borrowed: totalLoansBorrowed,
+        active_loans: loans.filter(l => l.status === 'active').length,
+        completed_loans: loans.filter(l => l.status === 'completed').length,
+        loans: loansSummary,
+        total_repaid: totalRepaid,
+        recent_repayments: repayments.slice(0, 10)
+      },
+      payments: paymentsSummary,
+      contributions: {
+        total_records: contributionHistory.length,
+        recent: contributionHistory.slice(0, 20)
+      },
+      donations: donationsSummary,
+      summary: {
+        account_status: 'active',
+        member_since: member.created,
+        total_savings: totalSavings,
+        total_borrowed: totalLoansBorrowed,
+        total_repaid: totalRepaid,
+        outstanding_balance: Math.max(0, totalLoansBorrowed - totalRepaid),
+        total_contributed: contributionHistory.reduce((sum, c) => sum + c.amount, 0),
+        total_donations: donationsSummary.total_donated
+      }
+    });
+
+  } catch (error) {
+    logger.error('Member summary error:', error);
+    if (error.statusCode === 404) {
+      return res.status(404).json({
+        error: 'Member not found'
+      });
+    }
+    res.status(500).json({
+      error: 'Failed to fetch member summary'
+    });
+  }
+});
+
 export default router;

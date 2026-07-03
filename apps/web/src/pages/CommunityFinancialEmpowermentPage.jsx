@@ -33,7 +33,7 @@ const termsSections = [
     title: '1. Acceptance of the cooperative agreement',
     points: [
       'By creating an account and using HACRO Labs, you agree to these Terms & Conditions and to the automated operational rules used by the platform.',
-      'You understand that the system may create savings records, notifications, loan decisions, and account updates automatically based on your actions and the platform rules.',
+      'You understand that the system may create savings records, notifications, loan decisions, account updates, and payout requests automatically based on your actions and the platform rules.',
     ],
   },
   {
@@ -41,23 +41,26 @@ const termsSections = [
     points: [
       'Members are responsible for providing accurate personal details, contact information, and financial information during registration and whenever their details change.',
       'A one-time registration fee of KES 50 and a membership fee of KES 500 may apply as shown during registration or account setup, and these fees may be processed through the platform as applicable.',
+      'The platform may also collect monthly insurance and maintenance fees through the payment flow, and completed insurance payments are recorded as company fee transactions and member activity history.',
       'On registration, the system creates an initial savings record and a welcome notification to help members begin using the cooperative services.',
     ],
   },
   {
-    title: '3. Savings, groups, and eligibility',
+    title: '3. Savings, contributions, and eligibility',
     points: [
       'Savings contributions increase your recorded balance and are logged in your contribution history, and the platform may notify you when your savings reach loan eligibility thresholds.',
+      'Every successful savings contribution is added to the member’s savings balance, creates a contribution-history entry, and may unlock loan eligibility once the configured threshold is reached.',
       'Members are automatically assigned to a group based on available profile details and location, and groups may be created or updated by the system when new members join.',
       'Group membership is used to support shared accountability, loan eligibility, communication, and the distribution of group-based benefits where applicable.',
     ],
   },
   {
-    title: '4. Loan products and approval rules',
+    title: '4. Loan requests, review, and repayment rules',
     points: [
       'Individual Loans (IL) require a minimum period of membership before they may be approved, and eligibility is further assessed using available savings and earned bonuses.',
-      'IL applications may be auto-approved when they meet the platform’s collateral and eligibility rules, and the system may apply a 2% flat interest rate with a 2-month repayment period and a 1-month grace period.',
+      'IL applications are submitted for admin review, and the system may calculate a projected repayment total from the requested principal and the configured interest rate. In the current implementation, IL loans use a 2% rate unless an administrator sets a different rate on the loan record.',
       'Group Individual Loans (GIL) require a group context and a guarantor process, and the system may notify the borrower and group members when a GIL application is submitted and requires support.',
+      'Loan requests do not proceed to disbursement until they are reviewed and approved by an administrator; approved loans are then marked active and may trigger an M-Pesa payout to the member’s registered phone number.',
     ],
   },
   {
@@ -74,33 +77,53 @@ const termsSections = [
       'Loan balances are updated when repayments are received, and full repayment may cause the loan to be marked as repaid and the collateral to be returned for GIL loans.',
       'If a repayment is late, the platform may calculate and apply a penalty based on the overdue period, and repeated penalties may trigger additional warnings to the member.',
       'Penalty amounts may increase the loan balance and are recorded alongside the relevant payment and loan history.',
+      'If a loan remains unpaid for an extended period, the platform may initiate recovery actions that can include deductions from a member’s savings, group-interest penalties, or other account-based measures as defined by the cooperative rules.',
     ],
   },
   {
-    title: '7. Disbursement, interest, and member benefits',
+    title: '7. Fraud detection and payment protection',
     points: [
-      'When a loan is disbursed, the platform records the disbursement, issues notifications to the member and relevant group members, and updates the loan status to active.',
-      'For GIL loans, a portion of the interest may be allocated to the company, a portion may be distributed to group members, and another portion may be distributed to guarantors according to the platform’s internal rules.',
-      'All such distributions are logged in the member’s history and may be reflected in savings or account activity.',
+      'Payments are monitored for unusual behaviour such as a high number of payments within a short period, payments much larger than a member’s usual pattern, rapid repeated payments, suspicious round-number amounts, and payments sent at unusual hours.',
+      'When the system detects an anomaly, it creates a fraud alert record, flags the payment for review, and sends alerts to administrators and the affected member so the payment can be checked before it is treated as normal activity.',
+      'These checks do not stop a valid payment automatically in every case; they are designed to protect the cooperative by drawing attention to unusual activity for review.',
     ],
   },
   {
-    title: '8. Communications, alerts, and security monitoring',
+    title: '8. Interest, bonuses, and member benefits',
     points: [
-      'The platform sends notifications for approvals, rejections, repayments, group messages, disbursements, penalties, insurance payments, and important account actions.',
+      'The platform may calculate interest on a loan using the configured interest rate for that loan. In the current setup, IL loans use a 2% rate and GIL loans use a 1% rate unless an administrator changes the rate on the loan record.',
+      'Interest is not posted at the moment of disbursement. For GIL loans, the platform distributes the applicable interest only after the loan has been fully repaid, and the distribution follows the internal rule of 50% to the cooperative, 25% to group members, and 25% to guarantors.',
+      'Bonuses and interest distributions are recorded in the member’s contribution history and may be reflected in savings balances and account activity once the relevant automation has completed.',
+    ],
+  },
+  {
+    title: '9. Insurance, maintenance fees, and deductions',
+    points: [
+      'Completed insurance payments are treated as monthly insurance and maintenance fee collections. The system records them as company-fee transactions, creates a contribution-history entry, and sends the member a confirmation notification.',
+      'These fee collections are designed to support the cooperative’s operating costs and to keep the account activity auditable. The fee is recorded against the member’s payment activity and is not treated as a savings contribution.',
+      'The platform may also create penalty and recovery entries when a loan or account is overdue or defaulted, and those entries can reduce available balances or add charges to the relevant loan record.',
+    ],
+  },
+  {
+    title: '10. Annual savings withdrawal cycle (85/15 policy)',
+    points: [
+      'Members are eligible to withdraw 85% of their accumulated savings after every 12 months of continuous savings contributions, calculated from their first contribution date or the date of their last 85% withdrawal.',
+      'Upon reaching the 12-month milestone, members may request a withdrawal, and the system will automatically calculate and process 85% of their total savings for withdrawal to their designated account or via M-Pesa.',
+      'The remaining 15% of the member’s savings is automatically carried forward as the starting balance for the next 12-month savings cycle, ensuring continuous savings accumulation and financial discipline.',
+      'Withdrawal requests are subject to verification and must comply with platform rules; members cannot withdraw more than the 85% allocation or withdraw before the 12-month period elapses.',
+      'Once a withdrawal is approved, the system records the processed amount, carries forward the remaining 15%, and may send a payout request to the member’s registered M-Pesa number for settlement.',
+    ],
+  },
+  {
+    title: '11. Communications, alerts, and admin actions',
+    points: [
+      'The platform sends notifications for approvals, rejections, repayments, group messages, disbursements, penalties, insurance payments, withdrawals, and important account actions.',
       'Group messages and announcements may be broadcast to the relevant group, and important announcements may be forwarded more widely to the system membership.',
-      'Payments may be reviewed for unusual patterns or suspicious activity, and the platform may create alerts for review by administrators and notify members where appropriate.',
-    ],
-  },
-  {
-    title: '9. Admin actions and account status',
-    points: [
       'Administrators may reject loans, suspend or reactivate accounts, or deactivate groups when necessary, and the platform will issue notifications to affected members.',
-      'Members are expected to respond to account changes, review notifications, and remain in contact with the cooperative if any issues arise.',
     ],
   },
   {
-    title: '10. Final notice',
+    title: '12. Final notice',
     points: [
       'These terms may be updated as the platform evolves, and continued use of the service means you accept the current version of the rules.',
       'By joining HACRO Labs, you agree to participate with honesty, respect the cooperative process, and understand that the platform’s automation is part of the service you are using.',

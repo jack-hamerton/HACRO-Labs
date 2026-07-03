@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { Wallet, Loader2 } from 'lucide-react';
+import { Wallet, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import AdminLayout from '@/components/AdminLayout.jsx';
@@ -8,6 +8,7 @@ import AdminLayout from '@/components/AdminLayout.jsx';
 const AdminLoanManagementPage = () => {
   const [loading, setLoading] = useState(true);
   const [pendingLoans, setPendingLoans] = useState([]);
+  const [approvingLoanId, setApprovingLoanId] = useState(null);
 
   useEffect(() => {
     fetchLoans();
@@ -16,7 +17,7 @@ const AdminLoanManagementPage = () => {
   const fetchLoans = async () => {
     try {
       const loans = await pb.collection('loans').getFullList({
-        filter: `status="approved"`,
+        filter: `status="pending" || status="approved" || status="approved_by_admin"`,
         expand: 'member_id,group_id',
         sort: 'created_date',
         $autoCancel: false
@@ -40,6 +41,23 @@ const AdminLoanManagementPage = () => {
     }
   };
 
+  const handleApproveLoan = async (loanId) => {
+    try {
+      setApprovingLoanId(loanId);
+      await pb.collection('loans').update(loanId, {
+        status: 'approved_by_admin'
+      }, { $autoCancel: false });
+
+      toast.success('Loan approved for disbursement.');
+      await fetchLoans();
+    } catch (error) {
+      console.error('Error approving loan:', error);
+      toast.error('Failed to approve loan.');
+    } finally {
+      setApprovingLoanId(null);
+    }
+  };
+
   return (
     <AdminLayout>
       <Helmet>
@@ -49,7 +67,7 @@ const AdminLoanManagementPage = () => {
       <div className="max-w-7xl mx-auto w-full px-4 py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Loan Management</h1>
-          <p className="text-muted-foreground">Review group-approved loans without inline action buttons.</p>
+          <p className="text-muted-foreground">Approve loans and send them to disbursement.</p>
         </div>
 
         <div className="dashboard-card">
@@ -67,7 +85,7 @@ const AdminLoanManagementPage = () => {
                     <th className="table-header">Amount</th>
                     <th className="table-header">Collateral</th>
                     <th className="table-header">Approved Date</th>
-                    <th className="table-header text-right">Status</th>
+                    <th className="table-header text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -88,7 +106,20 @@ const AdminLoanManagementPage = () => {
                       <td className="table-cell text-muted-foreground">
                         {new Date(loan.updated).toLocaleDateString()}
                       </td>
-                      <td className="table-cell text-right text-slate-600">Awaiting disbursement</td>
+                      <td className="table-cell text-right">
+                        <button
+                          onClick={() => handleApproveLoan(loan.id)}
+                          disabled={approvingLoanId === loan.id}
+                          className="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--loans))] px-3 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {approvingLoanId === loan.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="h-4 w-4" />
+                          )}
+                          Approve
+                        </button>
+                      </td>
                     </tr>
                   ))}
 

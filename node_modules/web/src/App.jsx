@@ -44,6 +44,9 @@ import AdminPaymentManagementPage from '@/pages/AdminPaymentManagementPage.jsx';
 import AdminProfilePage from '@/pages/AdminProfilePage.jsx';
 import AdminActivityLogPage from '@/pages/AdminActivityLogPage.jsx';
 import AdminCompanyAccountsPage from '@/pages/AdminCompanyAccountsPage.jsx';
+import AdminMemberDetailsPage from '@/pages/AdminMemberDetailsPage.jsx';
+import AdminWithdrawalManagementPage from '@/pages/AdminWithdrawalManagementPage.jsx';
+import AdminMemberSearchPage from '@/pages/AdminMemberSearchPage.jsx';
 
 function App() {
   return (
@@ -93,6 +96,9 @@ function App() {
             <Route path="/admin-profile" element={<ProtectedAdminRoute><AdminProfilePage /></ProtectedAdminRoute>} />
             <Route path="/admin-activity-log" element={<ProtectedAdminRoute><AdminActivityLogPage /></ProtectedAdminRoute>} />
             <Route path="/admin-company-accounts" element={<ProtectedAdminRoute><AdminCompanyAccountsPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-member-details" element={<ProtectedAdminRoute><AdminMemberDetailsPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-withdrawal-management" element={<ProtectedAdminRoute><AdminWithdrawalManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-member-search" element={<ProtectedAdminRoute><AdminMemberSearchPage /></ProtectedAdminRoute>} />
             <Route path="/admin-newsletter" element={<ProtectedAdminRoute><AdminNewsletterPage /></ProtectedAdminRoute>} />
             <Route path="/newsletter" element={<NewsletterPage />} />
             

@@ -18,6 +18,9 @@ const MemberDashboardPage = () => {
   const [collateralBalance, setCollateralBalance] = useState(0);
   const [achievements, setAchievements] = useState([]);
   const [bonuses, setBonuses] = useState([]);
+  const [withdrawalEligibility, setWithdrawalEligibility] = useState(null);
+  const [earliestSavingsDate, setEarliestSavingsDate] = useState(null);
+  const [submittingWithdrawal, setSubmittingWithdrawal] = useState(false);
 
   useEffect(() => {
     fetchMemberData();
@@ -34,7 +37,52 @@ const MemberDashboardPage = () => {
       if (memberGroup) {
         setGroupData(memberGroup.expand.group_id);
         const savings = await pb.collection('savings').getFullList({ filter: `member_id="${currentUser.id}"`, $autoCancel: false });
-        setSavingsBalance(savings.reduce((sum, s) => sum + s.amount, 0));
+        const totalSavingsAmount = savings.reduce((sum, s) => sum + Number(s.total_savings ?? s.amount ?? 0), 0);
+        setSavingsBalance(totalSavingsAmount);
+
+        // Calculate withdrawal eligibility
+        if (savings.length > 0) {
+          // Sort by date to get earliest
+          const sortedSavings = [...savings].sort((a, b) => new Date(a.date) - new Date(b.date));
+          const earliest = new Date(sortedSavings[0].date);
+          setEarliestSavingsDate(earliest);
+
+          // Check for last 85% withdrawal
+          let lastWithdrawalDate = null;
+          try {
+            const withdrawals = await pb.collection('withdrawals').getFullList({
+              filter: `member_id="${currentUser.id}" && withdrawal_type="85_percent" && status="approved"`,
+              sort: '-created',
+              $autoCancel: false
+            });
+            if (withdrawals.length > 0) {
+              lastWithdrawalDate = new Date(withdrawals[0].get('withdrawal_date'));
+            }
+          } catch (e) {
+            // Collection might not exist yet
+          }
+
+          const referenceDate = lastWithdrawalDate || earliest;
+          const nextWithdrawalDate = new Date(referenceDate);
+          nextWithdrawalDate.setFullYear(nextWithdrawalDate.getFullYear() + 1);
+          const now = new Date();
+          const isEligible = now >= nextWithdrawalDate;
+          const daysUntilEligible = Math.ceil((nextWithdrawalDate - now) / (1000 * 60 * 60 * 24));
+
+          const currentSavings = totalSavingsAmount;
+          const withdrawalAmount = Math.floor(currentSavings * 0.85);
+          const carryForward = currentSavings - withdrawalAmount;
+
+          setWithdrawalEligibility({
+            isEligible,
+            nextWithdrawalDate,
+            daysUntilEligible: Math.max(0, daysUntilEligible),
+            totalSavings: currentSavings,
+            withdrawalAmount,
+            carryForward,
+            lastWithdrawalDate
+          });
+        }
 
         const collateralRecords = await pb.collection('loan_guarantors').getFullList({
           filter: `guarantor_id="${currentUser.id}" && (status="acknowledged" || status="active")`,
@@ -63,6 +111,28 @@ const MemberDashboardPage = () => {
       toast.error('Failed to load member data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleWithdrawalRequest = async () => {
+    if (!currentUser || !withdrawalEligibility?.isEligible) return;
+
+    try {
+      setSubmittingWithdrawal(true);
+      await pb.collection('withdrawals').create({
+        member_id: currentUser.id,
+        withdrawal_type: '85_percent',
+        status: 'pending',
+        notes: 'Requested from member dashboard'
+      }, { $autoCancel: false });
+
+      toast.success('Withdrawal request submitted for admin review.');
+      await fetchMemberData();
+    } catch (error) {
+      console.error('Withdrawal request failed', error);
+      toast.error('Unable to submit withdrawal request right now.');
+    } finally {
+      setSubmittingWithdrawal(false);
     }
   };
 
@@ -138,6 +208,73 @@ const MemberDashboardPage = () => {
                   <Link to="/loan-request" className="btn-primary text-sm py-2 px-4">Request Loan</Link>
                   <Link to="/loan-repayment" className="btn-primary text-sm py-2 px-4">Repay Loan</Link>
                 </div>
+              </div>
+            )}
+
+            {withdrawalEligibility && (
+              <div className={`dashboard-card border-2 ${withdrawalEligibility.isEligible ? 'border-green-400 bg-green-50 dark:bg-green-950/20' : 'border-amber-400 bg-amber-50 dark:bg-amber-950/20'}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-foreground mb-1">💰 12-Month Savings Withdrawal Cycle</h2>
+                    <p className="text-sm text-muted-foreground">Annual withdrawal eligibility status</p>
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-sm font-semibold ${withdrawalEligibility.isEligible ? 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200' : 'bg-amber-200 text-amber-800 dark:bg-amber-800 dark:text-amber-200'}`}>
+                    {withdrawalEligibility.isEligible ? '✓ Eligible' : '⏳ Not Yet'}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                  <div className="bg-background/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Current Savings</p>
+                    <p className="text-lg font-bold text-foreground">KES {withdrawalEligibility.totalSavings.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-background/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Can Withdraw (85%)</p>
+                    <p className="text-lg font-bold text-green-600 dark:text-green-400">KES {withdrawalEligibility.withdrawalAmount.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-background/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Carry Forward (15%)</p>
+                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400">KES {withdrawalEligibility.carryForward.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-background/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">
+                      {withdrawalEligibility.isEligible ? 'Eligible Since' : 'Eligible In'}
+                    </p>
+                    <p className="text-lg font-bold text-foreground">
+                      {withdrawalEligibility.isEligible ? 'NOW' : `${withdrawalEligibility.daysUntilEligible}d`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-background/50 rounded-lg p-3 mb-4 text-sm">
+                  <p className="text-muted-foreground">
+                    <strong>Next eligible date:</strong> {withdrawalEligibility.nextWithdrawalDate.toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </p>
+                  {withdrawalEligibility.lastWithdrawalDate && (
+                    <p className="text-muted-foreground mt-1">
+                      <strong>Last withdrawal:</strong> {new Date(withdrawalEligibility.lastWithdrawalDate).toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+
+                <div className="text-sm text-muted-foreground bg-background/50 rounded-lg p-3 mb-4 border-l-4 border-blue-500">
+                  <p className="font-semibold text-foreground mb-1">📋 How it works:</p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• After 12 months of savings, you become eligible to withdraw 85% of your total savings</li>
+                    <li>• The remaining 15% is automatically carried forward to start your next 12-month cycle</li>
+                    <li>• This cycle repeats annually, helping you build sustainable long-term savings</li>
+                  </ul>
+                </div>
+
+                {withdrawalEligibility.isEligible && (
+                  <button
+                    onClick={handleWithdrawalRequest}
+                    disabled={submittingWithdrawal}
+                    className="w-full bg-green-600 hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400 text-white font-medium py-2 rounded-lg transition-colors"
+                  >
+                    {submittingWithdrawal ? 'Submitting request...' : 'Request Withdrawal Now'}
+                  </button>
+                )}
               </div>
             )}
 
