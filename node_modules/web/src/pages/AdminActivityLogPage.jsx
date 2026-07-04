@@ -50,7 +50,7 @@ const AdminActivityLogPage = () => {
   const exportCSV = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
       + "Date,Action,Description,IP Address\n"
-      + logs.map(e => `"${new Date(e.timestamp).toLocaleString()}","${e.action}","${e.description}","${e.ip_address || ''}"`).join("\n");
+      + logs.map(e => `"${new Date(e.timestamp || e.created_date || e.created).toLocaleString()}","${e.action}","${(e.description || e.details || '').replace(/"/g, '""')}","${e.ip_address || ''}"`).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -117,13 +117,13 @@ const AdminActivityLogPage = () => {
               <tbody className="divide-y divide-slate-100">
                 {logs.map((log) => (
                   <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4 text-slate-900 font-medium whitespace-nowrap">{new Date(log.timestamp).toLocaleString()}</td>
+                    <td className="px-6 py-4 text-slate-900 font-medium whitespace-nowrap">{new Date(log.timestamp || log.created_date || log.created).toLocaleString()}</td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-medium bg-slate-100 text-slate-600 border border-slate-200">
                         {log.action}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-slate-700">{log.description}</td>
+                    <td className="px-6 py-4 text-slate-700">{log.description || log.details || 'No details provided'}</td>
                     <td className="px-6 py-4 text-slate-500 font-mono text-xs">{log.ip_address || 'N/A'}</td>
                   </tr>
                 ))}

@@ -147,12 +147,15 @@ const MemberDashboardPage = () => {
     );
   }
 
+  const memberDisplayName = [member?.first_name, member?.middle_name, member?.last_name].filter(Boolean).join(' ') || [currentUser?.first_name, currentUser?.last_name].filter(Boolean).join(' ') || currentUser?.email || 'Member';
+  const memberDisplayId = member?.member_number || member?.member_id || member?.id || currentUser?.id || 'N/A';
+
   return (
     <>
       <Helmet><title>Member Dashboard - Hacro Labs</title></Helmet>
       <MemberPortalLayout title="Member Dashboard" subtitle="Your member portal home">
-        <div className="flex flex-col gap-4 mb-8">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-8 rounded-[28px] border border-[hsl(var(--primary)_/_0.16)] bg-gradient-to-br from-[hsl(var(--primary)_/_0.14)] via-white to-[hsl(var(--primary)_/_0.05)] p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex items-center gap-4">
               {member?.profile_picture ? (
                 <img src={pb.files.getUrl(member, member.profile_picture)} alt="Profile" className="w-20 h-20 rounded-2xl object-cover border-2 border-border shadow-sm" />
@@ -162,20 +165,22 @@ const MemberDashboardPage = () => {
                 </div>
               )}
               <div>
-                <h2 className="text-3xl font-bold text-foreground mb-1">Welcome back, {member?.first_name}</h2>
-                <p className="text-muted-foreground">Member ID: {member?.id}</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[hsl(var(--primary))]">Member Hub</p>
+                <h2 className="text-3xl font-bold text-foreground mt-1">Welcome back</h2>
+                <p className="text-2xl font-semibold text-foreground mt-1">{memberDisplayName}</p>
+                <p className="text-muted-foreground mt-1">Member ID: {memberDisplayId}</p>
               </div>
             </div>
-          </div>
-
-          <div className="rounded-3xl border border-[hsl(var(--primary)_/_0.16)] bg-[hsl(var(--primary)_/_0.06)] px-6 py-5 shadow-sm">
-            <p className="text-sm uppercase tracking-[0.2em] font-semibold text-[hsl(var(--primary))]">Member Hub</p>
-            <p className="mt-2 text-sm text-muted-foreground">Your member dashboard now uses the same green sidebar style as the admin portal.</p>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/savings-contribution" className="btn-primary text-sm py-2.5 px-4">Make Contribution</Link>
+              <Link to="/loan-request" className="btn-outline text-sm py-2.5 px-4">Request Loan</Link>
+              <Link to="/withdrawal" className="btn-outline text-sm py-2.5 px-4">Withdrawal</Link>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1.55fr_0.95fr] gap-8">
+          <div className="space-y-6">
             {groupData && (
               <div className="dashboard-card bg-gradient-to-br from-muted/30 to-background">
                 <h2 className="text-xl font-semibold text-foreground mb-6">Savings & Loans</h2>
@@ -299,6 +304,20 @@ const MemberDashboardPage = () => {
           </div>
 
           <div className="space-y-6">
+            <div className="dashboard-card">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center"><Shield className="w-5 h-5 mr-2 text-[hsl(var(--primary))]" /> Quick Actions</h3>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Link to="/group-dashboard" className="rounded-2xl border border-border/70 bg-[hsl(var(--primary)_/_0.06)] p-4 transition hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)_/_0.10)]">
+                  <p className="font-semibold text-foreground">My Group</p>
+                  <p className="text-sm text-muted-foreground mt-1">See your group activity and updates</p>
+                </Link>
+                <Link to="/notifications" className="rounded-2xl border border-border/70 bg-[hsl(var(--primary)_/_0.06)] p-4 transition hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)_/_0.10)]">
+                  <p className="font-semibold text-foreground">Notifications</p>
+                  <p className="text-sm text-muted-foreground mt-1">Stay updated on approvals and messages</p>
+                </Link>
+              </div>
+            </div>
+
             <div className="dashboard-card">
               <h3 className="font-semibold text-foreground mb-4 flex items-center"><Award className="w-5 h-5 mr-2 text-[hsl(var(--primary))]" /> Achievements</h3>
               {achievements.length > 0 ? (

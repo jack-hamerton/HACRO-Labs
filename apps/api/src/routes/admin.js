@@ -121,6 +121,7 @@ router.post('/login', async (req, res) => {
     await pb.collection('admin_activity_log').create({
       admin_id: authData.record.id,
       action: 'login',
+      details: `Admin logged in from ${ipAddress}`,
       ip_address: ipAddress,
       user_agent: userAgent,
     });
@@ -174,6 +175,7 @@ router.post('/logout', verifyAdminToken, async (req, res) => {
           await pb.collection('admin_activity_log').create({
             admin_id: adminId,
             action: 'logout',
+            details: 'Admin logged out',
             ip_address: req.ip || req.connection.remoteAddress || 'unknown',
             user_agent: req.get('user-agent') || 'unknown',
           });
@@ -194,11 +196,34 @@ router.post('/logout', verifyAdminToken, async (req, res) => {
 });
 
 /**
+ * GET /admin
+ * List admins (super-admin only)
+ */
+router.get('/', verifyAdminToken, requireSuperAdmin, async (req, res) => {
+  const admins = await pb.collection('pbc_admins_auth').getFullList({
+    sort: '-created',
+    $autoCancel: false,
+  });
+
+  res.json({
+    admins: admins.map((admin) => ({
+      id: admin.id,
+      email: admin.email,
+      full_name: admin.full_name,
+      role: admin.role,
+      is_active: admin.is_active,
+      permissions: admin.permissions || [],
+      created: admin.created,
+    })),
+  });
+});
+
+/**
  * POST /admin/register
  * Register new admin (super-admin only)
  */
 router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) => {
-  const { full_name, email, role } = req.body;
+  const { full_name, email, role, password, is_active, permissions } = req.body;
 
   // Validate input
   if (!full_name || !email || !role) {
@@ -241,23 +266,29 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
   }
 
   // Generate temporary password
-  const temporaryPassword = generatePassword();
+  const temporaryPassword = password || generatePassword();
 
-  // Create admin
-  const newAdmin = await pb.collection('pbc_admins_auth').create({
+  const createData = {
     email,
     password: temporaryPassword,
     passwordConfirm: temporaryPassword,
     full_name,
     role: assignedRole,
-    is_active: true,
-  });
+    is_active: is_active !== undefined ? is_active : true,
+  };
+
+  if (permissions !== undefined) {
+    createData.permissions = typeof permissions === 'string' ? permissions : JSON.stringify(permissions);
+  }
+
+  // Create admin
+  const newAdmin = await pb.collection('pbc_admins_auth').create(createData);
 
   // Log activity
   await pb.collection('admin_activity_log').create({
     admin_id: req.adminId,
     action: 'admin_added',
-    details: `Added new admin: ${email} with role: ${role}`,
+    details: `Added new admin: ${email} with role: ${assignedRole}`,
     ip_address: req.ip || req.connection.remoteAddress || 'unknown',
     user_agent: req.get('user-agent') || 'unknown',
   });
@@ -274,7 +305,7 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
       full_name: newAdmin.full_name,
       role: newAdmin.role,
     },
-    temporaryPassword,
+    ...(password ? {} : { temporaryPassword }),
   });
 });
 
@@ -451,9 +482,11 @@ router.get('/activity-log', verifyAdminToken, async (req, res) => {
       id: record.id,
       admin_id: record.admin_id,
       action: record.action,
-      details: record.details || null,
+      description: record.details || record.description || null,
+      details: record.details || record.description || null,
       ip_address: record.ip_address,
       user_agent: record.user_agent,
+      timestamp: record.created,
       created_date: record.created,
     })),
     total: allRecords.length,
@@ -488,7 +521,7 @@ router.get('/login-history', verifyAdminToken, async (req, res) => {
  */
 router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) => {
   const { adminId } = req.params;
-  const { full_name, email, role, is_active } = req.body;
+  const { full_name, email, role, is_active, password, permissions } = req.body;
 
   // Validate input
   if (!full_name && !email && !role && is_active === undefined) {
@@ -525,6 +558,13 @@ router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) =>
   if (email) updateData.email = email;
   if (role) updateData.role = role;
   if (is_active !== undefined) updateData.is_active = is_active;
+  if (password) {
+    updateData.password = password;
+    updateData.passwordConfirm = password;
+  }
+  if (permissions !== undefined) {
+    updateData.permissions = typeof permissions === 'string' ? permissions : JSON.stringify(permissions);
+  }
 
   // Update admin
   const updatedAdmin = await pb.collection('pbc_admins_auth').update(adminId, updateData);

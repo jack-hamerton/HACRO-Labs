@@ -559,7 +559,7 @@ const RegistrationPage = () => {
                   </div>
 
                   {/* Cascading Location Selection Segment */}
-                  <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-4 border-border">
+                  <div className={`md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 pt-5 transition-all duration-200 ${selectedCounty || selectedSubCounty || selectedWard || selectedVillage ? 'border-emerald-400 bg-emerald-100/80' : 'hover:border-emerald-400 hover:bg-emerald-100/70'}`}>
                     <div>
                       <label className="form-label">County <span className="text-destructive">*</span></label>
                       <select 
@@ -570,7 +570,7 @@ const RegistrationPage = () => {
                           setSelectedWard('');
                           setSelectedVillage('');
                         }} 
-                        className="form-input border-emerald-400 bg-emerald-50 text-foreground focus:border-emerald-500 focus:ring-emerald-500" 
+                        className="form-input border-emerald-400 bg-white/90 text-foreground transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-100 focus:border-emerald-500 focus:ring-emerald-500" 
                         required
                       >
                         <option value="">Select County</option>
@@ -589,7 +589,7 @@ const RegistrationPage = () => {
                           setSelectedWard('');
                           setSelectedVillage('');
                         }} 
-                        className="form-input border-emerald-400 bg-emerald-50 text-foreground focus:border-emerald-500 focus:ring-emerald-500" 
+                        className="form-input border-emerald-400 bg-white/90 text-foreground transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-100 focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedCounty}
                         required
                       >
@@ -608,7 +608,7 @@ const RegistrationPage = () => {
                           setSelectedWard(e.target.value);
                           setSelectedVillage('');
                         }} 
-                        className="form-input border-emerald-400 bg-emerald-50 text-foreground focus:border-emerald-500 focus:ring-emerald-500" 
+                        className="form-input border-emerald-400 bg-white/90 text-foreground transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-100 focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedSubCounty}
                         required
                       >
@@ -624,7 +624,7 @@ const RegistrationPage = () => {
                       <select 
                         value={selectedVillage} 
                         onChange={(e) => setSelectedVillage(e.target.value)} 
-                        className="form-input border-emerald-400 bg-emerald-50 text-foreground focus:border-emerald-500 focus:ring-emerald-500" 
+                        className="form-input border-emerald-400 bg-white/90 text-foreground transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-100 focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedWard}
                         required
                       >

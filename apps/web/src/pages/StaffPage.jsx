@@ -4,6 +4,51 @@ import { Loader2, Twitter, Linkedin, Instagram, Facebook, Globe, Briefcase } fro
 import Header from '@/components/Header.jsx';
 import apiServerClient from '@/lib/apiServerClient.js';
 
+const advisoryBoardMembers = [
+  {
+    name: 'Prof. Grace Wanjiku',
+    role: 'Chair, Advisory Board',
+    position: 'Governance & Strategy Advisor',
+    bio: 'Guides HACRO Labs on long-term governance, policy alignment, and partnership growth for sustained impact.',
+    photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Dr. Daniel Mugo',
+    role: 'Finance & Sustainability Advisor',
+    position: 'Financial Sustainability Advisor',
+    bio: 'Supports financial planning, resource mobilization, and resilient growth strategies for the organization.',
+    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Ms. Brenda Achieng',
+    role: 'Community Development Advisor',
+    position: 'Community Impact Advisor',
+    bio: 'Brings deep experience in community engagement and ensures programs remain people-centered and inclusive.',
+    photo: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Mr. Peter Nyaga',
+    role: 'Youth & Digital Inclusion Advisor',
+    position: 'Digital Access Advisor',
+    bio: 'Advises on youth engagement, digital transformation, and expanding access to tools and opportunities.',
+    photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Dr. Sarah Ouma',
+    role: 'Education & Training Advisor',
+    position: 'Learning & Capacity Building Advisor',
+    bio: 'Helps shape training initiatives that build practical skills and strengthen member confidence and growth.',
+    photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Mr. James Kariuki',
+    role: 'Operations & Partnerships Advisor',
+    position: 'Partnerships & Operations Advisor',
+    bio: 'Supports strategic partnerships, operational excellence, and collaboration across the wider ecosystem.',
+    photo: 'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=400&q=80',
+  },
+];
+
 const fallbackStaffMembers = [
   {
     name: 'Jack Hamerton',
@@ -176,60 +221,85 @@ const StaffPage = () => {
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
           ) : (
-            <section className="grid gap-8 lg:grid-cols-2">
-              {staffMembers.map((member) => (
-                <article key={member.id || member.name} className="rounded-3xl border border-border bg-card p-8 shadow-sm transition-shadow hover:shadow-md">
-                  <div className="relative mb-6 h-36 overflow-hidden rounded-3xl bg-slate-100">
-                    {member.photo ? (
-                      <img
-                        src={member.photo}
-                        alt={member.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary text-4xl font-bold">
-                        {member.name.split(' ').map((part) => part[0]).join('')}
+            <>
+              <section className="grid gap-8 lg:grid-cols-2">
+                {staffMembers.map((member) => (
+                  <article key={member.id || member.name} className="rounded-3xl border border-border bg-card p-8 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="relative mb-6 h-36 overflow-hidden rounded-3xl bg-slate-100">
+                      {member.photo ? (
+                        <img
+                          src={member.photo}
+                          alt={member.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary text-4xl font-bold">
+                          {member.name.split(' ').map((part) => part[0]).join('')}
+                        </div>
+                      )}
+                    </div>
+
+                    <h2 className="text-2xl font-semibold text-foreground mb-1">{member.name}</h2>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                      <Briefcase className="w-4 h-4" />
+                      <span>{member.position || member.role}</span>
+                    </div>
+                    <p className="text-muted-foreground leading-7 mb-6">{member.bio}</p>
+
+                    <div className="flex flex-wrap gap-3">
+                      {member.socialLinks?.linkedin && (
+                        <a href={member.socialLinks.linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-primary hover:text-primary">
+                          <Linkedin className="w-4 h-4" /> LinkedIn
+                        </a>
+                      )}
+                      {member.socialLinks?.twitter && (
+                        <a href={member.socialLinks.twitter} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-sky-500 hover:text-sky-600">
+                          <Twitter className="w-4 h-4" /> Twitter
+                        </a>
+                      )}
+                      {member.socialLinks?.instagram && (
+                        <a href={member.socialLinks.instagram} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-fuchsia-500 hover:text-fuchsia-600">
+                          <Instagram className="w-4 h-4" /> Instagram
+                        </a>
+                      )}
+                      {member.socialLinks?.facebook && (
+                        <a href={member.socialLinks.facebook} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-blue-600 hover:text-blue-600">
+                          <Facebook className="w-4 h-4" /> Facebook
+                        </a>
+                      )}
+                      {member.socialLinks?.website && (
+                        <a href={member.socialLinks.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-slate-700 hover:text-slate-900">
+                          <Globe className="w-4 h-4" /> Website
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </section>
+
+              <section className="mt-20">
+                <div className="mb-8 text-center">
+                  <p className="text-sm uppercase tracking-[0.35em] text-primary">Board of Advisory</p>
+                  <h2 className="mt-3 text-3xl font-bold text-foreground md:text-4xl">Our Advisory Team</h2>
+                  <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-muted-foreground">
+                    A dedicated circle of advisors who guide HACRO Labs with wisdom, practical expertise, and a shared commitment to community growth.
+                  </p>
+                </div>
+                <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+                  {advisoryBoardMembers.map((member) => (
+                    <article key={member.name} className="rounded-3xl border border-border bg-card p-8 shadow-sm transition-shadow hover:shadow-md">
+                      <div className="relative mb-6 h-36 overflow-hidden rounded-3xl bg-slate-100">
+                        <img src={member.photo} alt={member.name} className="h-full w-full object-cover" />
                       </div>
-                    )}
-                  </div>
-
-                  <h2 className="text-2xl font-semibold text-foreground mb-1">{member.name}</h2>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                    <Briefcase className="w-4 h-4" />
-                    <span>{member.position || member.role}</span>
-                  </div>
-                  <p className="text-muted-foreground leading-7 mb-6">{member.bio}</p>
-
-                  <div className="flex flex-wrap gap-3">
-                    {member.socialLinks?.linkedin && (
-                      <a href={member.socialLinks.linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-primary hover:text-primary">
-                        <Linkedin className="w-4 h-4" /> LinkedIn
-                      </a>
-                    )}
-                    {member.socialLinks?.twitter && (
-                      <a href={member.socialLinks.twitter} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-sky-500 hover:text-sky-600">
-                        <Twitter className="w-4 h-4" /> Twitter
-                      </a>
-                    )}
-                    {member.socialLinks?.instagram && (
-                      <a href={member.socialLinks.instagram} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-fuchsia-500 hover:text-fuchsia-600">
-                        <Instagram className="w-4 h-4" /> Instagram
-                      </a>
-                    )}
-                    {member.socialLinks?.facebook && (
-                      <a href={member.socialLinks.facebook} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-blue-600 hover:text-blue-600">
-                        <Facebook className="w-4 h-4" /> Facebook
-                      </a>
-                    )}
-                    {member.socialLinks?.website && (
-                      <a href={member.socialLinks.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/10 px-4 py-2 text-sm text-foreground transition hover:border-slate-700 hover:text-slate-900">
-                        <Globe className="w-4 h-4" /> Website
-                      </a>
-                    )}
-                  </div>
-                </article>
-              ))}
-            </section>
+                      <h3 className="text-2xl font-semibold text-foreground mb-1">{member.name}</h3>
+                      <p className="text-sm font-medium text-primary">{member.role}</p>
+                      <p className="mt-2 text-sm font-semibold text-muted-foreground">{member.position}</p>
+                      <p className="mt-4 text-muted-foreground leading-7">{member.bio}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            </>
           )}
 
           <section className="mt-20 rounded-3xl border border-border bg-primary/5 p-10 text-center">

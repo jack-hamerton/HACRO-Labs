@@ -12,7 +12,7 @@ const Header = () => {
   const { isAuthenticated, isMember, isAdmin, logout, currentUser } = useAuth();
   const location = useLocation();
 
-  const logoUrl = 'https://i.postimg.cc/SKzrxybW/HACRO-logo-(4).png';
+  const logoUrl = '/images/logo-mark.png';
 
   const isActive = (path) => location.pathname === path;
 
@@ -66,9 +66,9 @@ const Header = () => {
 
           {/* LOGO — image only, no text */}
           <Link to="/" className="flex items-center">
-            <div className="w-36 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="h-12 w-40 rounded-2xl border border-border/60 bg-white/90 px-2 shadow-sm ring-1 ring-black/5 backdrop-blur-sm transition hover:shadow-md sm:h-14 sm:w-48">
               {logoUrl ? (
-                <img src={logoUrl} alt="HACRO Labs" className="w-full h-full object-contain" />
+                <img src={logoUrl} alt="HACRO Labs" className="h-full w-full object-contain" />
               ) : (
                 <Wallet className="w-8 h-8 text-primary-foreground" />
               )}

@@ -3,8 +3,8 @@ import { Navigate } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/AdminAuthContext.jsx';
 import { Loader2 } from 'lucide-react';
 
-const ProtectedAdminRoute = ({ children, requireSuperAdmin = false }) => {
-  const { isAuthenticated, loading, currentAdmin } = useAdminAuth();
+const ProtectedAdminRoute = ({ children, requireSuperAdmin = false, requiredPermission = null }) => {
+  const { isAuthenticated, loading, isSuperAdmin, hasPermission } = useAdminAuth();
 
   if (loading) {
     return (
@@ -18,7 +18,11 @@ const ProtectedAdminRoute = ({ children, requireSuperAdmin = false }) => {
     return <Navigate to="/admin-login" replace />;
   }
 
-  if (requireSuperAdmin && currentAdmin?.role !== 'super_admin' && currentAdmin?.role !== 'admin') {
+  if (requireSuperAdmin && !isSuperAdmin) {
+    return <Navigate to="/admin-dashboard" replace />;
+  }
+
+  if (requiredPermission && !isSuperAdmin && !hasPermission(requiredPermission)) {
     return <Navigate to="/admin-dashboard" replace />;
   }
 

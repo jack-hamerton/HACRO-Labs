@@ -24,6 +24,7 @@ import LoanRepaymentTracker from '@/pages/LoanRepaymentTracker.jsx';
 import ContributionHistoryPage from '@/pages/ContributionHistoryPage.jsx';
 import NotificationCenter from '@/pages/NotificationCenter.jsx';
 import StaffPage from '@/pages/StaffPage.jsx';
+import WithdrawalPage from '@/pages/WithdrawalPage.jsx';
 import AnalyticsDashboard from '@/pages/AnalyticsDashboard.jsx';
 import GroupMessaging from '@/pages/GroupMessaging.jsx';
 import NewsletterPage from '@/pages/NewsletterPage.jsx';
@@ -47,6 +48,7 @@ import AdminCompanyAccountsPage from '@/pages/AdminCompanyAccountsPage.jsx';
 import AdminMemberDetailsPage from '@/pages/AdminMemberDetailsPage.jsx';
 import AdminWithdrawalManagementPage from '@/pages/AdminWithdrawalManagementPage.jsx';
 import AdminMemberSearchPage from '@/pages/AdminMemberSearchPage.jsx';
+import AdminFraudManagementPage from '@/pages/AdminFraudManagementPage.jsx';
 
 function App() {
   return (
@@ -79,6 +81,7 @@ function App() {
             <Route path="/loan-repayment" element={<ProtectedRoute requireMember><LoanRepaymentPage /></ProtectedRoute>} />
             <Route path="/contribution-history" element={<ProtectedRoute requireMember><ContributionHistoryPage /></ProtectedRoute>} />
             <Route path="/notifications" element={<ProtectedRoute requireMember><NotificationCenter /></ProtectedRoute>} />
+            <Route path="/withdrawal" element={<ProtectedRoute requireMember><WithdrawalPage /></ProtectedRoute>} />
             <Route path="/group/:groupId/chat" element={<ProtectedRoute requireMember><GroupMessaging /></ProtectedRoute>} />
             <Route path="/loan/:loanId/repayment" element={<ProtectedRoute requireMember><LoanRepaymentTracker /></ProtectedRoute>} />
             
@@ -89,17 +92,18 @@ function App() {
 
             {/* Admin Protected Routes */}
             <Route path="/admin-dashboard" element={<ProtectedAdminRoute><AdminDashboardPage /></ProtectedAdminRoute>} />
-            <Route path="/analytics" element={<ProtectedAdminRoute><AnalyticsDashboard /></ProtectedAdminRoute>} />
-            <Route path="/admin-manage-admins" element={<ProtectedAdminRoute requireSuperAdmin><AdminManagementPage /></ProtectedAdminRoute>} />
-            <Route path="/admin-loan-management" element={<ProtectedAdminRoute><AdminLoanManagementPage /></ProtectedAdminRoute>} />
-            <Route path="/admin-payment-management" element={<ProtectedAdminRoute><AdminPaymentManagementPage /></ProtectedAdminRoute>} />
-            <Route path="/admin-profile" element={<ProtectedAdminRoute><AdminProfilePage /></ProtectedAdminRoute>} />
-            <Route path="/admin-activity-log" element={<ProtectedAdminRoute><AdminActivityLogPage /></ProtectedAdminRoute>} />
-            <Route path="/admin-company-accounts" element={<ProtectedAdminRoute><AdminCompanyAccountsPage /></ProtectedAdminRoute>} />
-            <Route path="/admin-member-details" element={<ProtectedAdminRoute><AdminMemberDetailsPage /></ProtectedAdminRoute>} />
-            <Route path="/admin-withdrawal-management" element={<ProtectedAdminRoute><AdminWithdrawalManagementPage /></ProtectedAdminRoute>} />
-            <Route path="/admin-member-search" element={<ProtectedAdminRoute><AdminMemberSearchPage /></ProtectedAdminRoute>} />
-            <Route path="/admin-newsletter" element={<ProtectedAdminRoute><AdminNewsletterPage /></ProtectedAdminRoute>} />
+            <Route path="/analytics" element={<ProtectedAdminRoute requiredPermission="view_analytics"><AnalyticsDashboard /></ProtectedAdminRoute>} />
+            <Route path="/admin-manage-admins" element={<ProtectedAdminRoute requireSuperAdmin requiredPermission="manage_admins"><AdminManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-loan-management" element={<ProtectedAdminRoute requiredPermission="manage_loans"><AdminLoanManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-payment-management" element={<ProtectedAdminRoute requiredPermission="manage_payments"><AdminPaymentManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-profile" element={<ProtectedAdminRoute requiredPermission="manage_profile"><AdminProfilePage /></ProtectedAdminRoute>} />
+            <Route path="/admin-activity-log" element={<ProtectedAdminRoute requiredPermission="view_activity_log"><AdminActivityLogPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-company-accounts" element={<ProtectedAdminRoute requiredPermission="manage_company_accounts"><AdminCompanyAccountsPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-member-details" element={<ProtectedAdminRoute requiredPermission="manage_members"><AdminMemberDetailsPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-withdrawal-management" element={<ProtectedAdminRoute requiredPermission="manage_withdrawals"><AdminWithdrawalManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-member-search" element={<ProtectedAdminRoute requiredPermission="manage_members"><AdminMemberSearchPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-fraud-management" element={<ProtectedAdminRoute requiredPermission="manage_members"><AdminFraudManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-newsletter" element={<ProtectedAdminRoute requiredPermission="manage_newsletters"><AdminNewsletterPage /></ProtectedAdminRoute>} />
             <Route path="/newsletter" element={<NewsletterPage />} />
             
             <Route
