@@ -40,6 +40,9 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import AdminDashboardPage from '@/pages/AdminDashboardPage.jsx';
 import AdminManagementPage from '@/pages/AdminManagementPage.jsx';
+import AdminTaskManagementPage from '@/pages/AdminTaskManagementPage.jsx';
+import AdminMessagingPage from '@/pages/AdminMessagingPage.jsx';
+import AdminGroupChatPage from '@/pages/AdminGroupChatPage.jsx';
 import AdminLoanManagementPage from '@/pages/AdminLoanManagementPage.jsx';
 import AdminPaymentManagementPage from '@/pages/AdminPaymentManagementPage.jsx';
 import AdminProfilePage from '@/pages/AdminProfilePage.jsx';
@@ -94,6 +97,9 @@ function App() {
             <Route path="/admin-dashboard" element={<ProtectedAdminRoute><AdminDashboardPage /></ProtectedAdminRoute>} />
             <Route path="/analytics" element={<ProtectedAdminRoute requiredPermission="view_analytics"><AnalyticsDashboard /></ProtectedAdminRoute>} />
             <Route path="/admin-manage-admins" element={<ProtectedAdminRoute requireSuperAdmin requiredPermission="manage_admins"><AdminManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-task-management" element={<ProtectedAdminRoute requiredPermission="manage_tasks"><AdminTaskManagementPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-messaging" element={<ProtectedAdminRoute requiredPermission="manage_messaging"><AdminMessagingPage /></ProtectedAdminRoute>} />
+            <Route path="/admin-group-chat" element={<ProtectedAdminRoute requiredPermission="manage_messaging"><AdminGroupChatPage /></ProtectedAdminRoute>} />
             <Route path="/admin-loan-management" element={<ProtectedAdminRoute requiredPermission="manage_loans"><AdminLoanManagementPage /></ProtectedAdminRoute>} />
             <Route path="/admin-payment-management" element={<ProtectedAdminRoute requiredPermission="manage_payments"><AdminPaymentManagementPage /></ProtectedAdminRoute>} />
             <Route path="/admin-profile" element={<ProtectedAdminRoute requiredPermission="manage_profile"><AdminProfilePage /></ProtectedAdminRoute>} />

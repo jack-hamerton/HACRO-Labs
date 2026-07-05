@@ -18,6 +18,8 @@ const DEFAULT_PERMISSIONS = [
   'manage_company_accounts',
   'view_activity_log',
   'manage_profile',
+  'manage_tasks',
+  'manage_messaging',
 ];
 
 const parsePermissions = (value) => {

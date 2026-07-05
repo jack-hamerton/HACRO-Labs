@@ -49,6 +49,30 @@ const TEAM = [
   { name: 'Ruth Njeri',       role: 'Community Outreach Coordinator' },
 ];
 
+const JOURNEY_ITEMS = [
+  {
+    year: '2022',
+    title: 'The Beginning of HACRO',
+    description:
+      'Our first chapter launched with community listening sessions, small grants, and early training programs that helped members reclaim financial confidence.',
+    image: '/images/IMG-0487.jpg',
+  },
+  {
+    year: '2023',
+    title: 'Growing Community Roots',
+    description:
+      'We expanded into agribusiness, peer savings circles, and digital literacy programs that strengthened local networks and created meaningful progress.',
+    image: '/images/IMG-0561.jpg',
+  },
+  {
+    year: '2024',
+    title: 'Building for the Next Generation',
+    description:
+      'Today our work blends youth leadership, regenerative livelihoods, and collective ownership to create opportunities that last across generations.',
+    image: '/images/IMG-0458.jpg',
+  },
+];
+
 function TypeWriter({ text, typeSpeed = 38, deleteSpeed = 18, pauseAfterType = 1800, pauseAfterDelete = 500 }) {
   const [displayed, setDisplayed] = useState('');
   const [phase, setPhase]         = useState('typing');
@@ -206,6 +230,17 @@ function SlideDots() {
 }
 
 export default function HomePage() {
+  const [activeJourneyIndex, setActiveJourneyIndex] = useState(0);
+  const activeJourneyItem = JOURNEY_ITEMS[activeJourneyIndex];
+
+  const handlePrevJourney = () => {
+    setActiveJourneyIndex((index) => Math.max(0, index - 1));
+  };
+
+  const handleNextJourney = () => {
+    setActiveJourneyIndex((index) => Math.min(JOURNEY_ITEMS.length - 1, index + 1));
+  };
+
   return (
     <div className="relative min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
       <Header />
@@ -257,6 +292,47 @@ export default function HomePage() {
         </div>
 
         {HERO_IMAGES.length > 1 && <SlideDots />}
+      </section>
+
+      {/* ── Our Journey ── */}
+      <section className="relative overflow-visible py-24 sm:py-28 lg:py-32 border-b border-emerald-200 bg-gradient-to-br from-emerald-50 via-emerald-100 to-white">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -left-10 top-6 h-40 w-40 rounded-full bg-emerald-300/30 blur-3xl" />
+          <div className="absolute right-0 top-20 h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
+          <div className="absolute bottom-8 left-1/3 h-40 w-40 rounded-full bg-emerald-100/30 blur-3xl" />
+          <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(16,185,129,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.06)_1px,transparent_1px)] [background-size:24px_24px]" />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <FadeIn className="text-center mb-12 lg:mb-16">
+            <p className="text-sm uppercase tracking-[0.35em] text-green-700">Our Journey</p>
+            <h2 className="mt-4 text-3xl md:text-4xl font-bold text-slate-900">A storyboard of hope, culture, and youth-powered growth</h2>
+            <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">HACRO Labs grew from a shared belief that dignity, opportunity, and collective progress can be built together. Each chapter feels like a page from a living story with bold ideas and meaningful impact.</p>
+          </FadeIn>
+
+          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] items-stretch">
+            <div className="rounded-[2rem] border border-emerald-200/70 bg-white/95 p-10 shadow-[0_30px_60px_rgba(16,185,129,0.15)]">
+              <div className="inline-flex rounded-full border border-emerald-300 bg-emerald-200/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-emerald-900 shadow-sm shadow-emerald-100">Chapter {activeJourneyItem.year}</div>
+              <h3 className="mt-8 text-4xl font-extrabold tracking-[-0.04em] text-slate-900 md:text-5xl">{activeJourneyItem.title}</h3>
+              <p className="mt-6 text-lg leading-relaxed text-slate-700 sm:text-xl">{activeJourneyItem.description}</p>
+              <div className="mt-10 flex flex-wrap items-center gap-3">
+                <button type="button" onClick={handlePrevJourney} disabled={activeJourneyIndex === 0} className="inline-flex items-center justify-center rounded-2xl border border-emerald-500 bg-emerald-50 px-6 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-100 disabled:text-slate-500">Previous</button>
+                <button type="button" onClick={handleNextJourney} disabled={activeJourneyIndex === JOURNEY_ITEMS.length - 1} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-300 disabled:text-slate-700">Next story</button>
+                <span className="text-sm text-green-900">Step through the story one chapter at a time.</span>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-950/95 shadow-[0_40px_90px_rgba(15,23,42,0.35)]">
+              <img src={activeJourneyItem.image} alt={activeJourneyItem.title} className="h-[32rem] w-full object-cover object-center brightness-[0.95] contrast-[1.05]" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.16)_0%,transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(255,255,255,0.08)_0%,transparent_42%),linear-gradient(180deg,rgba(0,0,0,0.28),transparent_55%)]" />
+              <div className="pointer-events-none absolute inset-0 opacity-70" style={{backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.16) 2%, transparent 2%, transparent 14%, rgba(255,255,255,0.08) 14%, rgba(255,255,255,0.08) 16%, transparent 16%), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '20px 20px, 18px 18px'}} />
+              <div className="absolute inset-x-0 bottom-0 px-7 pb-8 pt-7 bg-gradient-to-t from-slate-950/95 to-transparent">
+                <p className="text-xs uppercase tracking-[0.28em] text-slate-300">Captured moments of HACRO in action</p>
+                <h3 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">{activeJourneyItem.title}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── How We Work ── */}
