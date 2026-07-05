@@ -1,8 +1,8 @@
 import PocketBase from 'pocketbase';
 
 const baseUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
-const SUPERUSER_EMAIL = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL;
-const SUPERUSER_PASSWORD = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD;
+const SUPERUSER_EMAIL = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL || 'hamertonotieno99@gmail.com';
+const SUPERUSER_PASSWORD = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD || 'E75p6p5!';
 
 const pb = new PocketBase(baseUrl);
 const authPb = new PocketBase(baseUrl);
@@ -29,6 +29,11 @@ export const authenticateSuperuser = async () => {
         console.log('Superuser authenticated successfully');
       } catch (error) {
         console.error('PocketBase superuser authentication failed:', error.message || error);
+        try {
+          await pb.admins.authWithPassword(SUPERUSER_EMAIL, SUPERUSER_PASSWORD);
+        } catch (retryError) {
+          console.error('PocketBase superuser authentication retry failed:', retryError.message || retryError);
+        }
       }
     }
   } else {

@@ -7,12 +7,15 @@ router.get('/', async (req, res) => {
   try {
     await authenticateSuperuser();
 
-    let staffRecords;
+    let staffRecords = [];
     try {
       staffRecords = await pb.collection('staff_members').getFullList({ sort: 'priority' });
     } catch (error) {
-      // Fallback if the priority field does not exist or sorting fails
-      staffRecords = await pb.collection('staff_members').getFullList();
+      try {
+        staffRecords = await pb.collection('staff_members').getFullList();
+      } catch (fallbackError) {
+        console.warn('Staff members collection unavailable, returning empty list:', fallbackError.message || fallbackError);
+      }
     }
 
     const staff = staffRecords.map((record) => ({

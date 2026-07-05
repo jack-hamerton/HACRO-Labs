@@ -51,25 +51,32 @@ const TEAM = [
 
 const JOURNEY_ITEMS = [
   {
-    year: '2022',
-    title: 'The Beginning of HACRO',
+    year: '2023',
+    title: 'Where the Story Began',
     description:
-      'Our first chapter launched with community listening sessions, small grants, and early training programs that helped members reclaim financial confidence.',
+      'In 2023, a powerful collaboration emerged in Kisumu through the Youth Excel project. Ten organizations came together with one shared purpose: to unlock real opportunities for young people. At the first Data Summit, we brought lived experiences, hard evidence, and bold ideas to the table—and discovered that our work was stronger when connected. That moment sparked HACRO Labs: a place where solutions for financial access could be tested, refined, and scaled.',
     image: '/images/IMG-0487.jpg',
   },
   {
-    year: '2023',
-    title: 'Growing Community Roots',
+    year: '2024',
+    title: 'Turning Ideas Into Momentum',
     description:
-      'We expanded into agribusiness, peer savings circles, and digital literacy programs that strengthened local networks and created meaningful progress.',
+      'In 2024, the vision became more tangible. We listened closely to young people, strengthened our community networks, and shaped practical programs around financial literacy, entrepreneurship, and mentorship. Every forum, every conversation, and every shared lesson brought us closer to building a bridge from unemployment to opportunity.',
     image: '/images/IMG-0561.jpg',
   },
   {
-    year: '2024',
-    title: 'Building for the Next Generation',
+    year: '2025',
+    title: 'When the Road Shifted',
     description:
-      'Today our work blends youth leadership, regenerative livelihoods, and collective ownership to create opportunities that last across generations.',
+      'January 2025 brought a difficult turning point when the Youth Excel program ended. For many, it marked the end of a chapter. For us, it became a test of purpose. We refused to step back. Instead, we doubled down on outreach, stayed rooted in Kisumu, and kept building for the young people still waiting for real solutions.',
     image: '/images/IMG-0458.jpg',
+  },
+  {
+    year: '2026',
+    title: 'A New Chapter of Possibility',
+    description:
+      'Today, HACRO Labs stands as a registered non-profit and a growing force for change in Kisumu. We have moved from research into action, turning lessons learned into practical, youth-led financial solutions. Our story is still unfolding—and the best part is that it is being written by the very communities we serve.',
+    image: '/images/IMG-0624.jpg',
   },
 ];
 
@@ -270,7 +277,7 @@ export default function HomePage() {
               HACRO Labs is a non-profit organization dedicated to fostering self-reliance and collective
               prosperity among our community members. By providing the digital tools, training, and resources
               necessary for growth, we empower our community members to turn their potential into scalable
-              solutions, ensuring that every financial gain and agricultural harvest contributes to a more
+              solutions, ensuring that every financial gain, community inclusion & diversity and agricultural harvest contributes to a more
               resilient, sustainable, and thriving community for all.
             </p>
             <div className="flex flex-col sm:flex-row gap-4" style={{ minHeight: '3.25rem' }}>
@@ -312,8 +319,7 @@ export default function HomePage() {
 
           <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] items-stretch">
             <div className="rounded-[2rem] border border-emerald-200/70 bg-white/95 p-10 shadow-[0_30px_60px_rgba(16,185,129,0.15)]">
-              <div className="inline-flex rounded-full border border-emerald-300 bg-emerald-200/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-emerald-900 shadow-sm shadow-emerald-100">Chapter {activeJourneyItem.year}</div>
-              <h3 className="mt-8 text-4xl font-extrabold tracking-[-0.04em] text-slate-900 md:text-5xl">{activeJourneyItem.title}</h3>
+              <h3 className="mt-2 text-4xl font-extrabold tracking-[-0.04em] text-slate-900 md:text-5xl">{activeJourneyItem.title}</h3>
               <p className="mt-6 text-lg leading-relaxed text-slate-700 sm:text-xl">{activeJourneyItem.description}</p>
               <div className="mt-10 flex flex-wrap items-center gap-3">
                 <button type="button" onClick={handlePrevJourney} disabled={activeJourneyIndex === 0} className="inline-flex items-center justify-center rounded-2xl border border-emerald-500 bg-emerald-50 px-6 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-100 disabled:text-slate-500">Previous</button>
@@ -322,8 +328,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-950/95 shadow-[0_40px_90px_rgba(15,23,42,0.35)]">
-              <img src={activeJourneyItem.image} alt={activeJourneyItem.title} className="h-[32rem] w-full object-cover object-center brightness-[0.95] contrast-[1.05]" />
+            <div className="relative h-[32rem] overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-950/95 shadow-[0_40px_90px_rgba(15,23,42,0.35)]">
+              <img src={activeJourneyItem.image} alt={activeJourneyItem.title} className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.95] contrast-[1.05]" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.16)_0%,transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(255,255,255,0.08)_0%,transparent_42%),linear-gradient(180deg,rgba(0,0,0,0.28),transparent_55%)]" />
               <div className="pointer-events-none absolute inset-0 opacity-70" style={{backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.16) 2%, transparent 2%, transparent 14%, rgba(255,255,255,0.08) 14%, rgba(255,255,255,0.08) 16%, transparent 16%), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '20px 20px, 18px 18px'}} />
               <div className="absolute inset-x-0 bottom-0 px-7 pb-8 pt-7 bg-gradient-to-t from-slate-950/95 to-transparent">
