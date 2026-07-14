@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Document, Page, pdfjs } from 'react-pdf';
 import HTMLFlipBook from 'react-pageflip';
@@ -219,7 +219,7 @@ const NewsletterPage = () => {
   return (
     <>
       <Helmet>
-        <title>Newsletter - HACRO Labs</title>
+        <title>Newsletter - HACRO Hub</title>
       </Helmet>
 
       <div className="min-h-screen bg-background flex flex-col">
@@ -264,7 +264,7 @@ const NewsletterPage = () => {
                           <p className="text-sm text-muted-foreground">{item.description}</p>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
-                          {item.type === 'newspaper' ? 'Newspaper' : 'Report'} • {new Date(item.published_date).toLocaleDateString()}
+                          {item.type === 'newspaper' ? 'Newspaper' : 'Report'} â€¢ {new Date(item.published_date).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -509,3 +509,4 @@ const NewsletterPage = () => {
 };
 
 export default NewsletterPage;
+

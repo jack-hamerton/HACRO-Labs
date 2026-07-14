@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Loader2, Twitter, Linkedin, Instagram, Facebook, Globe, Briefcase } from 'lucide-react';
 import Header from '@/components/Header.jsx';
@@ -9,7 +9,7 @@ const advisoryBoardMembers = [
     name: 'Prof. Grace Wanjiku',
     role: 'Chair, Advisory Board',
     position: 'Governance & Strategy Advisor',
-    bio: 'Guides HACRO Labs on long-term governance, policy alignment, and partnership growth for sustained impact.',
+    bio: 'Guides HACRO Hub on long-term governance, policy alignment, and partnership growth for sustained impact.',
     photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
   },
   {
@@ -54,7 +54,7 @@ const fallbackStaffMembers = [
     name: 'Jack Hamerton',
     role: 'Founder & Executive Director',
     position: 'Executive Director',
-    bio: 'Leading HACRO Labs with community-driven strategic oversight and governance for the organization, ensuring alignment with our mission and values for sustainability and lomg-term impact.',
+    bio: 'Leading HACRO Hub with community-driven strategic oversight and governance for the organization, ensuring alignment with our mission and values for sustainability and lomg-term impact.',
     photo: 'https://i.postimg.cc/zfb4gHmd/0Q4A0693.jpg',
     socialLinks: {
       linkedin: 'https://www.linkedin.com/in/jack-hamerton-6206911a3',
@@ -196,10 +196,10 @@ const StaffPage = () => {
   return (
     <>
       <Helmet>
-        <title>HACRO Labs Team</title>
+        <title>HACRO Hub Team</title>
         <meta
           name="description"
-          content="Meet the HACRO Labs Team who support community development, member services, and financial empowerment." 
+          content="Meet the HACRO Hub Team who support community development, member services, and financial empowerment." 
         />
       </Helmet>
 
@@ -208,10 +208,10 @@ const StaffPage = () => {
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-20 sm:pt-24">
           <section className="text-center mb-16">
-            <p className="text-sm uppercase tracking-[0.35em] text-primary">HACRO Labs</p>
+            <p className="text-sm uppercase tracking-[0.35em] text-primary">HACRO Hub</p>
             <h1 className="mt-4 text-4xl font-bold md:text-5xl">Meet our Team</h1>
             <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-muted-foreground">
-              These are the people who keep HACRO Labs running, help members grow, and ensure the platform remains secure,
+              These are the people who keep HACRO Hub running, help members grow, and ensure the platform remains secure,
               supportive, and community-first.
             </p>
           </section>
@@ -282,7 +282,7 @@ const StaffPage = () => {
                   <p className="text-sm uppercase tracking-[0.35em] text-primary">Board of Advisory</p>
                   <h2 className="mt-3 text-3xl font-bold text-foreground md:text-4xl">Our Advisory Team</h2>
                   <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-muted-foreground">
-                    A dedicated circle of advisors who guide HACRO Labs with wisdom, practical expertise, and a shared commitment to community growth.
+                    A dedicated circle of advisors who guide HACRO Hub with wisdom, practical expertise, and a shared commitment to community growth.
                   </p>
                 </div>
                 <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
@@ -303,10 +303,10 @@ const StaffPage = () => {
           )}
 
           <section className="mt-20 rounded-3xl border border-border bg-primary/5 p-10 text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Are you interested in joining the HACRO Labs community?</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Are you interested in joining the HACRO Hub community?</h2>
             <p className="mx-auto max-w-2xl text-base leading-8 text-muted-foreground">
               Our team is always working to build stronger networks, provide better resources, and invite new members into the journey.
-              Everyone is welcome to explore and engage with HACRO Labs.
+              Everyone is welcome to explore and engage with HACRO Hub.
             </p>
           </section>
         </main>
@@ -317,4 +317,5 @@ const StaffPage = () => {
 };
 
 export default StaffPage;
+
 

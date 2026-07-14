@@ -1,0 +1,54 @@
+﻿C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminActivityLogPage.jsx:65: <Helmet><title>Activity Log - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminDashboardPage.jsx:109: <Helmet><title>Admin Dashboard - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminLoanManagementPage.jsx:64: <title>Loan Management - Admin - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminLoginPage.jsx:42: <Helmet><title>Admin Login - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminLoginPage.jsx:53: <p className="mt-2 text-sm text-slate-500">Secure access to Hacro Labs Management</p>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminManagementPage.jsx:177: <Helmet><title>Manage Admins - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminMemberDetailsPage.jsx:114: <title>Member Details - Admin - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminMemberSearchPage.jsx:45: <Helmet><title>Member Search - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminNewsletterPage.jsx:152: <Helmet><title>Newsletter Management - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminPaymentManagementPage.jsx:72: <title>Payment Management - Admin - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminProfilePage.jsx:78: <Helmet><title>Admin Profile - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\AdminWithdrawalManagementPage.jsx:63: <Helmet><title>Withdrawal Management - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\CommunityFinancialEmpowermentPage.jsx:35: 'By creating an account and using HACRO Labs, you agree to these Terms & Conditions and to the automated operational rules used by the platform.',
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\CommunityFinancialEmpowermentPage.jsx:129: 'By joining HACRO Labs, you agree to participate with honesty, respect the cooperative process, and understand that the platform’s automation is part of the service you are using.',
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\ContributionHistoryPage.jsx:73: <title>Contribution History - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\DonatePage.jsx:109: Support HACRO Labs
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\DonatePage.jsx:117: Your contribution helps HACRO Labs expand outreach, training, savings support, and sustainable programs for the communities we serve.
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\GroupMessaging.jsx:99: <Helmet><title>Group Chat - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\HomePage.jsx:26: 'At HACRO Labs, we are reimagining the traditional chama spirit for the digital age, creating a robust financial safety net that is accessible to everyone. By leveraging modern technology, we provide a transparent, secure, and fully automated platform designed to bridge the gap in financial inclusion. We empower communities to pool resources collectively, access fair and responsible credit, and cultivate sustainable wealth.',
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\HomePage.jsx:57: 'In 2023, a powerful collaboration emerged in Kisumu through the Youth Excel project. Ten organizations came together with one shared purpose: to unlock real opportunities for young people. At the first Data Summit, we brought lived experiences, hard evidence, and bold ideas to the table—and discovered that our work was stronger when connected. That moment sparked HACRO Labs: a place where solutions for financial access could be tested, refined, and scaled.',
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\HomePage.jsx:78: 'Today, HACRO Labs stands as a registered non-profit and a growing force for change in Kisumu. We have moved from research into action, turning lessons learned into practical, youth-led financial solutions. Our story is still unfolding—and the best part is that it is being written by the very communities we serve.',
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\HomePage.jsx:277: HACRO Labs is a non-profit organization dedicated to fostering self-reliance and collective
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\HomePage.jsx:317: <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">HACRO Labs grew from a shared belief that dignity, opportunity, and collective progress can be built together. Each chapter feels like a page from a living story with bold ideas and meaningful impact.</p>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\HomePage.jsx:350: At HACRO Labs, we believe that true empowerment is rooted in community. Our community membership model is
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\HomePage.jsx:386: HACRO Labs staff deliver support, digital training, and community outreach so every member can thrive.
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\HomePage.jsx:421: Join hundreds of community members who have empowered themselves, grown their skills, and uplifted others through HACRO Labs membership.
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\LoanRepaymentPage.jsx:163: <title>Loan Repayment - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\LoanRepaymentTracker.jsx:79: <Helmet><title>Loan Tracker - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\LoanRequestPage.jsx:273: <title>Request Loan - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\LoanVotingPage.jsx:145: <title>Loan Voting - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\MemberDashboardPage.jsx:155: <Helmet><title>Member Dashboard - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\MemberPaymentHistoryPage.jsx:54: <title>Payment History - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\NewsletterPage.jsx:222: <title>Newsletter - HACRO Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\NotificationCenter.jsx:66: <Helmet><title>Notifications - Hacro Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\PaymentSelectionPage.jsx:166: <title>Make Payment - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\RegistrationPage.jsx:479: <title>Register - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\RegistrationPage.jsx:488: <p className="text-muted-foreground">Complete the steps below to join Hacro Labs</p>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\RegistrationPage.jsx:702: By registering, you agree to Hacro Labs automated loan and savings processing rules, including deductions for overdue loans, group interest penalties, guarantor collateral handling, and in-app notifications.
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\SavingsContributionPage.jsx:132: <title>Make Savings Contribution - Hacro Labs</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:12: bio: 'Guides HACRO Labs on long-term governance, policy alignment, and partnership growth for sustained impact.',
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:57: bio: 'Leading HACRO Labs with community-driven strategic oversight and governance for the organization, ensuring alignment with our mission and values for sustainability and lomg-term impact.',
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:199: <title>HACRO Labs Team</title>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:202: content="Meet the HACRO Labs Team who support community development, member services, and financial empowerment."
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:211: <p className="text-sm uppercase tracking-[0.35em] text-primary">HACRO Labs</p>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:214: These are the people who keep HACRO Labs running, help members grow, and ensure the platform remains secure,
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:285: A dedicated circle of advisors who guide HACRO Labs with wisdom, practical expertise, and a shared commitment to community growth.
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:306: <h2 className="text-3xl font-bold text-foreground mb-4">Are you interested in joining the HACRO Labs community?</h2>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\StaffPage.jsx:309: Everyone is welcome to explore and engage with HACRO Labs.
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\src\pages\WithdrawalPage.jsx:118: <Helmet><title>Withdrawal - HACRO Labs</title></Helmet>
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\index.html:9: <meta name="generator" content="HACRO Labs" />
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\index.html:12: <meta name="description" content="HACRO Labs delivers polished tools for community growth and engagement." />
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\index.html:13: <meta property="og:title" content="HACRO Labs" />
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\index.html:18: <meta name="twitter:title" content="HACRO Labs" />
+C:\Users\Nicholus\OneDrive\Desktop\HACRO-Labs\apps\web\index.html:21: <title>HACRO Labs</title>

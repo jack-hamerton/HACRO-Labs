@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Bell, Check, Trash2, Filter, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -63,7 +63,7 @@ const NotificationCenter = () => {
 
   return (
     <>
-      <Helmet><title>Notifications - Hacro Labs</title></Helmet>
+      <Helmet><title>Notifications - HACRO Hub</title></Helmet>
       <MemberPortalLayout title="Notifications" subtitle="Stay updated on your group and loan activities.">
         <div className="max-w-4xl mx-auto w-full px-4 py-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -135,4 +135,5 @@ const NotificationCenter = () => {
 };
 
 export default NotificationCenter;
+
 

@@ -14,7 +14,12 @@ export async function verifyMemberToken(req, res, next) {
     });
   }
 
-  const token = authHeader.substring(7);
+  const token = authHeader.substring(7).trim();
+  if (!token) {
+    return res.status(401).json({
+      error: 'Missing or invalid token',
+    });
+  }
 
   // Find session by token
   const sessions = await pb.collection('member_sessions').getFullList({

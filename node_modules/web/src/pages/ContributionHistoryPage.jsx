@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { ArrowLeft, Loader2, Filter, ArrowDownUp, PiggyBank, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -70,7 +70,7 @@ const ContributionHistoryPage = () => {
   return (
     <>
       <Helmet>
-        <title>Contribution History - Hacro Labs</title>
+        <title>Contribution History - HACRO Hub</title>
       </Helmet>
 
       <MemberPortalLayout title="Contribution History" subtitle="See a full record of your savings and loan activity.">
@@ -155,4 +155,5 @@ const ContributionHistoryPage = () => {
 };
 
 export default ContributionHistoryPage;
+
 

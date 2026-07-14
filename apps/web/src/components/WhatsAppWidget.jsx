@@ -18,7 +18,7 @@ const WhatsAppWidget = () => {
                   <MessageCircle className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-900 text-sm">HACRO Labs</p>
+                  <p className="font-semibold text-slate-900 text-sm">HACRO Hub</p>
                   <p className="text-xs text-green-600">Usually replies instantly</p>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Wallet, ArrowLeft, Loader2, AlertTriangle } from 'lucide-react';
@@ -76,7 +76,7 @@ const LoanRepaymentTracker = () => {
 
   return (
     <>
-      <Helmet><title>Loan Tracker - Hacro Labs</title></Helmet>
+      <Helmet><title>Loan Tracker - HACRO Hub</title></Helmet>
       <MemberPortalLayout title="Loan Repayment Tracker" subtitle="Monitor your loan status, repayments, and penalties.">
         <div className="max-w-4xl mx-auto w-full px-4 py-12">
           <button onClick={() => navigate(-1)} className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground mb-8 transition-colors">
@@ -133,3 +133,4 @@ const LoanRepaymentTracker = () => {
 };
 
 export default LoanRepaymentTracker;
+

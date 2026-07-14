@@ -1,9 +1,10 @@
 import express from 'express';
 import pb, { authenticateSuperuser } from '../utils/pocketbaseClient.js';
+import { verifyAdminToken } from '../middleware/adminAuth.js';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', verifyAdminToken, async (req, res) => {
   try {
     await authenticateSuperuser();
 

@@ -23,8 +23,8 @@ const RegistrationConfirmationPage = () => {
   return (
     <>
       <Helmet>
-        <title>Registration Successful - Hacro Labs</title>
-        <meta name="description" content="Your Hacro Labs membership registration has been completed successfully." />
+        <title>Registration Successful - HACRO Hub</title>
+        <meta name="description" content="Your HACRO Hub membership registration has been completed successfully." />
       </Helmet>
 
       <div className="min-h-screen bg-background flex flex-col">
@@ -35,7 +35,7 @@ const RegistrationConfirmationPage = () => {
             
             {/* Print Only Header (Hidden on screen) */}
             <div className="hidden print:block text-center mb-8 border-b border-border pb-6">
-              <h1 className="text-3xl font-bold text-foreground">Hacro Labs</h1>
+              <h1 className="text-3xl font-bold text-foreground">HACRO Hub</h1>
               <p className="text-muted-foreground mt-2">Official Payment Receipt & Membership Acknowledgment</p>
             </div>
 
@@ -47,7 +47,7 @@ const RegistrationConfirmationPage = () => {
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance print:text-2xl">
                 Registration & Payment Successful!
               </h1>
-              <p className="text-lg text-muted-foreground print:text-base">Welcome to the Hacro Labs Community</p>
+              <p className="text-lg text-muted-foreground print:text-base">Welcome to the HACRO Hub Community</p>
             </div>
 
             <div className="bg-muted rounded-lg p-6 mb-8 space-y-6 print:bg-transparent print:p-0 print:space-y-4">

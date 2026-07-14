@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, Wallet, CheckCircle2, Clock3, Loader2 } from 'lucide-react';
@@ -115,7 +115,7 @@ const WithdrawalPage = () => {
 
   return (
     <>
-      <Helmet><title>Withdrawal - HACRO Labs</title></Helmet>
+      <Helmet><title>Withdrawal - HACRO Hub</title></Helmet>
       <MemberPortalLayout title="Withdrawal" subtitle="Manage your savings withdrawal requests">
         <div className="space-y-6">
           <div className="rounded-3xl border border-border/70 bg-white/85 p-6 shadow-sm backdrop-blur">
@@ -226,3 +226,4 @@ const WithdrawalPage = () => {
 };
 
 export default WithdrawalPage;
+

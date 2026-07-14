@@ -40,8 +40,8 @@ const MemberLoginPage = () => {
   return (
     <>
       <Helmet>
-        <title>Member Login - Hacro Labs</title>
-        <meta name="description" content="Log in to your Hacro Labs member account to access your dashboard." />
+        <title>Member Login - HACRO Hub</title>
+        <meta name="description" content="Log in to your HACRO Hub member account to access your dashboard." />
       </Helmet>
 
       <div className="min-h-screen bg-background">

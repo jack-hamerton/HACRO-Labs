@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { CheckCircle2, Clock3, XCircle, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
@@ -60,7 +60,7 @@ const AdminWithdrawalManagementPage = () => {
 
   return (
     <AdminLayout>
-      <Helmet><title>Withdrawal Management - Hacro Labs</title></Helmet>
+      <Helmet><title>Withdrawal Management - HACRO Hub</title></Helmet>
       <div className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -82,7 +82,7 @@ const AdminWithdrawalManagementPage = () => {
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
           {loading ? (
-            <div className="py-12 text-center text-sm text-slate-500">Loading withdrawal requests…</div>
+            <div className="py-12 text-center text-sm text-slate-500">Loading withdrawal requestsâ€¦</div>
           ) : filteredWithdrawals.length === 0 ? (
             <div className="py-12 text-center text-sm text-slate-500">No withdrawal requests found for this filter.</div>
           ) : (
@@ -162,3 +162,4 @@ const AdminWithdrawalManagementPage = () => {
 };
 
 export default AdminWithdrawalManagementPage;
+

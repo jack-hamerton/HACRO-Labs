@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Loader2, KeyRound, User, Smartphone, LogIn, Activity } from 'lucide-react';
 import { toast } from 'sonner';
@@ -75,7 +75,7 @@ const AdminProfilePage = () => {
 
   return (
     <AdminLayout>
-      <Helmet><title>Admin Profile - Hacro Labs</title></Helmet>
+      <Helmet><title>Admin Profile - HACRO Hub</title></Helmet>
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Column: Forms */}
@@ -187,3 +187,4 @@ const AdminProfilePage = () => {
 };
 
 export default AdminProfilePage;
+

@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { verifyAdminToken } from '../middleware/adminAuth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +19,8 @@ function appendLog(...parts) {
     console.error('[PB PROXY LOG ERROR]', e);
   }
 }
+
+router.use(verifyAdminToken);
 
 router.use(async (req, res, next) => {
   const rawPath = req.url || '/';

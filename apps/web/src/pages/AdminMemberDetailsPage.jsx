@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { Search, ChevronRight, Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
@@ -111,7 +111,7 @@ const AdminMemberDetailsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Member Details - Admin - Hacro Labs</title>
+        <title>Member Details - Admin - HACRO Hub</title>
       </Helmet>
 
       <AdminLayout title="Member Details" subtitle="View comprehensive member information and activity">
@@ -247,7 +247,7 @@ const AdminMemberDetailsPage = () => {
                       className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
                     >
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        💰 Savings
+                        ðŸ’° Savings
                         <span className="text-sm text-gray-600">
                           ({memberDetails.savings.contribution_count} contributions)
                         </span>
@@ -283,7 +283,7 @@ const AdminMemberDetailsPage = () => {
                       className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
                     >
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        📋 Loans
+                        ðŸ“‹ Loans
                         <span className="text-sm text-gray-600">
                           ({memberDetails.loans.active_loans} active)
                         </span>
@@ -329,7 +329,7 @@ const AdminMemberDetailsPage = () => {
                       className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
                     >
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        💳 Payments
+                        ðŸ’³ Payments
                         <span className="text-sm text-gray-600">
                           ({memberDetails.payments.total_payments} total)
                         </span>
@@ -374,7 +374,7 @@ const AdminMemberDetailsPage = () => {
                       className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
                     >
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        📊 Contribution History
+                        ðŸ“Š Contribution History
                         <span className="text-sm text-gray-600">
                           ({memberDetails.contributions.total_records})
                         </span>
@@ -427,3 +427,4 @@ const AdminMemberDetailsPage = () => {
 };
 
 export default AdminMemberDetailsPage;
+

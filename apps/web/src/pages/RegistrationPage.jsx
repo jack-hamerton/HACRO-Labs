@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, User, Mail, CreditCard, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -171,7 +171,7 @@ const KENYA_LOCATION_DATA = {
     'Suna West': {
       'Wiga': ['Wiga', 'Wasimbete', 'Nyamagagana', 'Saba'],
       'Wasweta II': ['Wasweta', 'Bondo Nyironge', 'Giribe'],
-      'Ragana – Oruba': ['Ragana', 'Oruba', 'Kanyamkago', 'Kabuoch'],
+      'Ragana â€“ Oruba': ['Ragana', 'Oruba', 'Kanyamkago', 'Kabuoch'],
       'Wasimbete': ['Wasimbete', 'Giribe', 'Bondo Nyironge']
     },
     'Rongo': {
@@ -476,7 +476,7 @@ const RegistrationPage = () => {
   return (
     <>
       <Helmet>
-        <title>Register - Hacro Labs</title>
+        <title>Register - HACRO Hub</title>
       </Helmet>
 
       <div className="min-h-screen bg-background flex flex-col">
@@ -485,7 +485,7 @@ const RegistrationPage = () => {
         <div className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-20 sm:pt-24">
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance">Member registration</h1>
-            <p className="text-muted-foreground">Complete the steps below to join Hacro Labs</p>
+            <p className="text-muted-foreground">Complete the steps below to join HACRO Hub</p>
           </div>
 
           <div className="mb-12">
@@ -699,7 +699,7 @@ const RegistrationPage = () => {
                 <div className="bg-muted border border-border rounded-3xl p-4 space-y-3">
                   <div className="text-sm text-foreground font-semibold">Terms & Conditions Summary</div>
                   <p className="text-sm text-muted-foreground">
-                    By registering, you agree to Hacro Labs automated loan and savings processing rules, including deductions for overdue loans, group interest penalties, guarantor collateral handling, and in-app notifications.
+                    By registering, you agree to HACRO Hub automated loan and savings processing rules, including deductions for overdue loans, group interest penalties, guarantor collateral handling, and in-app notifications.
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Read the full Terms & Conditions on the <Link to="/community-financial-empowerment#terms" className="text-primary hover:underline">Community Financial Empowerment page</Link>.
@@ -763,3 +763,4 @@ const RegistrationPage = () => {
 };
 
 export default RegistrationPage;
+

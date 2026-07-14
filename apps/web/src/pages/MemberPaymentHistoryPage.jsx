@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { CreditCard, Download, Search } from 'lucide-react';
 import { format } from 'date-fns';
@@ -51,7 +51,7 @@ const MemberPaymentHistoryPage = () => {
   return (
     <>
       <Helmet>
-        <title>Payment History - Hacro Labs</title>
+        <title>Payment History - HACRO Hub</title>
         <meta name="description" content="View your payment history and download receipts." />
       </Helmet>
 
@@ -138,4 +138,5 @@ const MemberPaymentHistoryPage = () => {
 };
 
 export default MemberPaymentHistoryPage;
+
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { Wallet, ArrowLeft, Loader2, Calendar } from 'lucide-react';
@@ -160,7 +160,7 @@ const LoanRepaymentPage = () => {
   return (
     <>
       <Helmet>
-        <title>Loan Repayment - Hacro Labs</title>
+        <title>Loan Repayment - HACRO Hub</title>
       </Helmet>
 
       <MemberPortalLayout title="Loan Repayment" subtitle="Manage and repay your active loans.">
@@ -208,7 +208,7 @@ const LoanRepaymentPage = () => {
                         ? 'text-blue-900' 
                         : 'text-orange-900'
                     }`}>
-                      {selectedLoan.inGracePeriod ? '✓ Grace Period Active' : '⚠ Grace Period Ended - Repayments Due'}
+                      {selectedLoan.inGracePeriod ? 'âœ“ Grace Period Active' : 'âš  Grace Period Ended - Repayments Due'}
                     </p>
                     <p className={`text-xs mt-1 ${
                       selectedLoan.inGracePeriod 
@@ -231,9 +231,9 @@ const LoanRepaymentPage = () => {
                       <p className="text-xs text-muted-foreground mb-1">Interest (2% Flat)</p>
                       <p className="text-xs text-muted-foreground mt-1">Breakdown:</p>
                       <p className="text-xs text-foreground mt-1 space-y-0.5">
-                        <span className="block">• 1% → Company</span>
-                        <span className="block">• 0.5% → Group (Bounce)</span>
-                        {selectedLoan.loan_type === 'GIL' && <span className="block">• 0.5% → Guarantors</span>}
+                        <span className="block">â€¢ 1% â†’ Company</span>
+                        <span className="block">â€¢ 0.5% â†’ Group (Bounce)</span>
+                        {selectedLoan.loan_type === 'GIL' && <span className="block">â€¢ 0.5% â†’ Guarantors</span>}
                       </p>
                     </div>
                     <div className="bg-muted/50 rounded-xl p-4 border border-border/50">
@@ -346,4 +346,5 @@ const LoanRepaymentPage = () => {
 };
 
 export default LoanRepaymentPage;
+
 

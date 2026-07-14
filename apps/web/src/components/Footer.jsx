@@ -41,11 +41,11 @@ const Footer = () => {
         {/* Horizontal layout for all sections */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-8">
           
-          {/* HACRO Labs */}
+          {/* HACRO Hub */}
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-4">
               <Users className="w-8 h-8 text-primary" />
-              <span className="text-xl font-bold">HACRO Labs</span>
+              <span className="text-xl font-bold">HACRO Hub</span>
             </div>
             <p className="text-sm opacity-80 leading-relaxed">
               Building a strong community of members through collaborative programs that protect, empower, and connect people for shared growth and impact.
@@ -113,7 +113,7 @@ const Footer = () => {
         {/* Copyright + Footer signup */}
         <div className="border-t border-green-500 mt-8 pt-6 text-sm text-slate-200 opacity-90" style={{ borderTopWidth: '1px' }}>
           <div className="flex flex-col gap-4 items-center justify-between sm:flex-row">
-            <p className="font-semibold text-black">&copy; {new Date().getFullYear()} HACRO Labs. All rights reserved.</p>
+            <p className="font-semibold text-black">&copy; {new Date().getFullYear()} HACRO Hub. All rights reserved.</p>
             <form onSubmit={handleFooterSubscribe} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
               <label htmlFor="footer-newsletter" className="sr-only">Subscribe to newsletter</label>
               <div className="relative min-w-[220px] rounded-full border border-slate-400 bg-slate-200 transition-colors duration-200 hover:border-green-500 hover:bg-green-100 focus-within:border-green-500 focus-within:bg-green-100">

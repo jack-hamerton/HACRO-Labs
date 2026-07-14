@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import pb, { authPb, authenticateSuperuser } from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 import { generateToken } from '../utils/adminUtils.js';
@@ -6,11 +7,19 @@ import { verifyMemberToken } from '../middleware/memberAuth.js';
 
 const router = express.Router();
 
+const memberLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 8,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts, please try again later.' },
+});
+
 /**
  * POST /members/login
  * Authenticate member with email or phone number and password
  */
-router.post('/login', async (req, res) => {
+router.post('/login', memberLoginLimiter, async (req, res) => {
   const { email, identity, password } = req.body;
   const loginField = identity ?? email;
   const rawIdentity = String(loginField || '').trim();
@@ -163,15 +172,9 @@ router.post('/logout', verifyMemberToken, async (req, res) => {
  * GET /members/profile
  * Get current member profile
  */
-router.get('/profile', async (req, res) => {
+router.get('/profile', verifyMemberToken, async (req, res) => {
   try {
-    if (!pb.authStore.isValid) {
-      return res.status(401).json({
-        error: 'Not authenticated',
-      });
-    }
-
-    const member = pb.authStore.model;
+    const member = req.member;
 
     res.json({
       id: member.id,

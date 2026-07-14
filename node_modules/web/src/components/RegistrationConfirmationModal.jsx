@@ -29,7 +29,7 @@ const RegistrationConfirmationModal = ({ member, onClose }) => {
 
           <div className="text-center mb-8">
             <h3 className="text-xl font-semibold text-foreground mb-2">Registration Successful!</h3>
-            <p className="text-muted-foreground">Welcome to Hacro Labs</p>
+            <p className="text-muted-foreground">Welcome to HACRO Hub</p>
           </div>
 
           <div className="bg-muted rounded-lg p-6 space-y-4">

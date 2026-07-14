@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { User, Users, Wallet, PiggyBank, MessageSquare, History, CreditCard, Bell, ShieldCheck, LogOut } from 'lucide-react';
+import { User, Users, Wallet, PiggyBank, MessageSquare, History, CreditCard, Bell, ShieldCheck, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 
 const MemberPortalLayout = ({ title, subtitle, children }) => {
@@ -36,82 +36,89 @@ const MemberPortalLayout = ({ title, subtitle, children }) => {
     return false;
   };
 
+  const memberName = [currentUser?.first_name, currentUser?.last_name].filter(Boolean).join(' ') || currentUser?.email || 'Member';
+  const memberEmail = currentUser?.email || currentUser?.phone || 'member@hacro.local';
+  const initialLetter = currentUser?.first_name?.charAt(0) || currentUser?.email?.charAt(0) || 'M';
+
   return (
-    <div className="admin-theme min-h-screen bg-background flex flex-col md:flex-row text-foreground font-sans">
-      <div className="md:hidden bg-white border-b border-border p-4 flex items-center justify-between">
+    <div className="admin-theme h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.08),_transparent_32%),linear-gradient(180deg,_#f8fffb_0%,_#f4f8f5_100%)] flex flex-col md:flex-row text-foreground font-sans overflow-hidden">
+      <div className="md:hidden flex items-center justify-between bg-slate-900 text-white p-4">
         <Link to="/" className="flex items-center">
-          <div className="h-11 w-32 rounded-2xl border border-[hsl(var(--primary)_/_0.12)] bg-white/95 px-2 shadow-sm ring-1 ring-black/5 overflow-hidden flex items-center justify-center">
-            <img src={logoUrl} alt="HACRO Labs" className="h-full w-full object-contain" />
-          </div>
+              <img src={logoUrl} alt="HACRO Hub" className="h-10 object-contain" />
         </Link>
-        <button
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="inline-flex items-center justify-center rounded-xl bg-[hsl(var(--primary)_/_0.12)] px-3 py-2 text-[hsl(var(--primary))] font-semibold"
-        >
-          {isMobileOpen ? 'Close' : 'Menu'}
+        <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="p-2">
+          {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      <aside className={`fixed inset-y-0 left-0 z-50 w-80 h-screen max-h-screen overflow-hidden transform bg-[hsl(var(--primary)_/_0.08)] border-r border-[hsl(var(--primary)_/_0.16)] transition-transform duration-300 md:static md:translate-x-0 md:h-auto md:max-h-none md:overflow-visible ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex h-full flex-col overflow-hidden p-6">
-          <div className="mb-8 shrink-0">
-            <Link to="/" className="flex items-center">
-              <div className="h-12 w-40 rounded-2xl border border-[hsl(var(--primary)_/_0.12)] bg-white/95 px-2 shadow-sm ring-1 ring-black/5 overflow-hidden flex items-center justify-center">
-                <img src={logoUrl} alt="HACRO Labs" className="h-full w-full object-contain" />
-              </div>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-emerald-950 text-emerald-100 flex flex-col h-screen max-h-screen transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex h-full flex-col overflow-hidden">
+          <div className="h-20 flex items-center px-6 border-b border-emerald-800 shrink-0">
+                <Link to="/" className="flex items-center">
+              <img src={logoUrl} alt="HACRO Hub" className="h-12 object-contain" />
             </Link>
           </div>
 
-          <div className="flex items-center gap-4 mb-8 shrink-0">
-            <div className="w-14 h-14 rounded-3xl bg-[hsl(var(--primary)_/_0.16)] flex items-center justify-center text-[hsl(var(--primary))] font-bold uppercase">
-              {currentUser?.first_name?.charAt(0) || currentUser?.email?.charAt(0) || 'M'}
+          <div className="flex-1 overflow-y-auto px-5 py-5 md:pb-4">
+            <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-600/20 via-emerald-700/10 to-transparent p-4 mb-6 shadow-lg shadow-emerald-950/30">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-emerald-400 flex items-center justify-center text-emerald-950 font-semibold uppercase">
+                  {initialLetter.toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white truncate">{memberName}</p>
+                  <p className="text-xs text-emerald-100 truncate">{memberEmail}</p>
+                </div>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{currentUser?.first_name} {currentUser?.last_name}</p>
-              <p className="text-xs text-muted-foreground truncate">{currentUser?.email}</p>
-            </div>
+
+            <nav className="space-y-1 pb-4">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const active = isActive(link.path);
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${active ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-emerald-100 hover:bg-emerald-500/10 hover:text-white'}`}
+                  >
+                    <Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-emerald-200'}`} />
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
 
-          <nav className="flex-1 space-y-2 overflow-y-auto pb-4">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const active = isActive(link.path);
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-colors ${active ? 'bg-[hsl(var(--primary))] text-white' : 'text-foreground hover:bg-[hsl(var(--primary)_/_0.12)]'}`}
-                >
-                  <Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-[hsl(var(--primary))]'}`} />
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="mt-4 pt-4 border-t border-[hsl(var(--primary)_/_0.12)] shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                logout();
-                setIsMobileOpen(false);
-              }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold text-[hsl(var(--primary))] bg-white border border-[hsl(var(--primary)_/_0.16)] hover:bg-[hsl(var(--primary)_/_0.08)] transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
+          <div className="p-6 border-t border-emerald-800 shrink-0">
+            <button onClick={logout} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm shadow-emerald-900/40">
+              <LogOut className="w-5 h-5" />
               Log out
             </button>
           </div>
         </div>
       </aside>
 
-      {isMobileOpen && <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setIsMobileOpen(false)} />}
+      <main className="flex-1 min-h-0 overflow-y-auto bg-transparent">
+        <header className="hidden md:flex fixed top-0 md:left-72 left-0 right-0 h-16 bg-white/90 backdrop-blur border-b border-slate-200 items-center justify-between px-8 z-50">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center">
+              <img src={logoUrl} alt="HACRO Hub" className="w-32 h-8 object-contain" />
+            </Link>
+            <div className="flex items-center gap-2 text-slate-700">
+              <h1 className="text-lg font-semibold text-slate-800">{title || 'Member Portal'}</h1>
+              {subtitle && <span className="text-sm text-muted-foreground">{subtitle}</span>}
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-sm font-medium text-slate-600">
+            <span className="hidden sm:inline-block">{memberEmail}</span>
+          </div>
+        </header>
 
-      <main className="flex-1 min-h-screen overflow-auto bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.08),_transparent_32%),linear-gradient(180deg,_#f8fafc_0%,_#f5f7fb_100%)]">
-        <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8 xl:px-10">
+        <div className="flex-1 overflow-auto p-4 sm:p-8 pt-16 md:pt-16">
           {(title || subtitle) && (
-            <div className="mb-8 rounded-3xl border border-border/70 bg-white/80 px-6 py-5 shadow-sm backdrop-blur">
+            <div className="mb-8 rounded-3xl border border-slate-200/70 bg-white/80 px-6 py-5 shadow-sm backdrop-blur">
               {title && <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">{title}</h1>}
               {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
             </div>
@@ -119,6 +126,8 @@ const MemberPortalLayout = ({ title, subtitle, children }) => {
           {children}
         </div>
       </main>
+
+      {isMobileOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileOpen(false)} />}
     </div>
   );
 };

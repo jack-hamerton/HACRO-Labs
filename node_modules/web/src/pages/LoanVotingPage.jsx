@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, XCircle, ArrowLeft, Loader2, Users, Wallet } from 'lucide-react';
@@ -142,7 +142,7 @@ const LoanVotingPage = () => {
   return (
     <>
       <Helmet>
-        <title>Loan Voting - Hacro Labs</title>
+        <title>Loan Voting - HACRO Hub</title>
       </Helmet>
 
       <MemberPortalLayout title="Loan Voting" subtitle="Review and vote on pending loan requests.">
@@ -309,4 +309,5 @@ const LoanVotingPage = () => {
 };
 
 export default LoanVotingPage;
+
 

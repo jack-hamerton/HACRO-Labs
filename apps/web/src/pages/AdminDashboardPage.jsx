@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { Users, LayoutGrid, PiggyBank, Wallet, Clock, Loader2, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
@@ -106,7 +106,7 @@ const AdminDashboardPage = () => {
 
   return (
     <AdminLayout>
-      <Helmet><title>Admin Dashboard - Hacro Labs</title></Helmet>
+      <Helmet><title>Admin Dashboard - HACRO Hub</title></Helmet>
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="rounded-[28px] border border-emerald-200 bg-gradient-to-br from-emerald-600 via-emerald-500 to-green-700 p-8 text-white shadow-xl">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -166,7 +166,7 @@ const AdminDashboardPage = () => {
                 </div>
               </div>
             ) : (
-              <div className="mt-6 text-sm text-slate-500">Loading company overview…</div>
+              <div className="mt-6 text-sm text-slate-500">Loading company overviewâ€¦</div>
             )}
           </div>
 
@@ -199,3 +199,4 @@ const AdminDashboardPage = () => {
 };
 
 export default AdminDashboardPage;
+

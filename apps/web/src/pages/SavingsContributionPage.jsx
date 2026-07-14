@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { PiggyBank, ArrowLeft, Loader2 } from 'lucide-react';
@@ -129,7 +129,7 @@ const SavingsContributionPage = () => {
   return (
     <>
       <Helmet>
-        <title>Make Savings Contribution - Hacro Labs</title>
+        <title>Make Savings Contribution - HACRO Hub</title>
       </Helmet>
 
       <MemberPortalLayout title="Savings Contribution" subtitle="Add funds to your group savings account.">
@@ -220,4 +220,5 @@ const SavingsContributionPage = () => {
 };
 
 export default SavingsContributionPage;
+
 

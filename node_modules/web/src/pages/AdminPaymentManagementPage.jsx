@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { DollarSign, Search, Filter } from 'lucide-react';
 import { format } from 'date-fns';
@@ -69,7 +69,7 @@ const AdminPaymentManagementPage = () => {
   return (
     <AdminLayout>
       <Helmet>
-        <title>Payment Management - Admin - Hacro Labs</title>
+        <title>Payment Management - Admin - HACRO Hub</title>
         <meta name="description" content="Manage all member payments and transactions." />
       </Helmet>
 
@@ -194,3 +194,4 @@ const AdminPaymentManagementPage = () => {
 };
 
 export default AdminPaymentManagementPage;
+

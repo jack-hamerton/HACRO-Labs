@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Loader2, Shield, PlusCircle, Trash2, PencilLine, CheckCircle2, UserCog } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,6 +24,8 @@ const emptyForm = () => ({
   email: '',
   password: '',
   role: 'admin',
+  phone: '',
+  payment_amount: '',
   is_active: true,
   permissions: [],
 });
@@ -88,6 +90,8 @@ const AdminManagementPage = () => {
         full_name: formData.full_name,
         email: formData.email,
         role: formData.role,
+        phone: formData.phone,
+        payment_amount: formData.payment_amount ? Number(formData.payment_amount) : undefined,
         is_active: formData.is_active,
         permissions: formData.permissions,
       };
@@ -131,6 +135,8 @@ const AdminManagementPage = () => {
       email: admin.email || '',
       password: '',
       role: admin.role || 'admin',
+      phone: admin.phone || '',
+      payment_amount: admin.payment_amount ? String(admin.payment_amount) : '',
       is_active: admin.is_active !== false,
       permissions: parsePermissions(admin.permissions || []),
     });
@@ -168,7 +174,7 @@ const AdminManagementPage = () => {
 
   return (
     <AdminLayout>
-      <Helmet><title>Manage Admins - Hacro Labs</title></Helmet>
+      <Helmet><title>Manage Admins - HACRO Hub</title></Helmet>
 
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="rounded-[28px] border border-emerald-200 bg-gradient-to-br from-white to-emerald-50 p-6 shadow-sm">
@@ -204,6 +210,14 @@ const AdminManagementPage = () => {
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">Email</label>
                   <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full rounded-xl border border-slate-300 px-3 py-2.5 focus:border-emerald-500 focus:outline-none" placeholder="admin@hacrolabs.com" required />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">Phone</label>
+                  <input type="text" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full rounded-xl border border-slate-300 px-3 py-2.5 focus:border-emerald-500 focus:outline-none" placeholder="254701234567" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">Payment amount (KES)</label>
+                  <input type="number" min="0" value={formData.payment_amount} onChange={(e) => setFormData({ ...formData, payment_amount: e.target.value })} className="w-full rounded-xl border border-slate-300 px-3 py-2.5 focus:border-emerald-500 focus:outline-none" placeholder="30000" />
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
@@ -267,6 +281,12 @@ const AdminManagementPage = () => {
                           </span>
                           <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{admin.role === 'super_admin' ? 'Super admin' : 'Admin'}</span>
                         </div>
+                        <div className="mt-2 text-sm text-slate-500">
+                          {admin.phone ? <>Phone: <span className="font-medium text-slate-700">{admin.phone}</span></> : 'No phone on record'}
+                        </div>
+                        <div className="mt-2 text-sm text-slate-500">
+                          Payout: <span className="font-semibold text-foreground">KES {Number(admin.payment_amount || (admin.role === 'super_admin' ? 30000 : 0)).toLocaleString()}</span>
+                        </div>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
@@ -291,3 +311,4 @@ const AdminManagementPage = () => {
 };
 
 export default AdminManagementPage;
+

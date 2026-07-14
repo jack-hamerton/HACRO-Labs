@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Wallet, PiggyBank, MessageSquare, AlertCircle, User, Gift, Award, Shield } from 'lucide-react';
@@ -141,7 +141,7 @@ const MemberDashboardPage = () => {
       <div className="admin-theme min-h-screen bg-background flex items-center justify-center px-4 py-20 text-foreground font-sans">
         <div className="space-y-4 text-center">
           <div className="w-16 h-16 border-4 border-[hsl(var(--primary))] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-lg font-medium">Loading your member dashboard…</p>
+          <p className="text-lg font-medium">Loading your member dashboardâ€¦</p>
         </div>
       </div>
     );
@@ -152,7 +152,7 @@ const MemberDashboardPage = () => {
 
   return (
     <>
-      <Helmet><title>Member Dashboard - Hacro Labs</title></Helmet>
+      <Helmet><title>Member Dashboard - HACRO Hub</title></Helmet>
       <MemberPortalLayout title="Member Dashboard" subtitle="Your member portal home">
         <div className="mb-8 rounded-[28px] border border-[hsl(var(--primary)_/_0.16)] bg-gradient-to-br from-[hsl(var(--primary)_/_0.14)] via-white to-[hsl(var(--primary)_/_0.05)] p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
@@ -220,11 +220,11 @@ const MemberDashboardPage = () => {
               <div className={`dashboard-card border-2 ${withdrawalEligibility.isEligible ? 'border-green-400 bg-green-50 dark:bg-green-950/20' : 'border-amber-400 bg-amber-50 dark:bg-amber-950/20'}`}>
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h2 className="text-xl font-semibold text-foreground mb-1">💰 12-Month Savings Withdrawal Cycle</h2>
+                    <h2 className="text-xl font-semibold text-foreground mb-1">ðŸ’° 12-Month Savings Withdrawal Cycle</h2>
                     <p className="text-sm text-muted-foreground">Annual withdrawal eligibility status</p>
                   </div>
                   <div className={`px-3 py-1 rounded-full text-sm font-semibold ${withdrawalEligibility.isEligible ? 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200' : 'bg-amber-200 text-amber-800 dark:bg-amber-800 dark:text-amber-200'}`}>
-                    {withdrawalEligibility.isEligible ? '✓ Eligible' : '⏳ Not Yet'}
+                    {withdrawalEligibility.isEligible ? 'âœ“ Eligible' : 'â³ Not Yet'}
                   </div>
                 </div>
 
@@ -263,11 +263,11 @@ const MemberDashboardPage = () => {
                 </div>
 
                 <div className="text-sm text-muted-foreground bg-background/50 rounded-lg p-3 mb-4 border-l-4 border-blue-500">
-                  <p className="font-semibold text-foreground mb-1">📋 How it works:</p>
+                  <p className="font-semibold text-foreground mb-1">ðŸ“‹ How it works:</p>
                   <ul className="space-y-1 text-xs">
-                    <li>• After 12 months of savings, you become eligible to withdraw 85% of your total savings</li>
-                    <li>• The remaining 15% is automatically carried forward to start your next 12-month cycle</li>
-                    <li>• This cycle repeats annually, helping you build sustainable long-term savings</li>
+                    <li>â€¢ After 12 months of savings, you become eligible to withdraw 85% of your total savings</li>
+                    <li>â€¢ The remaining 15% is automatically carried forward to start your next 12-month cycle</li>
+                    <li>â€¢ This cycle repeats annually, helping you build sustainable long-term savings</li>
                   </ul>
                 </div>
 
@@ -301,22 +301,6 @@ const MemberDashboardPage = () => {
                 <p className="text-sm text-muted-foreground">No bonuses earned yet.</p>
               )}
             </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="dashboard-card">
-              <h3 className="font-semibold text-foreground mb-4 flex items-center"><Shield className="w-5 h-5 mr-2 text-[hsl(var(--primary))]" /> Quick Actions</h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Link to="/group-dashboard" className="rounded-2xl border border-border/70 bg-[hsl(var(--primary)_/_0.06)] p-4 transition hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)_/_0.10)]">
-                  <p className="font-semibold text-foreground">My Group</p>
-                  <p className="text-sm text-muted-foreground mt-1">See your group activity and updates</p>
-                </Link>
-                <Link to="/notifications" className="rounded-2xl border border-border/70 bg-[hsl(var(--primary)_/_0.06)] p-4 transition hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)_/_0.10)]">
-                  <p className="font-semibold text-foreground">Notifications</p>
-                  <p className="text-sm text-muted-foreground mt-1">Stay updated on approvals and messages</p>
-                </Link>
-              </div>
-            </div>
 
             <div className="dashboard-card">
               <h3 className="font-semibold text-foreground mb-4 flex items-center"><Award className="w-5 h-5 mr-2 text-[hsl(var(--primary))]" /> Achievements</h3>
@@ -339,6 +323,22 @@ const MemberDashboardPage = () => {
               )}
             </div>
           </div>
+
+          <div className="space-y-6">
+            <div className="dashboard-card">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center"><Shield className="w-5 h-5 mr-2 text-[hsl(var(--primary))]" /> Quick Actions</h3>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Link to="/group-dashboard" className="rounded-2xl border border-border/70 bg-[hsl(var(--primary)_/_0.06)] p-4 transition hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)_/_0.10)]">
+                  <p className="font-semibold text-foreground">My Group</p>
+                  <p className="text-sm text-muted-foreground mt-1">See your group activity and updates</p>
+                </Link>
+                <Link to="/notifications" className="rounded-2xl border border-border/70 bg-[hsl(var(--primary)_/_0.06)] p-4 transition hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)_/_0.10)]">
+                  <p className="font-semibold text-foreground">Notifications</p>
+                  <p className="text-sm text-muted-foreground mt-1">Stay updated on approvals and messages</p>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </MemberPortalLayout>
     </>
@@ -346,3 +346,4 @@ const MemberDashboardPage = () => {
 };
 
 export default MemberDashboardPage;
+

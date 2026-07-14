@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { ArrowRight, HeartHandshake, Phone, Mail, ShieldCheck } from 'lucide-react';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
@@ -106,7 +106,7 @@ const DonatePage = () => {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-sm font-medium text-green-600">
                 <HeartHandshake className="h-4 w-4" />
-                Support HACRO Labs
+                Support HACRO Hub
               </div>
 
               <div className="space-y-4">
@@ -114,7 +114,7 @@ const DonatePage = () => {
                   Help us grow community impact with your donation.
                 </h1>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Your contribution helps HACRO Labs expand outreach, training, savings support, and sustainable programs for the communities we serve.
+                  Your contribution helps HACRO Hub expand outreach, training, savings support, and sustainable programs for the communities we serve.
                 </p>
               </div>
 
@@ -247,3 +247,4 @@ const DonatePage = () => {
 };
 
 export default DonatePage;
+

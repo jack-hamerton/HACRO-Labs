@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { Wallet, ArrowLeft, Loader2, AlertTriangle, Users, User, CheckCircle2 } from 'lucide-react';
@@ -132,7 +132,7 @@ const LoanRequestPage = () => {
 
     // Type-specific validation
     if (loanType === 'IL') {
-      // Individual Loan: amount + interest ≤ user's savings
+      // Individual Loan: amount + interest â‰¤ user's savings
       if (amount + interest > eligibility.savingsBalance) {
         toast.error(`Loan amount + ${interestRate}% interest (${(amount + interest).toLocaleString()}) cannot exceed your savings (${eligibility.savingsBalance.toLocaleString()})`);
         return;
@@ -270,7 +270,7 @@ const LoanRequestPage = () => {
   return (
     <>
       <Helmet>
-        <title>Request Loan - Hacro Labs</title>
+        <title>Request Loan - HACRO Hub</title>
       </Helmet>
 
       <MemberPortalLayout title="Request a Loan" subtitle="Request either Individual or Group Individual Loans.">
@@ -315,7 +315,7 @@ const LoanRequestPage = () => {
                   </p>
                   <p className="flex items-start">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span>Savings + bonuses must ≥ loan amount + interest</span>
+                    <span>Savings + bonuses must â‰¥ loan amount + interest</span>
                   </p>
                 </div>
                 {!eligibility.eligibleForIL && (
@@ -529,4 +529,5 @@ const LoanRequestPage = () => {
 };
 
 export default LoanRequestPage;
+
 

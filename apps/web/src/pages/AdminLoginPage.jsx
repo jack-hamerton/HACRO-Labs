@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate, Link } from 'react-router-dom';
 import { Loader2, Eye, EyeOff, ShieldCheck } from 'lucide-react';
@@ -39,7 +39,7 @@ const AdminLoginPage = () => {
 
   return (
     <>
-      <Helmet><title>Admin Login - Hacro Labs</title></Helmet>
+      <Helmet><title>Admin Login - HACRO Hub</title></Helmet>
       <div className="min-h-screen flex items-center justify-center bg-slate-900 admin-theme px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Decorative background pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-screen" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
@@ -50,7 +50,7 @@ const AdminLoginPage = () => {
               <ShieldCheck className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900">Admin Portal</h2>
-            <p className="mt-2 text-sm text-slate-500">Secure access to Hacro Labs Management</p>
+            <p className="mt-2 text-sm text-slate-500">Secure access to HACRO Hub Management</p>
           </div>
           
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -76,7 +76,7 @@ const AdminLoginPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                    placeholder="••••••••"
+                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                   />
                   <button
                     type="button"
@@ -125,3 +125,4 @@ const AdminLoginPage = () => {
 };
 
 export default AdminLoginPage;
+

@@ -72,34 +72,30 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="admin-theme min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(135deg,_#f8fffb_0%,_#f4f8f5_100%)] flex flex-col md:flex-row text-foreground font-sans">
       <div className="md:hidden flex items-center justify-between bg-slate-900 text-white p-4">
-        <Link to="/" className="flex items-center">
-          <div className="h-11 w-32 rounded-2xl border border-slate-200/80 bg-white/95 px-2 shadow-sm ring-1 ring-black/5 overflow-hidden flex items-center justify-center">
-            <img src={logoUrl} alt="HACRO Labs" className="h-full w-full object-contain" />
-          </div>
-        </Link>
+          <Link to="/" className="flex items-center">
+            <img src={logoUrl} alt="HACRO Hub" className="h-10 object-contain" />
+          </Link>
         <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="p-2">
           {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      <aside className={`${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 md:h-screen inset-y-0 left-0 z-50 w-72 bg-slate-900 text-slate-300 flex flex-col h-screen max-h-screen overflow-hidden transition-transform duration-300 ease-in-out`}>
-        <div className="h-20 flex items-center px-6 border-b border-slate-800 shrink-0">
-          <Link to="/" className="flex items-center">
-            <div className="h-12 w-40 rounded-2xl border border-slate-200/80 bg-white/95 px-2 shadow-sm ring-1 ring-black/5 overflow-hidden flex items-center justify-center">
-              <img src={logoUrl} alt="HACRO Labs" className="h-full w-full object-contain" />
-            </div>
+      <aside className={`${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 md:h-screen inset-y-0 left-0 z-50 w-72 bg-emerald-950 text-emerald-100 flex flex-col h-screen max-h-screen overflow-hidden transition-transform duration-300 ease-in-out`}>
+        <div className="h-20 flex items-center px-6 border-b border-emerald-800 shrink-0">
+            <Link to="/" className="flex items-center">
+            <img src={logoUrl} alt="HACRO Hub" className="h-12 object-contain" />
           </Link>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-5 md:pb-4">
-          <div className="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-emerald-600/5 to-transparent p-4 mb-6 shadow-sm">
+          <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-600/20 via-emerald-700/10 to-transparent p-4 mb-6 shadow-lg shadow-emerald-950/30">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold uppercase">
+              <div className="w-11 h-11 rounded-full bg-emerald-400 flex items-center justify-center text-emerald-950 font-semibold uppercase">
                 {displayName.charAt(0).toUpperCase()}
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">{displayName}</p>
-                <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-medium text-emerald-300">
+                <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-emerald-200">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   {isSuperAdmin ? 'Super Admin' : 'Admin'}
                 </div>
@@ -115,9 +111,9 @@ const AdminLayout = ({ children }) => {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMobileOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${active ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'hover:bg-emerald-500/10 hover:text-white'}`}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${active ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-emerald-100 hover:bg-emerald-500/10 hover:text-white'}`}
                 >
-                  <link.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-slate-400'}`} />
+                  <link.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-emerald-200'}`} />
                   {link.label}
                 </Link>
               );
@@ -125,8 +121,8 @@ const AdminLayout = ({ children }) => {
           </nav>
         </div>
 
-        <div className="p-6 border-t border-slate-800 shrink-0">
-          <button onClick={logout} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+        <div className="p-6 border-t border-emerald-800 shrink-0">
+          <button onClick={logout} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm shadow-emerald-900/40">
             <LogOut className="w-5 h-5" />
             Sign Out
           </button>
@@ -134,12 +130,10 @@ const AdminLayout = ({ children }) => {
       </aside>
 
       <main className="flex-1 flex flex-col min-h-screen overflow-hidden bg-transparent">
-        <header className="hidden md:flex h-16 bg-white/90 backdrop-blur border-b border-slate-200 items-center justify-between px-8 z-10">
+        <header className="hidden md:flex fixed top-0 md:left-72 left-0 right-0 h-16 bg-white/90 backdrop-blur border-b border-slate-200 items-center justify-between px-8 z-50">
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center">
-              <div className="w-32 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-slate-100 px-1">
-                <img src={logoUrl} alt="HACRO Labs" className="w-full h-full object-contain" />
-              </div>
+              <Link to="/" className="flex items-center">
+              <img src={logoUrl} alt="HACRO Hub" className="w-32 h-8 object-contain" />
             </Link>
             <div className="flex items-center gap-2 text-slate-700">
               <Sparkles className="h-4 w-4 text-emerald-500" />
@@ -150,7 +144,7 @@ const AdminLayout = ({ children }) => {
             <span className="hidden sm:inline-block">{currentAdmin?.email}</span>
           </div>
         </header>
-        <div className="flex-1 overflow-auto p-4 sm:p-8">
+        <div className="flex-1 overflow-auto p-4 sm:p-8 pt-16 md:pt-16">
           {children}
         </div>
       </main>

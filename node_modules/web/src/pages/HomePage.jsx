@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Users, Shield, TrendingUp, Award, ArrowRight } from 'lucide-react';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
@@ -16,14 +16,14 @@ const HERO_IMAGES = [
   '/images/IMG-0624.jpg',
 ];
 
-const HEADING = 'Harnessing Community on Resource‑based Outreach_ (HACRO) Labs';
+const HEADING = 'Harnessing Community on Resource-based Outreach_ (HACRO) Hub';
 
 const BENEFITS = [
   {
     icon: Shield,
     title: 'Community Financial Empowerment Protection',
     description:
-      'At HACRO Labs, we are reimagining the traditional chama spirit for the digital age, creating a robust financial safety net that is accessible to everyone. By leveraging modern technology, we provide a transparent, secure, and fully automated platform designed to bridge the gap in financial inclusion. We empower communities to pool resources collectively, access fair and responsible credit, and cultivate sustainable wealth.',
+      'At HACRO Hub, we are reimagining the traditional chama spirit for the digital age, creating a robust financial safety net that is accessible to everyone. By leveraging modern technology, we provide a transparent, secure, and fully automated platform designed to bridge the gap in financial inclusion. We empower communities to pool resources collectively, access fair and responsible credit, and cultivate sustainable wealth.',
     link: '/community-financial-empowerment',
   },
   {
@@ -54,7 +54,7 @@ const JOURNEY_ITEMS = [
     year: '2023',
     title: 'Where the Story Began',
     description:
-      'In 2023, a powerful collaboration emerged in Kisumu through the Youth Excel project. Ten organizations came together with one shared purpose: to unlock real opportunities for young people. At the first Data Summit, we brought lived experiences, hard evidence, and bold ideas to the table—and discovered that our work was stronger when connected. That moment sparked HACRO Labs: a place where solutions for financial access could be tested, refined, and scaled.',
+      'In 2023, a powerful collaboration emerged in Kisumu through the Youth Excel project. Ten organizations came together with one shared purpose: to unlock real opportunities for young people. At the first Data Summit, we brought lived experiences, hard evidence, and bold ideas to the tableâ€”and discovered that our work was stronger when connected. That moment sparked HACRO Hub: a place where solutions for financial access could be tested, refined, and scaled.',
     image: '/images/IMG-0487.jpg',
   },
   {
@@ -75,7 +75,7 @@ const JOURNEY_ITEMS = [
     year: '2026',
     title: 'A New Chapter of Possibility',
     description:
-      'Today, HACRO Labs stands as a registered non-profit and a growing force for change in Kisumu. We have moved from research into action, turning lessons learned into practical, youth-led financial solutions. Our story is still unfolding—and the best part is that it is being written by the very communities we serve.',
+      'Today, HACRO Hub stands as a registered non-profit and a growing force for change in Kisumu. We have moved from research into action, turning lessons learned into practical, youth-led financial solutions. Our story is still unfoldingâ€”and the best part is that it is being written by the very communities we serve.',
     image: '/images/IMG-0624.jpg',
   },
 ];
@@ -252,8 +252,8 @@ export default function HomePage() {
     <div className="relative min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
       <Header />
 
-      {/* Water droplet animation — fixed background */}
-      {/* ── Hero ── */}
+      {/* Water droplet animation â€” fixed background */}
+      {/* â”€â”€ Hero â”€â”€ */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden -mt-20 sm:-mt-24 pt-20 sm:pt-24">
         <HeroSlideshow />
 
@@ -274,7 +274,7 @@ export default function HomePage() {
               </h1>
             </div>
             <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-prose" style={{ minHeight: '7.5rem' }}>
-              HACRO Labs is a non-profit organization dedicated to fostering self-reliance and collective
+              HACRO Hub is a non-profit organization dedicated to fostering self-reliance and collective
               prosperity among our community members. By providing the digital tools, training, and resources
               necessary for growth, we empower our community members to turn their potential into scalable
               solutions, ensuring that every financial gain, community inclusion & diversity and agricultural harvest contributes to a more
@@ -301,7 +301,7 @@ export default function HomePage() {
         {HERO_IMAGES.length > 1 && <SlideDots />}
       </section>
 
-      {/* ── Our Journey ── */}
+      {/* â”€â”€ Our Journey â”€â”€ */}
       <section className="relative overflow-visible py-24 sm:py-28 lg:py-32 border-b border-emerald-200 bg-gradient-to-br from-emerald-50 via-emerald-100 to-white">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -left-10 top-6 h-40 w-40 rounded-full bg-emerald-300/30 blur-3xl" />
@@ -314,7 +314,7 @@ export default function HomePage() {
           <FadeIn className="text-center mb-12 lg:mb-16">
             <p className="text-sm uppercase tracking-[0.35em] text-green-700">Our Journey</p>
             <h2 className="mt-4 text-3xl md:text-4xl font-bold text-slate-900">A storyboard of hope, culture, and youth-powered growth</h2>
-            <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">HACRO Labs grew from a shared belief that dignity, opportunity, and collective progress can be built together. Each chapter feels like a page from a living story with bold ideas and meaningful impact.</p>
+            <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">HACRO Hub grew from a shared belief that dignity, opportunity, and collective progress can be built together. Each chapter feels like a page from a living story with bold ideas and meaningful impact.</p>
           </FadeIn>
 
           <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] items-stretch">
@@ -341,13 +341,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── How We Work ── */}
+      {/* â”€â”€ How We Work â”€â”€ */}
       <section className="py-24 sm:py-28 lg:py-32 bg-[#111111]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <FadeIn className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">How We Work</h2>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              At HACRO Labs, we believe that true empowerment is rooted in community. Our community membership model is
+              At HACRO Hub, we believe that true empowerment is rooted in community. Our community membership model is
               built on three core pillars designed to elevate every participant.
             </p>
           </FadeIn>
@@ -374,7 +374,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Team ── */}
+      {/* â”€â”€ Team â”€â”€ */}
       <section className="py-24 sm:py-28 lg:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <FadeIn className="text-center mb-12">
@@ -383,7 +383,7 @@ export default function HomePage() {
               A dedicated team supporting every community member
             </h2>
             <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
-              HACRO Labs staff deliver support, digital training, and community outreach so every member can thrive.
+              HACRO Hub staff deliver support, digital training, and community outreach so every member can thrive.
             </p>
           </FadeIn>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -418,7 +418,7 @@ export default function HomePage() {
                 <Users className="w-16 h-16 text-green-400 mx-auto mb-6" />
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to get started?</h2>
                 <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                  Join hundreds of community members who have empowered themselves, grown their skills, and uplifted others through HACRO Labs membership.
+                  Join hundreds of community members who have empowered themselves, grown their skills, and uplifted others through HACRO Hub membership.
                 </p>
                 <a
                   href="/register"

@@ -139,6 +139,30 @@ async function createCollectionIfMissing(collectionData) {
   return null;
 }
 
+async function addFieldIfMissing(collection, field) {
+  const existing = collection.schema.find((f) => f.name === field.name);
+  if (existing) return false;
+  collection.schema.push(field);
+  return true;
+}
+
+async function ensureCollectionFields(collectionName, fields) {
+  const collection = await getCollectionByName(collectionName);
+  if (!collection) return null;
+
+  let updated = false;
+  for (const field of fields) {
+    const added = await addFieldIfMissing(collection, field);
+    if (added) updated = true;
+  }
+
+  if (updated) {
+    await updateCollection(collection.id, { schema: collection.schema });
+  }
+
+  return collection;
+}
+
 async function ensureRelationField(collection, fieldName, targetCollectionId) {
   const field = collection.schema.find(f => f.name === fieldName && f.type === 'relation');
   if (!field || !field.options) return false;
@@ -206,7 +230,9 @@ async function main() {
     schema: [
       { name: 'full_name', type: 'text', required: true },
       { name: 'role', type: 'select', required: true, options: { values: ['admin', 'super_admin'] } },
-      { name: 'is_active', type: 'bool', required: true, options: { trueLabel: 'Active', falseLabel: 'Inactive' } }
+      { name: 'is_active', type: 'bool', required: true, options: { trueLabel: 'Active', falseLabel: 'Inactive' } },
+      { name: 'phone', type: 'text', required: false },
+      { name: 'payment_amount', type: 'number', required: false }
     ],
     options: {
       allowEmailAuth: true,
@@ -215,6 +241,14 @@ async function main() {
       requireEmail: true
     }
   });
+
+  await ensureCollectionFields('pbc_admins_auth', [
+    { name: 'full_name', type: 'text', required: false },
+    { name: 'role', type: 'select', required: false, options: { values: ['admin', 'super_admin', 'moderator'] } },
+    { name: 'is_active', type: 'bool', required: false, options: { trueLabel: 'Active', falseLabel: 'Inactive' } },
+    { name: 'phone', type: 'text', required: false },
+    { name: 'payment_amount', type: 'number', required: false }
+  ]);
 
   const groupsCollection = await createCollectionIfMissing({
     name: 'groups',
@@ -446,6 +480,20 @@ async function main() {
       { name: 'payment_date', type: 'date', required: false },
       { name: 'result_code', type: 'text', required: false },
       { name: 'result_desc', type: 'text', required: false }
+    ]
+  });
+
+  const companyTransactionsCollection = await createCollectionIfMissing({
+    name: 'company_transactions',
+    type: 'base',
+    schema: [
+      { name: 'transaction_type', type: 'select', required: true, options: { values: ['insurance_fee', 'registration_fee', 'donation', 'loan_interest', 'admin_payout', 'rent', 'other'] } },
+      { name: 'amount', type: 'number', required: true },
+      { name: 'member_id', type: 'text', required: false },
+      { name: 'description', type: 'text', required: false },
+      { name: 'date', type: 'date', required: true },
+      { name: 'payment_id', type: 'text', required: false },
+      { name: 'admin_id', type: 'relation', required: false, options: { collectionId: adminsCollection?.id || '', maxSelect: 1, minSelect: 0, cascadeDelete: false } }
     ]
   });
 

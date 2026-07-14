@@ -7,6 +7,11 @@ const SUPERUSER_PASSWORD = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.
 const pb = new PocketBase(baseUrl);
 const authPb = new PocketBase(baseUrl);
 
+export const POCKETBASE_URL = baseUrl;
+export function createPocketBaseClient() {
+  return new PocketBase(baseUrl);
+}
+
 const CI = process.env.CI === 'true' || process.env.CI === '1';
 const waitEnabledEnv = process.env.POCKETBASE_WAIT_ENABLED;
 const waitDisabledEnv = process.env.POCKETBASE_WAIT_DISABLED;
@@ -25,12 +30,19 @@ export const authenticateSuperuser = async () => {
     const needsAuth = !pb.authStore.isValid || !pb.authStore.isSuperuser;
     if (needsAuth) {
       try {
+        if (pb.authStore.isValid && !pb.authStore.isSuperuser) {
+          pb.authStore.clear();
+        }
         await pb.admins.authWithPassword(SUPERUSER_EMAIL, SUPERUSER_PASSWORD);
         console.log('Superuser authenticated successfully');
       } catch (error) {
         console.error('PocketBase superuser authentication failed:', error.message || error);
         try {
+          if (pb.authStore.isValid && !pb.authStore.isSuperuser) {
+            pb.authStore.clear();
+          }
           await pb.admins.authWithPassword(SUPERUSER_EMAIL, SUPERUSER_PASSWORD);
+          console.log('Superuser authenticated successfully on retry');
         } catch (retryError) {
           console.error('PocketBase superuser authentication retry failed:', retryError.message || retryError);
         }

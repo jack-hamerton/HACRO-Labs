@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Search, User, Wallet, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -42,7 +42,7 @@ const AdminMemberSearchPage = () => {
 
   return (
     <AdminLayout>
-      <Helmet><title>Member Search - Hacro Labs</title></Helmet>
+      <Helmet><title>Member Search - HACRO Hub</title></Helmet>
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Member Search</h2>
@@ -65,7 +65,7 @@ const AdminMemberSearchPage = () => {
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
           {loading ? (
-            <div className="py-10 text-center text-sm text-slate-500">Searching members…</div>
+            <div className="py-10 text-center text-sm text-slate-500">Searching membersâ€¦</div>
           ) : results.length === 0 ? (
             <div className="py-10 text-center text-sm text-slate-500">No members match your search yet.</div>
           ) : (
@@ -105,3 +105,4 @@ const AdminMemberSearchPage = () => {
 };
 
 export default AdminMemberSearchPage;
+

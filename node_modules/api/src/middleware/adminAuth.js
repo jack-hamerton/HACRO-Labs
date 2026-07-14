@@ -2,6 +2,7 @@ import pb, {
   authenticateSuperuser,
   SUPERUSER_EMAIL,
   SUPERUSER_PASSWORD,
+  createPocketBaseClient,
 } from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 
@@ -28,9 +29,10 @@ export async function verifyAdminToken(req, res, next) {
 
   const tryDirectAdminToken = async () => {
     try {
-      pb.authStore.save(token, null);
-      const authData = await pb.collection('pbc_admins_auth').authRefresh({ autoRefresh: false });
-      const admin = getActiveAdmin(authData?.record || pb.authStore.model);
+      const tokenClient = createPocketBaseClient();
+      tokenClient.authStore.save(token, null);
+      const authData = await tokenClient.collection('pbc_admins_auth').authRefresh({ autoRefresh: false });
+      const admin = getActiveAdmin(authData?.record || tokenClient.authStore.model);
       if (admin) {
         return admin;
       }

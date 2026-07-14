@@ -19,7 +19,7 @@ import { waitForPocketBase } from './utils/pocketbaseClient.js';
 
 const app = express();
 
-app.set('trust proxy', true);
+app.set('trust proxy', process.env.TRUST_PROXY || 'loopback');
 
 process.on('uncaughtException', (error) => {
 	logger.error('Uncaught exception:', error);
@@ -43,10 +43,28 @@ process.on('SIGTERM', async () => {
 	process.exit();
 });
 
+app.disable('x-powered-by');
 app.use(helmet());
 
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://127.0.0.1:3000')
+	.split(',')
+	.map((origin) => origin.trim().replace(/\/+$/, '').toLowerCase())
+	.filter(Boolean);
+
 const corsOptions = {
-	origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+	origin: (origin, callback) => {
+		if (!origin) {
+			return callback(null, true);
+		}
+
+		const normalizedOrigin = origin.trim().replace(/\/+$/, '').toLowerCase();
+		const isLocalOrigin = /^(http:\/\/localhost:\d+|http:\/\/127\.0\.0\.1:\d+)$/.test(normalizedOrigin);
+		if (allowedOrigins.includes(normalizedOrigin) || isLocalOrigin) {
+			return callback(null, true);
+		}
+
+		return callback(new Error('CORS policy: This origin is not allowed.'));
+	},
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],

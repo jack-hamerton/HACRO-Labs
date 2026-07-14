@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Wallet, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -61,7 +61,7 @@ const AdminLoanManagementPage = () => {
   return (
     <AdminLayout>
       <Helmet>
-        <title>Loan Management - Admin - Hacro Labs</title>
+        <title>Loan Management - Admin - HACRO Hub</title>
       </Helmet>
 
       <div className="max-w-7xl mx-auto w-full px-4 py-12">
@@ -142,3 +142,4 @@ const AdminLoanManagementPage = () => {
 };
 
 export default AdminLoanManagementPage;
+

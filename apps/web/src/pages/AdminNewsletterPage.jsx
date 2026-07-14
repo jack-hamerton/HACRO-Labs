@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Upload, FileText, Edit2, Trash2, CheckCircle, X, Eye } from 'lucide-react';
@@ -149,7 +149,7 @@ const AdminNewsletterPage = () => {
 
   return (
     <AdminLayout>
-      <Helmet><title>Newsletter Management - Hacro Labs</title></Helmet>
+      <Helmet><title>Newsletter Management - HACRO Hub</title></Helmet>
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
@@ -167,7 +167,7 @@ const AdminNewsletterPage = () => {
 
         <div className="grid grid-cols-1 gap-6">
           {loading ? (
-            <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-500">Loading newsletter items…</div>
+            <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-500">Loading newsletter itemsâ€¦</div>
           ) : newsletters.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-600">
               No newsletter items yet. Create one to publish updates.
@@ -264,7 +264,7 @@ const AdminNewsletterPage = () => {
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={() => { setShowModal(false); resetForm(); }} className="btn-outline">Cancel</button>
                 <button type="submit" disabled={uploading} className="btn-primary">
-                  {uploading ? 'Saving…' : editingItem ? 'Update' : 'Create'}
+                  {uploading ? 'Savingâ€¦' : editingItem ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>
@@ -303,3 +303,4 @@ const AdminNewsletterPage = () => {
 };
 
 export default AdminNewsletterPage;
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { CreditCard, PiggyBank, Wallet, Shield, DollarSign, Phone } from 'lucide-react';
 import { toast } from 'sonner';
@@ -163,7 +163,7 @@ const PaymentSelectionPage = () => {
   return (
     <>
       <Helmet>
-        <title>Make Payment - Hacro Labs</title>
+        <title>Make Payment - HACRO Hub</title>
         <meta name="description" content="Select payment type and make secure payments via M-Pesa." />
       </Helmet>
 
@@ -306,4 +306,5 @@ const PaymentSelectionPage = () => {
 };
 
 export default PaymentSelectionPage;
+
 

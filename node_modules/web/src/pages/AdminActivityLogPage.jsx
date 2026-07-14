@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Loader2, Activity, Search, Filter, Download } from 'lucide-react';
 import { toast } from 'sonner';
@@ -62,7 +62,7 @@ const AdminActivityLogPage = () => {
 
   return (
     <AdminLayout>
-      <Helmet><title>Activity Log - Hacro Labs</title></Helmet>
+      <Helmet><title>Activity Log - HACRO Hub</title></Helmet>
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -158,3 +158,4 @@ const AdminActivityLogPage = () => {
 };
 
 export default AdminActivityLogPage;
+

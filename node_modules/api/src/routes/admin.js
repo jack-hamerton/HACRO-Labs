@@ -1,10 +1,19 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import rateLimit from 'express-rate-limit';
 import pb, { authPb, authenticateSuperuser, SUPERUSER_EMAIL, SUPERUSER_PASSWORD } from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 import { generateToken, generatePassword, validatePassword } from '../utils/adminUtils.js';
 import { verifyAdminToken, requireSuperAdmin } from '../middleware/adminAuth.js';
+
+const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 8,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts, please try again later.' },
+});
 
 const router = express.Router();
 const logFile = path.resolve(path.join(process.cwd(), 'logs', 'api.log'));
@@ -14,7 +23,7 @@ function appendLog(...parts) { try { fs.appendFileSync(logFile, `[${new Date().t
  * POST /admin/login
  * Authenticate admin with email and password
  */
-router.post('/login', async (req, res) => {
+router.post('/login', authRateLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   // Validate input
@@ -53,24 +62,52 @@ router.post('/login', async (req, res) => {
     appendLog('[ADMIN LOGIN ERROR]', 'email=', email, 'error=', error.stack || error.message || error);
     console.error('[ADMIN LOGIN ERROR]', error);
 
-    // Increment failed attempts (disabled for development)
-    /*
-    // Increment failed attempts
-    if (attempts.length > 0) {
-      await pb.collection('admin_login_attempts').update(attempts[0].id, {
-        attempt_count: attempts[0].attempt_count + 1,
-      });
+    // If the account is the configured superuser email, try the built-in PocketBase admin login
+    if (email === SUPERUSER_EMAIL && SUPERUSER_PASSWORD) {
+      try {
+        await authPb.admins.authWithPassword(email, password);
+        await authenticateSuperuser();
+
+        const existingAdmins = await pb.collection('pbc_admins_auth').getFullList({
+          filter: `email = "${email}"`,
+          $autoCancel: false,
+        });
+
+        let adminRecord;
+        if (existingAdmins.length > 0) {
+          adminRecord = existingAdmins[0];
+          try {
+            await pb.collection('pbc_admins_auth').update(adminRecord.id, {
+              password,
+              passwordConfirm: password,
+            });
+          } catch (updateError) {
+            logger.warn(`Could not update pbc_admins_auth password for ${email}:`, updateError.message || updateError);
+          }
+        } else {
+          await authenticateSuperuser();
+          adminRecord = await pb.collection('pbc_admins_auth').create({
+            email,
+            password,
+            passwordConfirm: password,
+            full_name: 'Super Admin',
+            role: 'super_admin',
+            verified: true,
+          });
+        }
+
+        authData = await authPb.collection('pbc_admins_auth').authWithPassword(email, password);
+      } catch (adminFallbackError) {
+        logger.warn(`Superuser fallback auth failed for ${email}:`, adminFallbackError.message || adminFallbackError);
+        return res.status(401).json({
+          error: 'Invalid email or password',
+        });
+      }
     } else {
-      await pb.collection('admin_login_attempts').create({
-        email,
-        attempt_count: 1,
+      return res.status(401).json({
+        error: 'Invalid email or password',
       });
     }
-    */
-
-    return res.status(401).json({
-      error: 'Invalid email or password',
-    });
   }
 
   // Clear failed attempts on successful login (disabled for development)
@@ -212,6 +249,8 @@ router.get('/', verifyAdminToken, requireSuperAdmin, async (req, res) => {
       full_name: admin.full_name,
       role: admin.role,
       is_active: admin.is_active,
+      phone: admin.phone || null,
+      payment_amount: admin.payment_amount || null,
       permissions: admin.permissions || [],
       created: admin.created,
     })),
@@ -223,7 +262,7 @@ router.get('/', verifyAdminToken, requireSuperAdmin, async (req, res) => {
  * Register new admin (super-admin only)
  */
 router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) => {
-  const { full_name, email, role, password, is_active, permissions } = req.body;
+  const { full_name, email, role, password, is_active, permissions, phone, payment_amount } = req.body;
 
   // Validate input
   if (!full_name || !email || !role) {
@@ -276,6 +315,17 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
     role: assignedRole,
     is_active: is_active !== undefined ? is_active : true,
   };
+
+  if (phone) {
+    createData.phone = phone;
+  }
+
+  const parsedPayout = Number(payment_amount);
+  if (!Number.isNaN(parsedPayout) && parsedPayout > 0) {
+    createData.payment_amount = parsedPayout;
+  } else if (assignedRole === 'super_admin') {
+    createData.payment_amount = 30000;
+  }
 
   if (permissions !== undefined) {
     createData.permissions = typeof permissions === 'string' ? permissions : JSON.stringify(permissions);
@@ -521,10 +571,10 @@ router.get('/login-history', verifyAdminToken, async (req, res) => {
  */
 router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) => {
   const { adminId } = req.params;
-  const { full_name, email, role, is_active, password, permissions } = req.body;
+  const { full_name, email, role, is_active, password, permissions, phone, payment_amount } = req.body;
 
   // Validate input
-  if (!full_name && !email && !role && is_active === undefined) {
+  if (!full_name && !email && !role && is_active === undefined && phone === undefined && payment_amount === undefined) {
     return res.status(400).json({
       error: 'At least one field is required',
     });
@@ -558,6 +608,11 @@ router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) =>
   if (email) updateData.email = email;
   if (role) updateData.role = role;
   if (is_active !== undefined) updateData.is_active = is_active;
+  if (phone !== undefined) updateData.phone = phone;
+  if (payment_amount !== undefined) {
+    const parsedPayout = Number(payment_amount);
+    updateData.payment_amount = Number.isNaN(parsedPayout) ? 0 : parsedPayout;
+  }
   if (password) {
     updateData.password = password;
     updateData.passwordConfirm = password;
@@ -751,8 +806,6 @@ router.post('/reset-password', async (req, res) => {
  */
 router.get('/company-accounts', verifyAdminToken, async (req, res) => {
   try {
-    // Get all company transactions (assuming we have a company_transactions collection)
-    // If not, we'll aggregate from various sources
     let companyTransactions = [];
     try {
       companyTransactions = await pb.collection('company_transactions').getFullList({
@@ -760,60 +813,84 @@ router.get('/company-accounts', verifyAdminToken, async (req, res) => {
         $autoCancel: false
       });
     } catch (error) {
-      // If collection doesn't exist, we'll aggregate from other sources
       console.log('company_transactions collection not found, aggregating from other sources');
     }
 
-    // Aggregate registration fees
     const registrationPayments = await pb.collection('payments').getFullList({
       filter: '(payment_type = "registration" || payment_type = "registration_installment") && payment_status = "completed"',
       $autoCancel: false
     });
 
-    // Aggregate insurance fees
     const insurancePayments = await pb.collection('payments').getFullList({
       filter: 'payment_type = "insurance" && payment_status = "completed"',
       $autoCancel: false
     });
 
-    // Aggregate interest bonuses distributed to company
+    const completedDonations = await pb.collection('donations').getFullList({
+      filter: 'payment_status = "completed"',
+      $autoCancel: false
+    });
+
+    const loanRecords = await pb.collection('loans').getFullList({ $autoCancel: false });
     const companyInterestRecords = await pb.collection('contributions_history').getFullList({
       filter: 'type = "company_interest_bonus"',
       $autoCancel: false
     });
+    const allAdmins = await pb.collection('pbc_admins_auth').getFullList({ $autoCancel: false });
 
-    // Calculate totals
     const registrationTotal = registrationPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
     const insuranceTotal = insurancePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const donationTotal = completedDonations.reduce((sum, d) => sum + (d.amount || 0), 0);
     const interestTotal = companyInterestRecords.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const loanPrincipalTotal = loanRecords.reduce((sum, l) => sum + (l.amount || 0), 0);
 
-    // Get member transaction summary
+    const adminPayouts = allAdmins.map((admin) => {
+      const rawAmount = Number(admin.payment_amount);
+      const defaultAmount = admin.role === 'super_admin' ? 30000 : 0;
+      const payment_amount = Number.isFinite(rawAmount) && rawAmount > 0 ? rawAmount : defaultAmount;
+      return {
+        id: admin.id,
+        full_name: admin.full_name || `${admin.first_name || ''} ${admin.last_name || ''}`.trim() || admin.email,
+        email: admin.email,
+        phone: admin.phone || null,
+        role: admin.role,
+        is_active: admin.is_active !== false,
+        payment_amount,
+      };
+    });
+
+    const activeAdminPayouts = adminPayouts.filter((admin) => admin.is_active);
+    const totalAdminPayouts = activeAdminPayouts.reduce((sum, admin) => sum + admin.payment_amount, 0);
+    const rentPayment = 15000;
+    const totalRevenue = registrationTotal + insuranceTotal + interestTotal;
+    const totalIncome = totalRevenue + donationTotal;
+    const totalExpenses = totalAdminPayouts + rentPayment;
+    const companyRemaining = totalIncome - totalExpenses;
+    const adminPayoutDue = companyRemaining < 0 ? Math.abs(companyRemaining) : 0;
+
     const allMembers = await pb.collection('members').getFullList({ $autoCancel: false });
     const memberSummaries = [];
 
     for (const member of allMembers) {
       const memberId = member.id;
 
-      // Total savings contributions
       const savingsContributions = await pb.collection('contributions_history').getFullList({
         filter: `member_id = "${memberId}" && type = "savings_contribution"`,
         $autoCancel: false
       });
       const totalSavings = savingsContributions.reduce((sum, c) => sum + (c.amount || 0), 0);
 
-      // Total loan repayments
       const loanRepayments = await pb.collection('loan_repayments').getFullList({
         filter: `member_id = "${memberId}"`,
         $autoCancel: false
       });
       const totalRepayments = loanRepayments.reduce((sum, r) => sum + (r.amount || 0), 0);
 
-      // Total insurance payments
-      const insurancePayments = await pb.collection('payments').getFullList({
+      const memberInsurancePayments = await pb.collection('payments').getFullList({
         filter: `member_id = "${memberId}" && payment_type = "insurance" && payment_status = "completed"`,
         $autoCancel: false
       });
-      const totalInsurance = insurancePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+      const totalInsurance = memberInsurancePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
       memberSummaries.push({
         member_id: memberId,
@@ -825,35 +902,75 @@ router.get('/company-accounts', verifyAdminToken, async (req, res) => {
       });
     }
 
-    // Calculate overall totals
-    const totalRevenue = registrationTotal + insuranceTotal + interestTotal;
     const totalMemberContributions = memberSummaries.reduce((sum, m) => sum + m.total_contributions, 0);
+
+    const recentTransactions = companyTransactions && companyTransactions.length > 0
+      ? companyTransactions.slice(0, 50).map((t) => ({
+          id: t.id,
+          type: t.transaction_type,
+          amount: t.amount,
+          description: t.description,
+          member_id: t.member_id,
+          date: t.date
+        }))
+      : [
+          ...registrationPayments.map((p) => ({
+            id: `registration-${p.id}`,
+            type: 'registration',
+            amount: p.amount,
+            description: p.payment_type === 'registration_installment' ? 'Registration installment' : 'Registration fee',
+            member_id: p.member_id,
+            date: p.payment_date || p.created || null,
+          })),
+          ...insurancePayments.map((p) => ({
+            id: `insurance-${p.id}`,
+            type: 'insurance_fee',
+            amount: p.amount,
+            description: 'Insurance fee',
+            member_id: p.member_id,
+            date: p.payment_date || p.created || null,
+          })),
+          ...completedDonations.map((d) => ({
+            id: `donation-${d.id}`,
+            type: 'donation',
+            amount: d.amount,
+            description: d.purpose || 'Donation',
+            member_id: d.donor_phone || null,
+            date: d.payment_date || d.created || null,
+          })),
+        ]
+          .filter((tx) => tx.date)
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          .slice(0, 50);
 
     res.json({
       company_overview: {
         total_revenue: totalRevenue,
         registration_fees: registrationTotal,
         insurance_fees: insuranceTotal,
+        donation_total: donationTotal,
         interest_bonuses: interestTotal,
+        loan_principal_total: loanPrincipalTotal,
+        total_income: totalIncome,
+        total_expenses: totalExpenses,
+        admin_payouts: totalAdminPayouts,
+        rent_payment: rentPayment,
+        admin_payout_due: adminPayoutDue,
+        company_remaining: companyRemaining,
         total_member_contributions: totalMemberContributions,
-        net_position: totalRevenue - totalMemberContributions // This might be negative as expected
+        net_position: companyRemaining
       },
-      recent_transactions: companyTransactions.slice(0, 50).map(t => ({
-        id: t.id,
-        type: t.transaction_type,
-        amount: t.amount,
-        description: t.description,
-        member_id: t.member_id,
-        date: t.date
-      })),
+      recent_transactions: recentTransactions,
+      admin_payouts: adminPayouts,
       member_summaries: memberSummaries,
       transaction_breakdown: {
         by_type: {
           registration: registrationPayments.length,
           insurance: insurancePayments.length,
-          interest: companyInterestRecords.length
+          donations: completedDonations.length,
+          interest: companyInterestRecords.length,
         },
-        by_month: {} // Could be enhanced to show monthly breakdown
+        by_month: {}
       }
     });
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Send, Trash2, Loader2, ArrowLeft } from 'lucide-react';
@@ -96,7 +96,7 @@ const GroupMessaging = () => {
 
   return (
     <>
-      <Helmet><title>Group Chat - Hacro Labs</title></Helmet>
+      <Helmet><title>Group Chat - HACRO Hub</title></Helmet>
       <MemberPortalLayout title="Group Chat" subtitle="Collaborate with your group in real time.">
         <div className="max-w-4xl mx-auto w-full px-4 py-8 flex flex-col h-[calc(100vh-64px)]">
           <div className="flex items-center mb-6">
@@ -151,3 +151,4 @@ const GroupMessaging = () => {
 };
 
 export default GroupMessaging;
+
