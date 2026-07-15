@@ -51,7 +51,7 @@
     
     --radius: 1rem;
 
-    /* Chart Colors */
+                  
     --chart-1: 160 84% 39%;
     --chart-2: 32 95% 53%;
     --chart-3: 217 91% 60%;
@@ -91,7 +91,7 @@
     --popover-foreground: 210 40% 98%;
   }
 
-  /* Admin Dashboard Theme Isolation */
+                                   
   .admin-theme {
     --background: 210 40% 98%;
     --foreground: 222 47% 11%;

@@ -19,41 +19,62 @@ const router = express.Router();
 const logFile = path.resolve(path.join(process.cwd(), 'logs', 'api.log'));
 function appendLog(...parts) { try { fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${parts.join(' ')}\n`); } catch (e) {} }
 
-/**
- * POST /admin/login
- * Authenticate admin with email and password
- */
+ 
+
+                    
+
+                                             
+
+ 
 router.post('/login', authRateLimiter, async (req, res) => {
   const { email, password } = req.body;
 
-  // Validate input
+  
+
   if (!email || !password) {
     return res.status(400).json({
       error: 'Email and password are required',
     });
   }
 
-  // Check rate limiting (disabled for development)
-  /*
+  
+
+  
+
+                         
+
+                                                                     
+
+
+
+                                                                            
+
+                                                                                        
+
+     
+
+
+
+                        
+
+                                                              
+
+                                                              
+
+                                 
+
+                                                                                                     
+
+       
+
+   
+
+  
+
   const now = new Date();
-  const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
 
-  const attempts = await pb.collection('admin_login_attempts').getFullList({
-    filter: `email = "${email}" && created_date > "${fifteenMinutesAgo.toISOString()}"`,
-  });
+  
 
-  // Check if locked out
-  if (attempts.length > 0 && attempts[0].attempt_count >= 5) {
-    logger.warn(`Login attempt for locked account: ${email}`);
-    return res.status(429).json({
-      error: 'Account locked due to too many failed login attempts. Please try again in 15 minutes.',
-    });
-  }
-  */
-
-  const now = new Date();
-
-  // Attempt authentication
   let authData;
   try {
     authData = await authPb.collection('pbc_admins_auth').authWithPassword(email, password);
@@ -62,7 +83,8 @@ router.post('/login', authRateLimiter, async (req, res) => {
     appendLog('[ADMIN LOGIN ERROR]', 'email=', email, 'error=', error.stack || error.message || error);
     console.error('[ADMIN LOGIN ERROR]', error);
 
-    // If the account is the configured superuser email, try the built-in PocketBase admin login
+    
+
     if (email === SUPERUSER_EMAIL && SUPERUSER_PASSWORD) {
       try {
         await authPb.admins.authWithPassword(email, password);
@@ -110,21 +132,29 @@ router.post('/login', authRateLimiter, async (req, res) => {
     }
   }
 
-  // Clear failed attempts on successful login (disabled for development)
-  /*
-  // Clear failed attempts on successful login
-  if (attempts.length > 0) {
-    await pb.collection('admin_login_attempts').delete(attempts[0].id);
-  }
-  */
+  
 
-  // Generate session token
+  
+
+                                              
+
+                            
+
+                                                                       
+
+   
+
+  
+
+  
+
   const token = generateToken();
   const expiresDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
   const userAgent = req.get('user-agent') || 'unknown';
 
-  // Authenticate superuser for privileged operations and create a backend session if configured
+  
+
   let createdSession = false;
   if (SUPERUSER_EMAIL && SUPERUSER_PASSWORD) {
     try {
@@ -144,7 +174,8 @@ router.post('/login', authRateLimiter, async (req, res) => {
     logger.warn('POCKETBASE_SUPERUSER_EMAIL / POCKETBASE_ADMIN_EMAIL and POCKETBASE_SUPERUSER_PASSWORD / POCKETBASE_ADMIN_PASSWORD not configured; skipping admin session creation.');
   }
 
-  // Update last login if the field exists
+  
+
   try {
     await pb.collection('pbc_admins_auth').update(authData.record.id, {
       last_login: now.toISOString(),
@@ -153,7 +184,8 @@ router.post('/login', authRateLimiter, async (req, res) => {
     logger.warn(`Could not update last_login for admin ${authData.record.id}:`, error.response?.message || error.message || error);
   }
 
-  // Log activity
+  
+
   try {
     await pb.collection('admin_activity_log').create({
       admin_id: authData.record.id,
@@ -183,10 +215,13 @@ router.post('/login', authRateLimiter, async (req, res) => {
   });
 });
 
-/**
- * POST /admin/logout
- * Logout admin and delete session
- */
+ 
+
+                     
+
+                                  
+
+ 
 router.post('/logout', verifyAdminToken, async (req, res) => {
   const { token } = req.body;
 
@@ -207,7 +242,8 @@ router.post('/logout', verifyAdminToken, async (req, res) => {
         const adminId = sessions[0].admin_id;
         await pb.collection('admin_sessions').delete(sessions[0].id);
 
-        // Log activity
+        
+
         try {
           await pb.collection('admin_activity_log').create({
             admin_id: adminId,
@@ -232,10 +268,13 @@ router.post('/logout', verifyAdminToken, async (req, res) => {
   res.json({ success: true });
 });
 
-/**
- * GET /admin
- * List admins (super-admin only)
- */
+ 
+
+             
+
+                                 
+
+ 
 router.get('/', verifyAdminToken, requireSuperAdmin, async (req, res) => {
   const admins = await pb.collection('pbc_admins_auth').getFullList({
     sort: '-created',
@@ -257,21 +296,26 @@ router.get('/', verifyAdminToken, requireSuperAdmin, async (req, res) => {
   });
 });
 
-/**
- * POST /admin/register
- * Register new admin (super-admin only)
- */
+ 
+
+                       
+
+                                        
+
+ 
 router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) => {
   const { full_name, email, role, password, is_active, permissions, phone, payment_amount } = req.body;
 
-  // Validate input
+  
+
   if (!full_name || !email || !role) {
     return res.status(400).json({
       error: 'full_name, email, and role are required',
     });
   }
 
-  // Check if email belongs to a staff member - if so, make them super_admin
+  
+
   let assignedRole = role;
   try {
     const staffMembers = await pb.collection('staff_members').getFullList({
@@ -282,10 +326,12 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
       assignedRole = 'super_admin';
     }
   } catch (error) {
-    // Staff collection might not exist yet, continue with provided role
+    
+
   }
 
-  // Validate role
+  
+
   const validRoles = ['super_admin', 'admin', 'moderator'];
   if (!validRoles.includes(assignedRole)) {
     return res.status(400).json({
@@ -293,7 +339,8 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
     });
   }
 
-  // Check if email already exists
+  
+
   const existingAdmins = await pb.collection('pbc_admins_auth').getFullList({
     filter: `email = "${email}"`,
   });
@@ -304,7 +351,8 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
     });
   }
 
-  // Generate temporary password
+  
+
   const temporaryPassword = password || generatePassword();
 
   const createData = {
@@ -331,10 +379,12 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
     createData.permissions = typeof permissions === 'string' ? permissions : JSON.stringify(permissions);
   }
 
-  // Create admin
+  
+
   const newAdmin = await pb.collection('pbc_admins_auth').create(createData);
 
-  // Log activity
+  
+
   await pb.collection('admin_activity_log').create({
     admin_id: req.adminId,
     action: 'admin_added',
@@ -345,8 +395,10 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
 
   logger.info(`New admin registered: ${email} by ${req.adminId}`);
 
-  // Note: Email sending is handled by PocketBase hooks
-  // The temporary password should be sent via PocketBase email hook
+  
+
+  
+
 
   res.json({
     admin: {
@@ -359,21 +411,26 @@ router.post('/register', verifyAdminToken, requireSuperAdmin, async (req, res) =
   });
 });
 
-/**
- * POST /admin/change-password
- * Change admin password
- */
+ 
+
+                              
+
+                        
+
+ 
 router.post('/change-password', verifyAdminToken, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
-  // Validate input
+  
+
   if (!currentPassword || !newPassword) {
     return res.status(400).json({
       error: 'currentPassword and newPassword are required',
     });
   }
 
-  // Validate new password
+  
+
   const passwordValidation = validatePassword(newPassword);
   if (!passwordValidation.valid) {
     return res.status(400).json({
@@ -381,10 +438,12 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
     });
   }
 
-  // Get admin record
+  
+
   const admin = await pb.collection('pbc_admins_auth').getOne(req.adminId);
 
-  // Verify current password
+  
+
   try {
     await authPb.collection('pbc_admins_auth').authWithPassword(admin.email, currentPassword);
   } catch (error) {
@@ -394,13 +453,15 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
     });
   }
 
-  // Update password
+  
+
   await pb.collection('pbc_admins_auth').update(req.adminId, {
     password: newPassword,
     passwordConfirm: newPassword,
   });
 
-  // Log activity
+  
+
   await pb.collection('admin_activity_log').create({
     admin_id: req.adminId,
     action: 'password_changed',
@@ -413,10 +474,13 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
   res.json({ success: true });
 });
 
-/**
- * GET /admin/profile
- * Get current admin profile
- */
+ 
+
+                     
+
+                            
+
+ 
 router.get('/profile', verifyAdminToken, async (req, res) => {
   const admin = await pb.collection('pbc_admins_auth').getOne(req.adminId);
 
@@ -434,14 +498,18 @@ router.get('/profile', verifyAdminToken, async (req, res) => {
   });
 });
 
-/**
- * PUT /admin/profile
- * Update current admin profile
- */
+ 
+
+                     
+
+                               
+
+ 
 router.put('/profile', verifyAdminToken, async (req, res) => {
   const { full_name, phone } = req.body;
 
-  // Validate input
+  
+
   if (!full_name && !phone) {
     return res.status(400).json({
       error: 'At least one field (full_name or phone) is required',
@@ -452,10 +520,12 @@ router.put('/profile', verifyAdminToken, async (req, res) => {
   if (full_name) updateData.full_name = full_name;
   if (phone) updateData.phone = phone;
 
-  // Update admin
+  
+
   const updatedAdmin = await pb.collection('pbc_admins_auth').update(req.adminId, updateData);
 
-  // Log activity
+  
+
   await pb.collection('admin_activity_log').create({
     admin_id: req.adminId,
     action: 'admin_updated',
@@ -478,10 +548,13 @@ router.put('/profile', verifyAdminToken, async (req, res) => {
   });
 });
 
-/**
- * GET /admin/activity-log
- * Get admin activity log with filters
- */
+ 
+
+                          
+
+                                      
+
+ 
 router.get('/activity-log', verifyAdminToken, async (req, res) => {
   const { page = 1, limit = 20, action, startDate, endDate, adminId, search } = req.query;
 
@@ -489,7 +562,8 @@ router.get('/activity-log', verifyAdminToken, async (req, res) => {
   const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
   const offset = (pageNum - 1) * limitNum;
 
-  // Build filter
+  
+
   const filters = [];
 
   if (action) {
@@ -514,7 +588,8 @@ router.get('/activity-log', verifyAdminToken, async (req, res) => {
 
   const filterString = filters.length > 0 ? filters.join(' && ') : '';
 
-  // Fetch records
+  
+
   const records = await pb.collection('admin_activity_log').getFullList({
     filter: filterString,
     sort: '-created_date',
@@ -522,7 +597,8 @@ router.get('/activity-log', verifyAdminToken, async (req, res) => {
     take: limitNum,
   });
 
-  // Get total count
+  
+
   const allRecords = await pb.collection('admin_activity_log').getFullList({
     filter: filterString,
   });
@@ -545,10 +621,13 @@ router.get('/activity-log', verifyAdminToken, async (req, res) => {
   });
 });
 
-/**
- * GET /admin/login-history
- * Get login history for current admin
- */
+ 
+
+                           
+
+                                      
+
+ 
 router.get('/login-history', verifyAdminToken, async (req, res) => {
   const sessions = await pb.collection('admin_sessions').getFullList({
     filter: `admin_id = "${req.adminId}"`,
@@ -565,22 +644,27 @@ router.get('/login-history', verifyAdminToken, async (req, res) => {
   });
 });
 
-/**
- * PUT /admin/:adminId
- * Update admin (super-admin only)
- */
+ 
+
+                      
+
+                                  
+
+ 
 router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) => {
   const { adminId } = req.params;
   const { full_name, email, role, is_active, password, permissions, phone, payment_amount } = req.body;
 
-  // Validate input
+  
+
   if (!full_name && !email && !role && is_active === undefined && phone === undefined && payment_amount === undefined) {
     return res.status(400).json({
       error: 'At least one field is required',
     });
   }
 
-  // Validate role if provided
+  
+
   if (role) {
     const validRoles = ['super_admin', 'admin', 'moderator'];
     if (!validRoles.includes(role)) {
@@ -590,7 +674,8 @@ router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) =>
     }
   }
 
-  // Check if email already exists (if changing email)
+  
+
   if (email) {
     const existingAdmins = await pb.collection('pbc_admins_auth').getFullList({
       filter: `email = "${email}" && id != "${adminId}"`,
@@ -621,10 +706,12 @@ router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) =>
     updateData.permissions = typeof permissions === 'string' ? permissions : JSON.stringify(permissions);
   }
 
-  // Update admin
+  
+
   const updatedAdmin = await pb.collection('pbc_admins_auth').update(adminId, updateData);
 
-  // Log activity
+  
+
   await pb.collection('admin_activity_log').create({
     admin_id: req.adminId,
     action: 'admin_updated',
@@ -644,24 +731,30 @@ router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) =>
   });
 });
 
-/**
- * DELETE /admin/:adminId
- * Delete admin (super-admin only)
- */
+ 
+
+                         
+
+                                  
+
+ 
 router.delete('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) => {
   const { adminId } = req.params;
 
-  // Prevent deleting self
+  
+
   if (adminId === req.adminId) {
     return res.status(400).json({
       error: 'Cannot delete your own admin account',
     });
   }
 
-  // Get admin before deletion for logging
+  
+
   const admin = await pb.collection('pbc_admins_auth').getOne(adminId);
 
-  // Delete all sessions for this admin
+  
+
   const sessions = await pb.collection('admin_sessions').getFullList({
     filter: `admin_id = "${adminId}"`,
   });
@@ -670,10 +763,12 @@ router.delete('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res)
     await pb.collection('admin_sessions').delete(session.id);
   }
 
-  // Delete admin
+  
+
   await pb.collection('pbc_admins_auth').delete(adminId);
 
-  // Log activity
+  
+
   await pb.collection('admin_activity_log').create({
     admin_id: req.adminId,
     action: 'admin_deleted',
@@ -687,10 +782,13 @@ router.delete('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res)
   res.json({ success: true });
 });
 
-/**
- * POST /admin/forgot-password
- * Request password reset
- */
+ 
+
+                              
+
+                         
+
+ 
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
 
@@ -700,13 +798,15 @@ router.post('/forgot-password', async (req, res) => {
     });
   }
 
-  // Find admin by email
+  
+
   const admins = await pb.collection('pbc_admins_auth').getFullList({
     filter: `email = "${email}"`,
   });
 
   if (admins.length === 0) {
-    // Don't reveal if email exists
+    
+
     return res.json({
       message: 'If an account with this email exists, a password reset link has been sent',
     });
@@ -714,11 +814,14 @@ router.post('/forgot-password', async (req, res) => {
 
   const admin = admins[0];
 
-  // Generate reset token
-  const resetToken = generateToken();
-  const expiresDate = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  
 
-  // Create password reset record
+  const resetToken = generateToken();
+  const expiresDate = new Date(Date.now() + 60 * 60 * 1000); 
+
+
+  
+
   await pb.collection('admin_password_resets').create({
     admin_id: admin.id,
     token: resetToken,
@@ -727,18 +830,23 @@ router.post('/forgot-password', async (req, res) => {
 
   logger.info(`Password reset requested for: ${email}`);
 
-  // Note: Email sending is handled by PocketBase hooks
-  // The reset link should be sent via PocketBase email hook
+  
+
+  
+
 
   res.json({
     message: 'If an account with this email exists, a password reset link has been sent',
   });
 });
 
-/**
- * POST /admin/reset-password
- * Reset password with token
- */
+ 
+
+                             
+
+                            
+
+ 
 router.post('/reset-password', async (req, res) => {
   const { token, newPassword } = req.body;
 
@@ -748,7 +856,8 @@ router.post('/reset-password', async (req, res) => {
     });
   }
 
-  // Validate new password
+  
+
   const passwordValidation = validatePassword(newPassword);
   if (!passwordValidation.valid) {
     return res.status(400).json({
@@ -756,7 +865,8 @@ router.post('/reset-password', async (req, res) => {
     });
   }
 
-  // Find reset token
+  
+
   const resetRecords = await pb.collection('admin_password_resets').getFullList({
     filter: `token = "${token}"`,
   });
@@ -769,7 +879,8 @@ router.post('/reset-password', async (req, res) => {
 
   const resetRecord = resetRecords[0];
 
-  // Check if token is expired
+  
+
   if (new Date(resetRecord.expires_date) < new Date()) {
     await pb.collection('admin_password_resets').delete(resetRecord.id);
     return res.status(400).json({
@@ -779,16 +890,19 @@ router.post('/reset-password', async (req, res) => {
 
   const adminId = resetRecord.admin_id;
 
-  // Update password
+  
+
   await pb.collection('pbc_admins_auth').update(adminId, {
     password: newPassword,
     passwordConfirm: newPassword,
   });
 
-  // Delete reset token
+  
+
   await pb.collection('admin_password_resets').delete(resetRecord.id);
 
-  // Log activity
+  
+
   await pb.collection('admin_activity_log').create({
     admin_id: adminId,
     action: 'password_changed',
@@ -800,10 +914,13 @@ router.post('/reset-password', async (req, res) => {
   res.json({ success: true });
 });
 
-/**
- * GET /admin/company-accounts
- * Get company financial overview (admin only)
- */
+ 
+
+                              
+
+                                              
+
+ 
 router.get('/company-accounts', verifyAdminToken, async (req, res) => {
   try {
     let companyTransactions = [];
@@ -982,11 +1099,15 @@ router.get('/company-accounts', verifyAdminToken, async (req, res) => {
   }
 });
 
-/**
- * GET /admin/members/search
- * Search for members by name, email, phone, or ID
- * Query params: q (search query), limit (default 50)
- */
+ 
+
+                            
+
+                                                  
+
+                                                     
+
+ 
 router.get('/members/search', verifyAdminToken, async (req, res) => {
   try {
     const { q, limit = 50 } = req.query;
@@ -999,12 +1120,14 @@ router.get('/members/search', verifyAdminToken, async (req, res) => {
 
     const searchTerm = q.trim().toLowerCase();
 
-    // Search members by name, email, phone, or ID
+    
+
     const members = await pb.collection('members').getFullList({
       $autoCancel: false
     });
 
-    // Filter members based on search term
+    
+
     const filteredMembers = members.filter(member => {
       const firstName = (member.first_name || '').toLowerCase();
       const lastName = (member.last_name || '').toLowerCase();
@@ -1019,7 +1142,8 @@ router.get('/members/search', verifyAdminToken, async (req, res) => {
              id.includes(searchTerm);
     }).slice(0, limit);
 
-    // Get group info for each member
+    
+
     const membersWithGroups = await Promise.all(
       filteredMembers.map(async (member) => {
         try {
@@ -1064,18 +1188,23 @@ router.get('/members/search', verifyAdminToken, async (req, res) => {
   }
 });
 
-/**
- * GET /admin/members/:memberId/summary
- * Get complete member summary: profile, savings, loans, payments, contributions
- */
+ 
+
+                                       
+
+                                                                                
+
+ 
 router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
   try {
     const { memberId } = req.params;
 
-    // Get member profile
+    
+
     const member = await pb.collection('members').getOne(memberId, { $autoCancel: false });
 
-    // Get member's group
+    
+
     let groupInfo = null;
     try {
       const groupMember = await pb.collection('group_members').getFirstListItem(
@@ -1084,10 +1213,12 @@ router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
       );
       groupInfo = groupMember.expand?.group_id || null;
     } catch (e) {
-      // Member not in a group
+      
+
     }
 
-    // Get all savings
+    
+
     const savings = await pb.collection('savings').getFullList({
       filter: `member_id="${memberId}"`,
       sort: '-date',
@@ -1096,7 +1227,8 @@ router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
 
     const totalSavings = savings.reduce((sum, s) => sum + s.amount, 0);
 
-    // Get all loans
+    
+
     const loans = await pb.collection('loans').getFullList({
       filter: `member_id="${memberId}"`,
       sort: '-created',
@@ -1114,7 +1246,8 @@ router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
 
     const totalLoansBorrowed = loans.reduce((sum, l) => sum + l.amount, 0);
 
-    // Get loan repayments
+    
+
     const repayments = await pb.collection('loan_repayments').getFullList({
       filter: `member_id="${memberId}"`,
       sort: '-date',
@@ -1123,14 +1256,16 @@ router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
 
     const totalRepaid = repayments.reduce((sum, r) => sum + r.amount, 0);
 
-    // Get all payments (donations + member payments)
+    
+
     const payments = await pb.collection('payments').getFullList({
       filter: `member_id="${memberId}"`,
       sort: '-payment_date',
       $autoCancel: false
     });
 
-    // Get contribution history
+    
+
     const contributionHistory = await pb.collection('contributions_history').getFullList({
       filter: `member_id="${memberId}"`,
       sort: '-date',
@@ -1150,7 +1285,8 @@ router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
       }))
     };
 
-    // Group payments by type
+    
+
     payments.forEach(p => {
       if (!paymentsSummary.by_type[p.payment_type]) {
         paymentsSummary.by_type[p.payment_type] = { count: 0, total: 0 };
@@ -1161,7 +1297,8 @@ router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
       }
     });
 
-    // Get donations (if any)
+    
+
     let donationsSummary = { total_donated: 0, donations: [] };
     try {
       const donations = await pb.collection('donations').getFullList({
@@ -1182,7 +1319,8 @@ router.get('/members/:memberId/summary', verifyAdminToken, async (req, res) => {
         }))
       };
     } catch (e) {
-      // Donations collection might not exist
+      
+
     }
 
     res.json({

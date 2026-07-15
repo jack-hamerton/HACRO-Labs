@@ -41,7 +41,7 @@ const AdminLoginPage = () => {
     <>
       <Helmet><title>Admin Login - HACRO Hub</title></Helmet>
       <div className="min-h-screen flex items-center justify-center bg-slate-900 admin-theme px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Decorative background pattern */}
+        {                               }
         <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-screen" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
         
         <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-2xl relative z-10">

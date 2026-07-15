@@ -1,7 +1,10 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordAfterCreateSuccess((e) => {
-  // Monthly insurance and maintenance fee collection automation
-  // This runs when a payment is created with payment_type = 'insurance'
+  
+
+  
+
 
   const paymentRecord = e.record;
   const paymentType = paymentRecord.get("payment_type");
@@ -9,7 +12,8 @@ onRecordAfterCreateSuccess((e) => {
   const memberId = paymentRecord.get("member_id");
   const amount = paymentRecord.get("amount");
 
-  // Only process insurance payments that are completed
+  
+
   if (paymentType !== "insurance" || paymentStatus !== "completed") {
     e.next();
     return;
@@ -21,7 +25,8 @@ onRecordAfterCreateSuccess((e) => {
   }
 
   try {
-    // Get member details
+    
+
     const member = $app.findRecordById("members", memberId);
     if (!member) {
       console.log("Member not found for insurance payment:", memberId);
@@ -29,7 +34,8 @@ onRecordAfterCreateSuccess((e) => {
       return;
     }
 
-    // Create company account transaction record
+    
+
     const companyTransaction = new Record("company_transactions");
     companyTransaction.set("transaction_type", "insurance_fee");
     companyTransaction.set("amount", amount);
@@ -39,7 +45,8 @@ onRecordAfterCreateSuccess((e) => {
     companyTransaction.set("payment_id", paymentRecord.id);
     $app.save(companyTransaction);
 
-    // Create contribution history for tracking
+    
+
     const contributionHistory = new Record("contributions_history");
     contributionHistory.set("member_id", memberId);
     contributionHistory.set("group_id", member.get("group_id"));
@@ -47,10 +54,12 @@ onRecordAfterCreateSuccess((e) => {
     contributionHistory.set("amount", amount);
     contributionHistory.set("date", new Date().toISOString());
     contributionHistory.set("description", "Monthly insurance and maintenance fee");
-    contributionHistory.set("balance", 0); // Company account balance tracking would be separate
+    contributionHistory.set("balance", 0); 
+
     $app.save(contributionHistory);
 
-    // Notify member of successful insurance payment
+    
+
     const notification = new Record("notifications");
     notification.set("member_id", memberId);
     notification.set("type", "insurance_payment");

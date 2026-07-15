@@ -3,7 +3,8 @@ import pb, { authenticateSuperuser } from '../utils/pocketbaseClient.js';
 
 const router = Router();
 
-// Create a conference (admin/superuser only)
+
+
 router.post('/', async (req, res, next) => {
   try {
     await authenticateSuperuser();
@@ -15,7 +16,8 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// Add member to conference (admin or owner)
+
+
 router.post('/:id/members', async (req, res, next) => {
   try {
     await authenticateSuperuser();
@@ -28,7 +30,8 @@ router.post('/:id/members', async (req, res, next) => {
   }
 });
 
-// Check membership
+
+
 router.get('/:id/members/:memberId', async (req, res, next) => {
   try {
     const { id, memberId } = req.params;

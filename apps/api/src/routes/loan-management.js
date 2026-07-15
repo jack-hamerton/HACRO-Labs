@@ -5,10 +5,13 @@ import { verifyAdminToken } from '../middleware/adminAuth.js';
 
 const router = express.Router();
 
-/**
- * GET /admin/loans
- * Get all loans with filtering and pagination
- */
+ 
+
+                   
+
+                                              
+
+ 
 router.get('/loans', verifyAdminToken, async (req, res) => {
   const {
     page = 1,
@@ -26,7 +29,8 @@ router.get('/loans', verifyAdminToken, async (req, res) => {
   const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
   const offset = (pageNum - 1) * limitNum;
 
-  // Build filter
+  
+
   const filters = [];
 
   if (status) {
@@ -60,7 +64,8 @@ router.get('/loans', verifyAdminToken, async (req, res) => {
   const filterString = filters.length > 0 ? filters.join(' && ') : '';
 
   try {
-    // Fetch loans with member and group info
+    
+
     const loans = await pb.collection('loans').getFullList({
       filter: filterString,
       sort: '-created_date',
@@ -69,7 +74,8 @@ router.get('/loans', verifyAdminToken, async (req, res) => {
       expand: 'member_id,group_id'
     });
 
-    // Get total count
+    
+
     const allLoans = await pb.collection('loans').getFullList({
       filter: filterString,
     });
@@ -101,10 +107,13 @@ router.get('/loans', verifyAdminToken, async (req, res) => {
   }
 });
 
-/**
- * PUT /admin/loans/:loanId/status
- * Update loan status (approve, disburse, reject)
- */
+ 
+
+                                  
+
+                                                 
+
+ 
 router.put('/loans/:loanId/status', verifyAdminToken, async (req, res) => {
   const { loanId } = req.params;
   const { status, notes } = req.body;
@@ -121,14 +130,16 @@ router.put('/loans/:loanId/status', verifyAdminToken, async (req, res) => {
   }
 
   try {
-    // Get current loan
+    
+
     const loan = await pb.collection('loans').getOne(loanId);
 
     if (!loan) {
       return res.status(404).json({ error: 'Loan not found' });
     }
 
-    // Validate status transition
+    
+
     const currentStatus = loan.status;
     const validTransitions = {
       'pending': ['approved', 'rejected', 'cancelled'],
@@ -146,7 +157,8 @@ router.put('/loans/:loanId/status', verifyAdminToken, async (req, res) => {
       });
     }
 
-    // Update loan status
+    
+
     const updateData = { status };
 
     if (status === 'active') {
@@ -155,7 +167,8 @@ router.put('/loans/:loanId/status', verifyAdminToken, async (req, res) => {
 
     const updatedLoan = await pb.collection('loans').update(loanId, updateData);
 
-    // Log admin activity
+    
+
     await pb.collection('admin_activity_log').create({
       admin_id: req.adminId,
       action: 'loan_status_updated',
@@ -164,7 +177,8 @@ router.put('/loans/:loanId/status', verifyAdminToken, async (req, res) => {
       user_agent: req.get('user-agent') || 'unknown',
     });
 
-    // If disbursing loan, create disbursement record
+    
+
     if (status === 'active') {
       await pb.collection('contributions_history').create({
         member_id: loan.member_id,
@@ -193,10 +207,13 @@ router.put('/loans/:loanId/status', verifyAdminToken, async (req, res) => {
   }
 });
 
-/**
- * GET /admin/loans/:loanId/approvals
- * Get loan approvals for a specific loan
- */
+ 
+
+                                     
+
+                                         
+
+ 
 router.get('/loans/:loanId/approvals', verifyAdminToken, async (req, res) => {
   const { loanId } = req.params;
 
@@ -225,27 +242,34 @@ router.get('/loans/:loanId/approvals', verifyAdminToken, async (req, res) => {
   }
 });
 
-/**
- * GET /admin/dashboard/stats
- * Get dashboard statistics
- */
+ 
+
+                             
+
+                           
+
+ 
 router.get('/dashboard/stats', verifyAdminToken, async (req, res) => {
   try {
-    // Get loan statistics
+    
+
     const allLoans = await pb.collection('loans').getFullList();
     const activeLoans = allLoans.filter(l => l.status === 'active');
     const totalLoanAmount = allLoans.reduce((sum, l) => sum + (l.amount || 0), 0);
     const totalOutstanding = activeLoans.reduce((sum, l) => sum + (l.balance || l.amount || 0), 0);
 
-    // Get savings statistics
+    
+
     const allSavings = await pb.collection('savings').getFullList();
     const totalSavings = allSavings.reduce((sum, s) => sum + (s.total_savings || 0), 0);
 
-    // Get member statistics
+    
+
     const allMembers = await pb.collection('members').getFullList();
     const activeMembers = allMembers.filter(m => m.status === 'active');
 
-    // Get recent activities (last 30 days)
+    
+
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const recentLoans = allLoans.filter(l => l.created >= thirtyDaysAgo);
     const recentContributions = await pb.collection('savings_contributions').getFullList({
@@ -285,10 +309,13 @@ router.get('/dashboard/stats', verifyAdminToken, async (req, res) => {
   }
 });
 
-/**
- * POST /admin/automations/trigger
- * Manually trigger specific automations (for testing/debugging)
- */
+ 
+
+                                  
+
+                                                                
+
+ 
 router.post('/automations/trigger', verifyAdminToken, async (req, res) => {
   const { automation_type } = req.body;
 
@@ -301,7 +328,8 @@ router.post('/automations/trigger', verifyAdminToken, async (req, res) => {
 
     switch (automation_type) {
       case 'overdue_check':
-        // Trigger overdue loan check
+        
+
         const today = new Date();
         const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
@@ -332,7 +360,8 @@ router.post('/automations/trigger', verifyAdminToken, async (req, res) => {
           if (isOverdue) {
             const penaltyAmount = Math.max(loanBalance * 0.01, 100);
 
-            // Check if penalty already applied today
+            
+
             const todayStr = today.toISOString().split('T')[0];
             const existingPenalties = await pb.collection('penalties').getFullList({
               filter: `member_id = "${memberId}" && loan_id = "${loan.id}" && created_date >= "${todayStr}"`
@@ -347,7 +376,8 @@ router.post('/automations/trigger', verifyAdminToken, async (req, res) => {
                 type: 'automatic',
               });
 
-              // Update loan balance
+              
+
               await pb.collection('loans').update(loan.id, {
                 balance: loanBalance + penaltyAmount
               });
@@ -361,7 +391,8 @@ router.post('/automations/trigger', verifyAdminToken, async (req, res) => {
         break;
 
       case 'interest_distribution':
-        // Trigger interest distribution
+        
+
         const allSavings = await pb.collection('savings').getFullList();
         let totalSavings = 0;
         let totalInterest = 0;
@@ -407,7 +438,8 @@ router.post('/automations/trigger', verifyAdminToken, async (req, res) => {
         return res.status(400).json({ error: 'Invalid automation_type' });
     }
 
-    // Log admin activity
+    
+
     await pb.collection('admin_activity_log').create({
       admin_id: req.adminId,
       action: 'automation_triggered',

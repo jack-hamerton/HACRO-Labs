@@ -6,10 +6,13 @@ import pb, {
 } from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 
-/**
- * Middleware to verify admin token from Authorization header
- * Sets req.adminId and req.adminRole on success
- */
+ 
+
+                                                             
+
+                                                
+
+ 
 export async function verifyAdminToken(req, res, next) {
   const authHeader = req.get('Authorization');
 
@@ -37,7 +40,8 @@ export async function verifyAdminToken(req, res, next) {
         return admin;
       }
     } catch (error) {
-      // Direct admin token validation failed, fallback to session lookup.
+      
+
     }
     return null;
   };
@@ -108,10 +112,13 @@ export async function verifyAdminToken(req, res, next) {
   }
 }
 
-/**
- * Middleware to require super_admin role
- * Must be used after verifyAdminToken
- */
+ 
+
+                                         
+
+                                      
+
+ 
 export function requireSuperAdmin(req, res, next) {
   if (req.adminRole !== 'super_admin' && req.adminRole !== 'admin') {
     logger.warn(`Unauthorized access attempt by ${req.adminEmail} (role: ${req.adminRole})`);

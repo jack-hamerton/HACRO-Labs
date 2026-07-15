@@ -21,7 +21,8 @@ const GroupMessaging = () => {
     
     pb.collection('messages').subscribe('*', function (e) {
       if (e.action === 'create' && e.record.group_id === groupId) {
-        // Fetch expanded member info for the new message
+        
+
         pb.collection('messages').getOne(e.record.id, { expand: 'member_id', $autoCancel: false })
           .then(expandedMsg => {
             setMessages(prev => [...prev, expandedMsg]);

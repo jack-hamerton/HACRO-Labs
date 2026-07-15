@@ -78,7 +78,7 @@ const AdminProfilePage = () => {
       <Helmet><title>Admin Profile - HACRO Hub</title></Helmet>
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Column: Forms */}
+        {                    }
         <div className="lg:col-span-1 space-y-8">
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
@@ -126,7 +126,7 @@ const AdminProfilePage = () => {
           </div>
         </div>
 
-        {/* Right Column: History & Logs */}
+        {                              }
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex items-center gap-3">

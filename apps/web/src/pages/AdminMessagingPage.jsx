@@ -14,10 +14,12 @@ const AdminMessagingPage = () => {
 
   useEffect(() => {
     fetchMessages();
-    // subscribe to messages updates if PB available
+    
+
     if (pb.collection) {
       const unsub = pb.collection('messages').subscribe('*', (e) => {
-        // simple refresh on change
+        
+
         fetchMessages();
       });
       return () => {

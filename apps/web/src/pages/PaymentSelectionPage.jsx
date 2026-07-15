@@ -28,7 +28,8 @@ const PaymentSelectionPage = () => {
       setMember(memberData);
       setPhoneNumber(memberData.phone_number || '');
 
-      // Fetch active loans for repayment option
+      
+
       const loans = await pb.collection('loans').getFullList({
         filter: `member_id="${currentUser.id}" && (status="active" || status="partially_paid")`,
         $autoCancel: false
@@ -79,11 +80,13 @@ const PaymentSelectionPage = () => {
     setSelectedLoan('');
     setAmount('');
 
-    // Set default amounts for fixed fees
+    
+
     if (type === 'insurance') {
       setAmount('150');
     } else if (type === 'registration') {
-      setAmount('500'); // Assuming registration fee
+      setAmount('500'); 
+
     }
   };
 
@@ -116,10 +119,12 @@ const PaymentSelectionPage = () => {
         paymentData.loan_id = selectedLoan;
       }
 
-      // Create payment record
+      
+
       const payment = await pb.collection('payments').create(paymentData, { $autoCancel: false });
 
-      // Trigger M-Pesa STK push via API
+      
+
       const stkResponse = await fetch('/api/mpesa/stk-push', {
         method: 'POST',
         headers: {
@@ -138,7 +143,8 @@ const PaymentSelectionPage = () => {
 
       const stkData = await stkResponse.json();
 
-      // Update payment with STK details
+      
+
       await pb.collection('payments').update(payment.id, {
         checkout_request_id: stkData.CheckoutRequestID,
         mpesa_reference: stkData.ResponseCode
@@ -146,7 +152,8 @@ const PaymentSelectionPage = () => {
 
       toast.success('M-Pesa payment prompt sent to your phone. Please complete the payment.');
 
-      // Reset form
+      
+
       setSelectedPaymentType('');
       setSelectedLoan('');
       setAmount('');
@@ -175,7 +182,7 @@ const PaymentSelectionPage = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Payment Type Selection */}
+            {                        }
             <div className="space-y-6">
               <div>
                 <h2 className="text-xl font-semibold text-foreground mb-4">Select Payment Type</h2>
@@ -208,7 +215,7 @@ const PaymentSelectionPage = () => {
               </div>
             </div>
 
-            {/* Payment Form */}
+            {              }
             <div className="dashboard-card">
               <h2 className="text-xl font-semibold text-foreground mb-6">Payment Details</h2>
 

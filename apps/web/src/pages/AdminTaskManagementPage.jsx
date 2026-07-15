@@ -29,7 +29,8 @@ const AdminTaskManagementPage = () => {
       const data = await res.json();
       setAdmins(Array.isArray(data.admins) ? data.admins : []);
     } catch (err) {
-      // fallback to empty
+      
+
       setAdmins([]);
     }
   };
@@ -37,7 +38,8 @@ const AdminTaskManagementPage = () => {
   const fetchTasks = async () => {
     setLoading(true);
     try {
-      // Try PocketBase collection 'tasks' if available
+      
+
       if (pb.collection) {
         try {
           const recs = await pb.collection('tasks').getFullList({ sort: 'order' });
@@ -45,10 +47,12 @@ const AdminTaskManagementPage = () => {
           setLoading(false);
           return;
         } catch (err) {
-          // collection may not exist
+          
+
         }
       }
-      // Fallback: local placeholder
+      
+
       setTasks([
         { id: 'local-1', title: 'Review membership applications' },
         { id: 'local-2', title: 'Follow up with donors' },
@@ -67,7 +71,8 @@ const AdminTaskManagementPage = () => {
     const [item] = copy.splice(index, 1);
     copy.splice(to, 0, item);
     setTasks(copy);
-    // If PB available, persist order
+    
+
     try {
       if (item.raw && pb.collection) {
         for (let i = 0; i < copy.length; i++) {
@@ -219,7 +224,7 @@ const AdminTaskManagementPage = () => {
           )}
         </div>
 
-        {/* Analytics summary for superadmin */}
+        {                                  }
         {isSuperAdmin && (
           <div className="mt-6 rounded-lg border border-white/10 p-4 bg-white/3">
             <h3 className="text-lg font-semibold mb-3">Per-admin task completion</h3>
@@ -268,7 +273,7 @@ const AdminTaskManagementPage = () => {
           </div>
         )}
 
-        {/* CSV export helper (client-side) */}
+        {                                 }
         {false && <div />}
       </div>
     </AdminLayout>

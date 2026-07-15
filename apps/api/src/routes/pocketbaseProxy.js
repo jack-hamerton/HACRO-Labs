@@ -54,7 +54,8 @@ router.use(async (req, res, next) => {
 
     proxyResponse.headers.forEach((value, name) => {
       if (name.toLowerCase() === 'transfer-encoding') return;
-      // Ensure Set-Cookie is appended instead of replaced
+      
+
       if (name.toLowerCase() === 'set-cookie') {
         const existing = res.getHeader('Set-Cookie');
         if (existing) {

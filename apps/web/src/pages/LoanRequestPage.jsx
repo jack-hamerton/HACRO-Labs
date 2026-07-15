@@ -12,7 +12,8 @@ const LoanRequestPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [loanType, setLoanType] = useState(null); // IL or GIL
+  const [loanType, setLoanType] = useState(null); 
+
   const [eligibility, setEligibility] = useState({ isEligible: false, reason: '', savingsBalance: 0, eligibleForIL: false, eligibleForGIL: true });
   const [groupData, setGroupData] = useState(null);
   const [groupMembers, setGroupMembers] = useState([]);
@@ -21,9 +22,12 @@ const LoanRequestPage = () => {
   const [formData, setFormData] = useState({
     amount: '',
     purpose: '',
-    loanType: 'IL', // Default to IL
-    repaymentPeriod: '2_months', // Default to 2 months
-    selectedGuarantors: {}, // { memberId: collateralAmount }
+    loanType: 'IL', 
+
+    repaymentPeriod: '2_months', 
+
+    selectedGuarantors: {}, 
+
   });
 
   useEffect(() => {
@@ -32,14 +36,16 @@ const LoanRequestPage = () => {
 
   const checkEligibility = async () => {
     try {
-      // 1. Get Group and all group members
+      
+
       const memberGroup = await pb.collection('group_members').getFirstListItem(`member_id="${currentUser.id}"`, {
         expand: 'group_id',
         $autoCancel: false
       });
       setGroupData(memberGroup.expand.group_id);
 
-      // 2. Get all group members with their savings
+      
+
       const allGroupMembers = await pb.collection('group_members').getFullList({
         filter: `group_id="${memberGroup.group_id}"`,
         expand: 'member_id',
@@ -47,7 +53,8 @@ const LoanRequestPage = () => {
       });
       setGroupMembers(allGroupMembers);
 
-      // Get savings balance for each group member
+      
+
       const balances = {};
       for (const gm of allGroupMembers) {
         const savings = await pb.collection('savings').getFullList({
@@ -58,7 +65,8 @@ const LoanRequestPage = () => {
       }
       setMemberBalances(balances);
 
-      // 3. Get current user's savings
+      
+
       const userSavings = await pb.collection('savings').getFullList({
         filter: `member_id="${currentUser.id}"`,
         sort: 'date',
@@ -73,13 +81,15 @@ const LoanRequestPage = () => {
           reason: 'You must have savings to request a loan.', 
           savingsBalance: 0,
           eligibleForIL: false,
-          eligibleForGIL: true // Can request GIL immediately with guarantors
+          eligibleForGIL: true 
+
         });
         setLoading(false);
         return;
       }
 
-      // Check 3 months rule (for IL)
+      
+
       const earliestDate = new Date(userSavings[0].date);
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
@@ -96,7 +106,8 @@ const LoanRequestPage = () => {
         reason: isEligibleForIL ? '' : `You will be eligible for Individual Loans on ${new Date(earliestDate.getTime() + 3*30*24*60*60*1000).toLocaleDateString()}.`, 
         savingsBalance: userBalance,
         eligibleForIL: isEligibleForIL,
-        eligibleForGIL: true // Always eligible for GIL with group guarantors
+        eligibleForGIL: true 
+
       });
 
     } catch (error) {
@@ -117,12 +128,16 @@ const LoanRequestPage = () => {
       return;
     }
 
-    // Calculate interest based on repayment period
+    
+
     const getInterestRate = (period) => {
       switch (period) {
-        case '2_months': return 2; // 2%
-        case '4_months': return 4; // 4%
-        case '6_months': return 6; // 6%
+        case '2_months': return 2; 
+
+        case '4_months': return 4; 
+
+        case '6_months': return 6; 
+
         default: return 2;
       }
     };
@@ -130,15 +145,18 @@ const LoanRequestPage = () => {
     const interestRate = getInterestRate(formData.repaymentPeriod);
     const interest = amount * (interestRate / 100);
 
-    // Type-specific validation
+    
+
     if (loanType === 'IL') {
-      // Individual Loan: amount + interest â‰¤ user's savings
+      
+
       if (amount + interest > eligibility.savingsBalance) {
         toast.error(`Loan amount + ${interestRate}% interest (${(amount + interest).toLocaleString()}) cannot exceed your savings (${eligibility.savingsBalance.toLocaleString()})`);
         return;
       }
     } else if (loanType === 'GIL') {
-      // Group Individual Loan: amount = user's savings + guarantors' collateral
+      
+
       const selectedGuarantorsArray = Object.entries(formData.selectedGuarantors)
         .filter(([_, amt]) => amt && parseFloat(amt) > 0)
         .map(([id, amt]) => ({ memberId: id, amount: parseFloat(amt) }));
@@ -151,7 +169,8 @@ const LoanRequestPage = () => {
       const guarantorTotal = selectedGuarantorsArray.reduce((sum, g) => sum + g.amount, 0);
       const totalCollateral = eligibility.savingsBalance + guarantorTotal;
 
-      if (Math.abs(amount - totalCollateral) > 0.01) { // Allow small floating-point differences
+      if (Math.abs(amount - totalCollateral) > 0.01) { 
+
         toast.error(`Loan amount (${amount.toLocaleString()}) must equal your savings (${eligibility.savingsBalance.toLocaleString()}) + guarantors' collateral (${guarantorTotal.toLocaleString()})`);
         return;
       }
@@ -185,7 +204,8 @@ const LoanRequestPage = () => {
       const repaymentStart = new Date();
       repaymentStart.setMonth(repaymentStart.getMonth() + 2);
 
-      // 1. Create Loan Record
+      
+
       const loanData = {
         member_id: currentUser.id,
         group_id: groupData.id,
@@ -203,7 +223,8 @@ const LoanRequestPage = () => {
       const loan = await pb.collection('loans').create(loanData, { $autoCancel: false });
 
       if (loanType === 'IL') {
-        // For IL: Create approvals for all group members (they vote)
+        
+
         const allGroupMembers = await pb.collection('group_members').getFullList({
           filter: `group_id="${groupData.id}"`,
           $autoCancel: false
@@ -220,7 +241,8 @@ const LoanRequestPage = () => {
 
         await Promise.all(approvalPromises);
       } else if (loanType === 'GIL') {
-        // For GIL: Create guarantor records
+        
+
         const selectedGuarantorsArray = Object.entries(formData.selectedGuarantors)
           .filter(([_, amt]) => amt && parseFloat(amt) > 0)
           .map(([id, amt]) => ({ memberId: id, amount: parseFloat(amt) }));
@@ -236,7 +258,8 @@ const LoanRequestPage = () => {
 
         await Promise.all(guarantorPromises);
 
-        // Also create approval records for guarantors to confirm amounts
+        
+
         const approvalPromises = selectedGuarantorsArray.map(g =>
           pb.collection('loan_approvals').create({
             loan_id: loan.id,
@@ -289,9 +312,10 @@ const LoanRequestPage = () => {
           </div>
 
           {!loanType ? (
-            // Loan Type Selection
+            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Individual Loan Option */}
+              {                        }
               <button
                 onClick={() => setLoanType('IL')}
                 disabled={!eligibility.eligibleForIL}
@@ -325,7 +349,7 @@ const LoanRequestPage = () => {
                 )}
               </button>
 
-              {/* Group Individual Loaning Option */}
+              {                                 }
               <button
                 onClick={() => setLoanType('GIL')}
                 disabled={!eligibility.eligibleForGIL}
@@ -355,7 +379,8 @@ const LoanRequestPage = () => {
               </button>
             </div>
           ) : loanType === 'IL' && !eligibility.eligibleForIL ? (
-            // IL Not Eligible
+            
+
             <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-8 text-center">
               <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-foreground mb-2">Not Eligible for Individual Loan</h2>
@@ -372,7 +397,8 @@ const LoanRequestPage = () => {
               </button>
             </div>
           ) : (
-            // Loan Form (IL or GIL)
+            
+
             <>
               <div className="mb-8">
                 <button
@@ -466,7 +492,8 @@ const LoanRequestPage = () => {
                     </p>
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {groupMembers
-                        .filter(gm => gm.member_id !== currentUser.id) // Exclude self
+                        .filter(gm => gm.member_id !== currentUser.id) 
+
                         .map((member) => (
                           <div key={member.id} className="flex items-end gap-3 p-3 bg-muted/50 rounded-lg">
                             <div className="flex-1">

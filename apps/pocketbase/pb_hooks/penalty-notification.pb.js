@@ -1,6 +1,8 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordAfterCreateSuccess((e) => {
-  // When a penalty is created, notify the member
+  
+
   const penaltyRecord = e.record;
   const memberId = penaltyRecord.get("member_id");
   

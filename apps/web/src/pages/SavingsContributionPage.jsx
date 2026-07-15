@@ -57,13 +57,15 @@ const SavingsContributionPage = () => {
       return;
     }
 
-    // Check minimum daily savings (100 KSH)
+    
+
     if (amount < 100) {
       toast.error('Minimum daily savings contribution is 100 KSH');
       return;
     }
 
-    // Check monthly minimum (1000 KSH) - get current month's contributions
+    
+
     try {
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -82,14 +84,16 @@ const SavingsContributionPage = () => {
       }
     } catch (error) {
       console.error('Error checking monthly savings:', error);
-      // Continue with submission if check fails
+      
+
     }
 
     setSubmitting(true);
     try {
       const dateStr = new Date().toISOString();
       
-      // 1. Create savings record
+      
+
       await pb.collection('savings').create({
         member_id: currentUser.id,
         group_id: groupData.id,
@@ -98,7 +102,8 @@ const SavingsContributionPage = () => {
         description: formData.description
       }, { $autoCancel: false });
 
-      // 2. Create contribution history record
+      
+
       await pb.collection('contributions_history').create({
         member_id: currentUser.id,
         group_id: groupData.id,

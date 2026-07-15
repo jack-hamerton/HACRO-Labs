@@ -16,16 +16,20 @@ const memberLoginLimiter = rateLimit({
   message: { error: 'Too many login attempts, please try again later.' },
 });
 
-/**
- * POST /members/login
- * Authenticate member with email or phone number and password
- */
+ 
+
+                      
+
+                                                              
+
+ 
 router.post('/login', memberLoginLimiter, async (req, res) => {
   const { email, identity, password } = req.body;
   const loginField = identity ?? email;
   const rawIdentity = String(loginField || '').trim();
 
-  // Validate input
+  
+
   if (!rawIdentity || !password) {
     return res.status(400).json({
       error: 'Email/phone and password are required',
@@ -36,7 +40,8 @@ router.post('/login', memberLoginLimiter, async (req, res) => {
   const isPhone = /^\+?[0-9]{9,15}$/.test(normalizedIdentity);
   const loginIdentity = isPhone ? normalizedIdentity.replace(/^\+/, '') : normalizedIdentity;
 
-  // Attempt authentication
+  
+
   let authData;
   try {
     if (isPhone) {
@@ -58,44 +63,69 @@ router.post('/login', memberLoginLimiter, async (req, res) => {
     });
   }
 
-  // Check rate limiting (disabled for development)
-  /*
+  
+
+  
+
+                         
+
+                                                                     
+
+
+
+                                                                             
+
+                                                                                                
+
+     
+
+
+
+                        
+
+                                                              
+
+                                                                      
+
+                                 
+
+                                                                                                     
+
+       
+
+   
+
+  
+
   const now = new Date();
-  const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
 
-  const attempts = await pb.collection('member_login_attempts').getFullList({
-    filter: `email = "${loginIdentity}" && created_date > "${fifteenMinutesAgo.toISOString()}"`,
-  });
+  
 
-  // Check if locked out
-  if (attempts.length > 0 && attempts[0].attempt_count >= 5) {
-    logger.warn(`Login attempt for locked account: ${loginIdentity}`);
-    return res.status(429).json({
-      error: 'Account locked due to too many failed login attempts. Please try again in 15 minutes.',
-    });
-  }
-  */
+  
 
-  const now = new Date();
+                                              
 
-  // Clear failed attempts on successful login (disabled for development)
-  /*
-  // Clear failed attempts on successful login
-  if (attempts.length > 0) {
-    await pb.collection('member_login_attempts').delete(attempts[0].id);
-  }
-  */
+                            
 
-  // Generate session token
+                                                                        
+
+   
+
+  
+
+  
+
   const token = generateToken();
   const expiresDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
   const userAgent = req.get('user-agent') || 'unknown';
 
-  // Authenticate superuser for privileged operations
+  
+
   await authenticateSuperuser();
 
-  // Create session
+  
+
   await pb.collection('member_sessions').create({
     member_id: authData.record.id,
     token,
@@ -104,7 +134,8 @@ router.post('/login', memberLoginLimiter, async (req, res) => {
     user_agent: userAgent,
   });
 
-  // Update last login if the field exists
+  
+
   try {
     await pb.collection('members').update(authData.record.id, {
       last_login: now.toISOString(),
@@ -113,9 +144,11 @@ router.post('/login', memberLoginLimiter, async (req, res) => {
     logger.warn(`Could not update last_login for member ${authData.record.id}:`, error.response?.message || error.message || error);
   }
 
-  // Log activity
+  
+
   await pb.collection('admin_activity_log').create({
-    admin_id: null, // No admin ID for member login
+    admin_id: null, 
+
     action: 'member_login',
     details: `Member ${authData.record.email} logged in`,
     ip_address: ipAddress,
@@ -138,15 +171,20 @@ router.post('/login', memberLoginLimiter, async (req, res) => {
   });
 });
 
-/**
- * POST /members/logout
- * Logout member and delete session
- */
+ 
+
+                       
+
+                                   
+
+ 
 router.post('/logout', verifyMemberToken, async (req, res) => {
-  // Authenticate superuser for privileged operations
+  
+
   await authenticateSuperuser();
 
-  // Find and delete session
+  
+
   const sessions = await pb.collection('member_sessions').getFullList({
     filter: `member_id = "${req.memberId}"`,
   });
@@ -154,7 +192,8 @@ router.post('/logout', verifyMemberToken, async (req, res) => {
   if (sessions.length > 0) {
     await pb.collection('member_sessions').delete(sessions[0].id);
 
-    // Log activity
+    
+
     await pb.collection('admin_activity_log').create({
       admin_id: null,
       action: 'member_logout',
@@ -169,10 +208,13 @@ router.post('/logout', verifyMemberToken, async (req, res) => {
   res.json({ success: true });
 });
 
-/**
- * GET /members/profile
- * Get current member profile
- */
+ 
+
+                       
+
+                             
+
+ 
 router.get('/profile', verifyMemberToken, async (req, res) => {
   try {
     const member = req.member;
@@ -198,5 +240,6 @@ router.get('/profile', verifyMemberToken, async (req, res) => {
 
 export default router;
 
-// mount password routes
+
+
 router.use('/password', membersPassword);

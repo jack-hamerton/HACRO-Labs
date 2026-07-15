@@ -108,7 +108,7 @@ const Header = () => {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-16">
 
-          {/* LOGO — seamless image */}
+          {                       }
           <Link to="/" className="flex items-center gap-3">
             {logoUrl ? (
               <img src={logoUrl} alt="HACRO Hub" className="h-9 sm:h-10 object-contain" />
@@ -117,7 +117,7 @@ const Header = () => {
             )}
           </Link>
 
-          {/* Header: logo (left) and nav + controls (right). Nav hidden on small screens, shown in mobile menu */}
+          {                                                                                                   }
           <div className="flex items-center justify-between w-full">
             <div />
             <div className="flex items-center gap-3">
@@ -186,7 +186,7 @@ const Header = () => {
                 </div>
               )}
 
-              {/* MOBILE HAMBURGER */}
+              {                  }
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors duration-200 text-primary"
@@ -197,7 +197,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* MOBILE MENU */}
+        {             }
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">

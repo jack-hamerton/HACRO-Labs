@@ -72,7 +72,8 @@ const AdminManagementPage = () => {
         const parsed = JSON.parse(value);
         if (Array.isArray(parsed)) return parsed;
       } catch {
-        // ignore and fall back to split
+        
+
       }
       return value.split(',').map((item) => item.trim()).filter(Boolean);
     }

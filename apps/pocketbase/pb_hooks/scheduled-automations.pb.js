@@ -1,11 +1,13 @@
 cronAdd("check_overdue_loans", "0 9 * * *", () => {
-  // Daily check for overdue loans with new grace period and default rules
+  
+
   console.log("Running daily overdue loan check...");
 
   try {
     const today = new Date();
 
-    // Find all active loans
+    
+
     const activeLoans = $app.findRecordsByFilter("loans", "status = 'active'", { limit: 10000 });
 
     activeLoans.forEach((loan) => {
@@ -17,34 +19,42 @@ cronAdd("check_overdue_loans", "0 9 * * *", () => {
       const loanBalance = loan.get("balance") || 0;
 
       if (!disbursementDate) {
-        return; // Loan not disbursed yet
+        return; 
+
       }
 
       const disbursementDateObj = new Date(disbursementDate);
       const daysSinceDisbursement = Math.floor((today - disbursementDateObj) / (1000 * 60 * 60 * 24));
 
-      // Skip if within 1 month grace period (30 days)
+      
+
       if (daysSinceDisbursement <= 30) {
         return;
       }
 
-      // Check if loan is overdue (more than 30 days since disbursement)
+      
+
       let isOverdue = false;
       let daysOverdue = 0;
 
       if (!lastPaymentDate) {
-        // No payments made
-        daysOverdue = daysSinceDisbursement - 30; // Subtract grace period
+        
+
+        daysOverdue = daysSinceDisbursement - 30; 
+
         isOverdue = daysOverdue > 0;
       } else {
-        // Check last payment
+        
+
         const lastPaymentDateObj = new Date(lastPaymentDate);
         daysOverdue = Math.floor((today - lastPaymentDateObj) / (1000 * 60 * 60 * 24));
-        isOverdue = daysOverdue > 30; // More than 30 days since last payment
+        isOverdue = daysOverdue > 30; 
+
       }
 
       if (isOverdue) {
-        // Check if we've already notified the group
+        
+
         const existingNotifications = $app.findRecordsByFilter(
           "notifications",
           "member_id = '" + memberId + "' && type = 'loan_overdue' && created_date >= '" + disbursementDate + "'",
@@ -53,15 +63,18 @@ cronAdd("check_overdue_loans", "0 9 * * *", () => {
 
         const notificationDays = existingNotifications.length;
 
-        if (notificationDays < 60) { // Notify for up to 60 days (2 months)
-          // Send overdue notification to group
+        if (notificationDays < 60) { 
+
+          
+
           const groupId = loan.get("group_id");
           const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", { limit: 1000 });
 
           groupMembers.forEach((gm) => {
             const gmMemberId = gm.get("member_id");
 
-            // Skip the borrower
+            
+
             if (gmMemberId === memberId) {
               return;
             }
@@ -75,7 +88,8 @@ cronAdd("check_overdue_loans", "0 9 * * *", () => {
             $app.save(overdueNotification);
           });
 
-          // Also notify the borrower
+          
+
           const borrowerNotification = new Record("notifications");
           borrowerNotification.set("member_id", memberId);
           borrowerNotification.set("type", "loan_overdue");
@@ -85,7 +99,8 @@ cronAdd("check_overdue_loans", "0 9 * * *", () => {
           $app.save(borrowerNotification);
 
         } else {
-          // After 60 days of notifications, apply default penalties
+          
+
           handleLoanDefault(loan, memberId, loanBalance, loanType);
         }
       }
@@ -101,14 +116,16 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
     console.log(`Processing default for loan ${loan.id}, member ${memberId}, balance ${loanBalance}`);
 
     if (loanType === "IL") {
-      // For IL loans, take from member's savings and bonuses
+      
+
       const memberSavings = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
       let availableSavings = 0;
       if (memberSavings.length > 0) {
         availableSavings = memberSavings[0].get("total_savings") || 0;
       }
 
-      // Calculate bonuses
+      
+
       const bonusesEarned = $app.findRecordsByFilter("contributions_history",
         "member_id = '" + memberId + "' && type = 'interest_earned'", { limit: 1000 });
       let totalBonuses = 0;
@@ -119,15 +136,18 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
       const totalAvailable = availableSavings + totalBonuses;
       const amountToRecover = Math.min(loanBalance, totalAvailable);
 
-      // Deduct from savings first
+      
+
       if (availableSavings >= amountToRecover) {
         memberSavings[0].set("total_savings", availableSavings - amountToRecover);
         $app.save(memberSavings[0]);
       } else {
-        // Use all savings and remaining from bonuses (conceptually)
+        
+
         memberSavings[0].set("total_savings", 0);
         $app.save(memberSavings[0]);
-        // Note: Bonuses would be handled separately in a real system
+        
+
       }
 
       const remainingBalanceAfterRecovery = loanBalance - amountToRecover;
@@ -135,7 +155,8 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
         ? deductGroupInterestPenalty(loan, remainingBalanceAfterRecovery, memberId)
         : 0;
 
-      // Create default recovery record
+      
+
       const defaultHistory = new Record("contributions_history");
       defaultHistory.set("member_id", memberId);
       defaultHistory.set("group_id", loan.get("group_id"));
@@ -146,12 +167,14 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
       defaultHistory.set("balance", availableSavings - amountToRecover);
       $app.save(defaultHistory);
 
-      // Update loan status
+      
+
       loan.set("status", "defaulted");
       loan.set("balance", Math.max(0, remainingBalanceAfterGroupPenalty));
       $app.save(loan);
 
-      // Notify member
+      
+
       const defaultNotification = new Record("notifications");
       defaultNotification.set("member_id", memberId);
       defaultNotification.set("type", "loan_default");
@@ -167,7 +190,8 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
       $app.save(defaultNotification);
 
     } else if (loanType === "GIL") {
-      // For GIL loans, first use the borrower's savings to recover the loan.
+      
+
       const borrowerSavingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
       let borrowerSavings = 0;
       if (borrowerSavingsRecords.length > 0) {
@@ -358,11 +382,13 @@ function deductGroupInterestPenalty(loan, remainingBalance, borrowerId) {
 }
 
 cronAdd("monthly_interest_distribution", "0 10 1 * *", () => {
-  // Monthly interest distribution on the 1st of each month at 10 AM
+  
+
   console.log("Running monthly interest distribution...");
 
   try {
-    // Get all savings records
+    
+
     const allSavings = $app.findRecordsByFilter("savings", "", { limit: 10000 });
 
     let totalSavings = 0;
@@ -372,22 +398,26 @@ cronAdd("monthly_interest_distribution", "0 10 1 * *", () => {
       totalSavings += savings.get("total_savings") || 0;
     });
 
-    // Calculate total interest earned (assume 8% annual interest)
+    
+
     const monthlyInterestRate = 0.08 / 12;
     totalInterest = totalSavings * monthlyInterestRate;
 
     if (totalInterest > 0 && totalSavings > 0) {
-      // Distribute interest proportionally to savers
+      
+
       allSavings.forEach((savings) => {
         const memberSavings = savings.get("total_savings") || 0;
         const memberInterest = (memberSavings / totalSavings) * totalInterest;
 
         if (memberInterest > 0) {
-          // Update savings balance
+          
+
           savings.set("total_savings", memberSavings + memberInterest);
           $app.save(savings);
 
-          // Create interest history record
+          
+
           const interestHistory = new Record("contributions_history");
           interestHistory.set("member_id", savings.get("member_id"));
           interestHistory.set("group_id", savings.get("group_id"));
@@ -398,7 +428,8 @@ cronAdd("monthly_interest_distribution", "0 10 1 * *", () => {
           interestHistory.set("balance", memberSavings + memberInterest);
           $app.save(interestHistory);
 
-          // Notify member about interest earned
+          
+
           const interestNotification = new Record("notifications");
           interestNotification.set("member_id", savings.get("member_id"));
           interestNotification.set("type", "interest");
@@ -418,7 +449,8 @@ cronAdd("monthly_interest_distribution", "0 10 1 * *", () => {
 });
 
 cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
-  // Monthly check for unpaid insurance fees - deduct from savings after 12 months
+  
+
   console.log("Running monthly insurance fee deduction check...");
 
   try {
@@ -426,14 +458,16 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(today.getMonth() - 12);
 
-    // Find all members
+    
+
     const allMembers = $app.findRecordsByFilter("members", "", { limit: 10000 });
 
     allMembers.forEach((member) => {
       const memberId = member.id;
       const memberName = `${member.get("first_name")} ${member.get("last_name")}`;
 
-      // Check insurance payments in the last 12 months
+      
+
       const recentInsurancePayments = $app.findRecordsByFilter(
         "payments",
         `member_id = '${memberId}' && payment_type = 'insurance' && payment_status = 'completed' && created >= '${twelveMonthsAgo.toISOString()}'`,
@@ -441,7 +475,8 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
       );
 
       if (recentInsurancePayments.length === 0) {
-        // No insurance payments in the last 12 months - deduct from savings
+        
+
         const memberSavings = $app.findRecordsByFilter("savings", `member_id = '${memberId}'`, { limit: 10000 });
         let totalSavings = 0;
 
@@ -449,15 +484,18 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
           totalSavings += saving.get("amount") || 0;
         });
 
-        // Assume insurance fee is 150 KSH per month for 12 months = 1800 KSH
+        
+
         const insuranceFee = 1800;
 
         if (totalSavings >= insuranceFee) {
-          // Deduct from savings
+          
+
           let remainingDeduction = insuranceFee;
           const updatedSavings = [];
 
-          // Sort savings by date (oldest first)
+          
+
           memberSavings.sort((a, b) => new Date(a.get("date")) - new Date(b.get("date")));
 
           for (const saving of memberSavings) {
@@ -471,7 +509,8 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
               $app.save(saving);
               remainingDeduction -= deduction;
 
-              // Create deduction history
+              
+
               const deductionHistory = new Record("contributions_history");
               deductionHistory.set("member_id", memberId);
               deductionHistory.set("group_id", member.get("group_id"));
@@ -484,7 +523,8 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
             }
           }
 
-          // Create company transaction record
+          
+
           const companyTransaction = new Record("company_transactions");
           companyTransaction.set("transaction_type", "insurance_fee_deduction");
           companyTransaction.set("amount", insuranceFee);
@@ -493,7 +533,8 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
           companyTransaction.set("date", new Date().toISOString());
           $app.save(companyTransaction);
 
-          // Notify member
+          
+
           const notification = new Record("notifications");
           notification.set("member_id", memberId);
           notification.set("type", "insurance_fee_deduction");
@@ -504,7 +545,8 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
 
           console.log(`Deducted ${insuranceFee} KSH insurance fee from savings of member ${memberId}`);
         } else {
-          // Insufficient savings - notify member
+          
+
           const notification = new Record("notifications");
           notification.set("member_id", memberId);
           notification.set("type", "insurance_fee_overdue");
@@ -524,7 +566,8 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
 });
 
 cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
-  // Monthly check for members who haven't taken loans in 12 months - deduct 40% of bonuses
+  
+
   console.log("Running monthly bonus deduction check for non-loan takers...");
 
   try {
@@ -532,13 +575,15 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(today.getMonth() - 12);
 
-    // Find all members
+    
+
     const allMembers = $app.findRecordsByFilter("members", "", { limit: 10000 });
 
     allMembers.forEach((member) => {
       const memberId = member.id;
 
-      // Check if member has taken any loans in the last 12 months
+      
+
       const recentLoans = $app.findRecordsByFilter(
         "loans",
         `member_id = '${memberId}' && created >= '${twelveMonthsAgo.toISOString()}'`,
@@ -546,7 +591,8 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
       );
 
       if (recentLoans.length === 0) {
-        // No loans in 12 months - deduct 40% of bonuses and redistribute
+        
+
         const memberBonuses = $app.findRecordsByFilter(
           "contributions_history",
           `member_id = '${memberId}' && type = 'bonus' && created >= '${twelveMonthsAgo.toISOString()}'`,
@@ -559,9 +605,11 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
         });
 
         if (totalBonuses > 0) {
-          const deductionAmount = totalBonuses * 0.4; // 40% deduction
+          const deductionAmount = totalBonuses * 0.4; 
 
-          // Find members who took loans in the last 12 months
+
+          
+
           const loanTakers = [];
           allMembers.forEach((m) => {
             if (m.id !== memberId) {
@@ -577,12 +625,16 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
           });
 
           if (loanTakers.length > 0) {
-            const bonusPerLoanTaker = (deductionAmount * 0.5) / loanTakers.length; // 50% goes to loan takers
-            const companyBonus = deductionAmount * 0.1; // 10% to company
+            const bonusPerLoanTaker = (deductionAmount * 0.5) / loanTakers.length; 
 
-            // Distribute to loan takers
+            const companyBonus = deductionAmount * 0.1; 
+
+
+            
+
             loanTakers.forEach((loanTaker) => {
-              // Add bonus to their contributions history
+              
+
               const bonusHistory = new Record("contributions_history");
               bonusHistory.set("member_id", loanTaker.id);
               bonusHistory.set("group_id", loanTaker.get("group_id"));
@@ -590,10 +642,12 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
               bonusHistory.set("amount", bonusPerLoanTaker);
               bonusHistory.set("date", new Date().toISOString());
               bonusHistory.set("description", "Bonus redistribution from non-loan takers");
-              bonusHistory.set("balance", 0); // Would need to calculate actual balance
+              bonusHistory.set("balance", 0); 
+
               $app.save(bonusHistory);
 
-              // Notify loan taker
+              
+
               const notification = new Record("notifications");
               notification.set("member_id", loanTaker.id);
               notification.set("type", "bonus_received");
@@ -603,7 +657,8 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
               $app.save(notification);
             });
 
-            // Company gets 10%
+            
+
             const companyTransaction = new Record("company_transactions");
             companyTransaction.set("transaction_type", "bonus_redistribution");
             companyTransaction.set("amount", companyBonus);
@@ -612,7 +667,8 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
             companyTransaction.set("date", new Date().toISOString());
             $app.save(companyTransaction);
 
-            // Notify the member whose bonus was deducted
+            
+
             const deductionNotification = new Record("notifications");
             deductionNotification.set("member_id", memberId);
             deductionNotification.set("type", "bonus_deducted");

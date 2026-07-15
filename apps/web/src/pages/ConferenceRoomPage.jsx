@@ -17,8 +17,10 @@ const ConferenceRoomPage = () => {
   const [broadcast, setBroadcast] = useState({visible:false, message:''});
 
   useEffect(() => {
-    // TODO: fetch conference data from backend and verify group membership
-    // Placeholder sample data
+    
+
+    
+
     setParticipants([
       {id:'p1', name:'Alice', role:'Leader', muted:false, videoOff:false},
       {id:'p2', name:'Bob', role:'Member', muted:true, videoOff:true},
@@ -32,7 +34,8 @@ const ConferenceRoomPage = () => {
   };
 
   const handleReassign = (participantId, roomId) => {
-    // move participant between rooms
+    
+
     setRooms(prev => prev.map(r => ({...r, participants: r.participants.filter(p => p.id !== participantId)})));
     setRooms(prev => prev.map(r => r.id === roomId ? {...r, participants: [...r.participants, {id:participantId, name:participantId}]} : r));
   };

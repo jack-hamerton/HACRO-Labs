@@ -9,12 +9,16 @@ const MPESA_STK_QUERY_URL = 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/q
 let cachedAccessToken = null;
 let tokenExpiryTime = null;
 
-/**
- * Get M-Pesa access token
- * @returns {Promise<string>} Access token
- */
+ 
+
+                          
+
+                                          
+
+ 
 export async function getAccessToken() {
-  // Return cached token if still valid
+  
+
   if (cachedAccessToken && tokenExpiryTime && Date.now() < tokenExpiryTime) {
     return cachedAccessToken;
   }
@@ -36,7 +40,8 @@ export async function getAccessToken() {
     });
 
     cachedAccessToken = response.data.access_token;
-    // Cache token for 55 minutes (expires in 60 minutes)
+    
+
     tokenExpiryTime = Date.now() + 55 * 60 * 1000;
 
     logger.info('M-Pesa access token obtained successfully');
@@ -47,10 +52,13 @@ export async function getAccessToken() {
   }
 }
 
-/**
- * Generate timestamp in format YYYYMMDDHHmmss
- * @returns {string} Timestamp
- */
+ 
+
+                                              
+
+                              
+
+ 
 function generateTimestamp() {
   const now = new Date();
   const year = now.getFullYear();
@@ -63,11 +71,15 @@ function generateTimestamp() {
   return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
 
-/**
- * Generate M-Pesa password (base64 encoded: BusinessShortCode + Passkey + Timestamp)
- * @param {string} timestamp - Timestamp in YYYYMMDDHHmmss format
- * @returns {string} Base64 encoded password
- */
+ 
+
+                                                                                     
+
+                                                                 
+
+                                            
+
+ 
 function generatePassword(timestamp) {
   const shortCode = process.env.MPESA_SHORTCODE;
   const passkey = process.env.MPESA_PASSKEY;
@@ -80,13 +92,19 @@ function generatePassword(timestamp) {
   return Buffer.from(passwordString).toString('base64');
 }
 
-/**
- * Initiate STK Push request
- * @param {string} phoneNumber - Customer phone number (format: 254XXXXXXXXX)
- * @param {number} amount - Amount to charge
- * @param {string} purpose - Transaction description/purpose (optional)
- * @returns {Promise<Object>} STK Push response
- */
+ 
+
+                            
+
+                                                                             
+
+                                            
+
+                                                                       
+
+                                               
+
+ 
 export async function initiateStkPush(phoneNumber, amount, purpose) {
   const shortCode = process.env.MPESA_SHORTCODE;
 
@@ -138,11 +156,15 @@ export async function initiateStkPush(phoneNumber, amount, purpose) {
   }
 }
 
-/**
- * Check payment status
- * @param {string} checkoutRequestId - Checkout request ID from STK Push
- * @returns {Promise<Object>} Payment status
- */
+ 
+
+                       
+
+                                                                        
+
+                                            
+
+ 
 export async function checkPaymentStatus(checkoutRequestId) {
   const shortCode = process.env.MPESA_SHORTCODE;
 

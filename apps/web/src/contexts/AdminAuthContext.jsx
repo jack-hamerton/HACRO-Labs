@@ -30,7 +30,8 @@ const parsePermissions = (value) => {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) return parsed;
     } catch {
-      // fall back to comma-splitting below
+      
+
     }
     return value.split(',').map((item) => item.trim()).filter(Boolean);
   }

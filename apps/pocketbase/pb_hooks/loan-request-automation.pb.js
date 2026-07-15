@@ -1,4 +1,5 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 const roundCurrencyLoanRequest = (value) => Math.round((Number(value) || 0) * 100) / 100;
 
 onRecordAfterCreateSuccess(async (e) => {

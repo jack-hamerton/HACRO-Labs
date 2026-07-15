@@ -1,12 +1,20 @@
-/**
- * PocketBase Schema Migration for IL & GIL Loan System
- * 
- * Set environment variables:
- * POCKETBASE_ADMIN_EMAIL=your-admin-email
- * POCKETBASE_ADMIN_PASSWORD=your-admin-password
- * 
- * Or edit the script with your credentials
- */
+ 
+
+                                                       
+
+   
+
+                             
+
+                                          
+
+                                                
+
+   
+
+                                           
+
+ 
 
 const PB_URL = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
 const ADMIN_EMAIL = process.env.POCKETBASE_ADMIN_EMAIL || process.env.POCKETBASE_SUPERUSER_EMAIL || null;
@@ -684,7 +692,8 @@ async function main() {
     deleteRule: 'sender_id = @request.auth.id || recipient_id = @request.auth.id'
   });
 
-  // ---- Conferencing collections ----
+  
+
   const conferencesCollection = await createCollectionIfMissing({
     name: 'conferences',
     type: 'base',

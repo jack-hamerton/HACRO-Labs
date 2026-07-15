@@ -8,7 +8,7 @@ const RoleBadge = ({role}) => (
 const ParticipantTile = ({p, spotlight, onReact, children}) => {
   return (
     <div className={`relative rounded-xl overflow-hidden bg-slate-800 text-white flex flex-col items-center justify-center p-2 transition-transform ${spotlight ? 'scale-105 ring-4 ring-emerald-400' : ''}`}>
-      <div className="w-full h-36 bg-black/70 flex items-center justify-center">{/* video placeholder */}
+      <div className="w-full h-36 bg-black/70 flex items-center justify-center">{                   }
         {children || <div className="text-sm opacity-80">{p.name}</div>}
       </div>
       <div className="w-full flex items-center justify-between mt-2">
@@ -31,7 +31,7 @@ const RoomVideoGrid = ({ participants = [], spotlightId, onReact = () => {}, roo
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {/* Local tile */}
+      {            }
       {localStream && (
         <div className="relative rounded-xl overflow-hidden bg-slate-800 text-white flex flex-col items-center justify-center p-2">
           <video className="w-full h-36 bg-black" ref={(el) => { if (el && localStream) el.srcObject = localStream; }} autoPlay playsInline muted />
@@ -52,7 +52,7 @@ const RoomVideoGrid = ({ participants = [], spotlightId, onReact = () => {}, roo
         </ParticipantTile>
       ))}
 
-      {/* Fallback static participants (if any) */}
+      {                                       }
       {participants.filter(p => !p.isLocal).map((p) => (
         <ParticipantTile key={p.id} p={p} spotlight={spotlightId === p.id} onReact={onReact} />
       ))}

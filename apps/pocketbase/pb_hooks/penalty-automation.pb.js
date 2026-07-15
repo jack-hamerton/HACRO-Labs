@@ -1,6 +1,8 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordAfterCreateSuccess((e) => {
-  // Comprehensive penalty automation
+  
+
   const penaltyRecord = e.record;
   const memberId = penaltyRecord.get("member_id");
   const loanId = penaltyRecord.get("loan_id");
@@ -13,7 +15,8 @@ onRecordAfterCreateSuccess((e) => {
   }
 
   try {
-    // 1. Notify member about penalty
+    
+
     const penaltyNotification = new Record("notifications");
     penaltyNotification.set("member_id", memberId);
     penaltyNotification.set("type", "penalty");
@@ -28,7 +31,8 @@ onRecordAfterCreateSuccess((e) => {
     penaltyNotification.set("read_status", false);
     $app.save(penaltyNotification);
 
-    // 2. If penalty is for a loan, update loan balance
+    
+
     if (loanId) {
       const loan = $app.findRecordById("loans", loanId);
       if (loan) {
@@ -38,7 +42,8 @@ onRecordAfterCreateSuccess((e) => {
         loan.set("balance", newBalance);
         $app.save(loan);
 
-        // Create penalty history record
+        
+
         const penaltyHistory = new Record("contributions_history");
         penaltyHistory.set("member_id", memberId);
         penaltyHistory.set("group_id", loan.get("group_id"));
@@ -51,7 +56,8 @@ onRecordAfterCreateSuccess((e) => {
       }
     }
 
-    // 3. Check if member has accumulated too many penalties
+    
+
     const recentPenalties = $app.findRecordsByFilter(
       "penalties",
       "member_id = '" + memberId + "' && created_date > '" + new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() + "'",
@@ -61,7 +67,8 @@ onRecordAfterCreateSuccess((e) => {
     const totalRecentPenalties = recentPenalties.length;
     const totalPenaltyAmount = recentPenalties.reduce((sum, p) => sum + (p.get("amount") || 0), 0);
 
-    // Warning for frequent penalties
+    
+
     if (totalRecentPenalties >= 3) {
       const warningNotification = new Record("notifications");
       warningNotification.set("member_id", memberId);
@@ -72,7 +79,8 @@ onRecordAfterCreateSuccess((e) => {
       $app.save(warningNotification);
     }
 
-    // 4. For loan-related penalties, notify group members
+    
+
     if (loanId) {
       const loan = $app.findRecordById("loans", loanId);
       if (loan) {
@@ -82,7 +90,8 @@ onRecordAfterCreateSuccess((e) => {
         groupMembers.forEach((gm) => {
           const gmMemberId = gm.get("member_id");
 
-          // Don't notify the penalized member again
+          
+
           if (gmMemberId === memberId) {
             return;
           }

@@ -89,6 +89,11 @@ const MemberLoginPage = () => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                <div className="mt-2 text-right">
+                  <Link to="/member-forgot-password" className="text-sm font-medium text-primary hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
 
               <button type="submit" disabled={loading} className="w-full btn-primary">

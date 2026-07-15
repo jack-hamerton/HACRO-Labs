@@ -7,12 +7,14 @@ const PaymentAcknowledgmentModal = ({ payment, member, onClose }) => {
   if (!payment || !member) return null;
 
   const handleDownload = () => {
-    // If there's an acknowledgment file attached from admin, download it
+    
+
     if (payment.acknowledgment_file) {
       const fileUrl = pb.files.getUrl(payment, payment.acknowledgment_file);
       window.open(fileUrl, '_blank');
     } else {
-      // Fallback: Trigger browser print behavior to act as PDF download
+      
+
       window.print();
     }
   };

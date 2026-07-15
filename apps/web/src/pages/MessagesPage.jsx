@@ -41,7 +41,8 @@ const MessagesPage = () => {
       try {
         pb.collection('member_messages').unsubscribe('*');
       } catch (err) {
-        // ignore cleanup errors
+        
+
       }
       if (unsubscribe && typeof unsubscribe.unsubscribe === 'function') {
         unsubscribe.unsubscribe();

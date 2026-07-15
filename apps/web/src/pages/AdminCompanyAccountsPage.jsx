@@ -29,7 +29,8 @@ const AdminCompanyAccountsPage = () => {
 
       const result = await response.json();
 
-      // normalize result with safe defaults so UI shows zeros when data is missing
+      
+
       const defaultOverview = {
         total_revenue: 0,
         registration_fees: 0,
@@ -61,7 +62,8 @@ const AdminCompanyAccountsPage = () => {
       setLoading(false);
     }
   };
-  // normalize data values with defaults so UI shows 0 instead of empty
+  
+
   const overview = data?.company_overview ?? {
     total_revenue: 0,
     registration_fees: 0,

@@ -1,20 +1,25 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordUpdate((e) => {
-  // Comprehensive admin action automation
+  
+
   const record = e.record;
   const originalRecord = e.record.original();
   const collectionName = e.collection.name;
 
   try {
-    // Handle different admin actions based on collection
+    
+
     if (collectionName === "loans") {
-      // Admin loan management actions
+      
+
       const newStatus = record.get("status");
       const oldStatus = originalRecord.get("status");
       const memberId = record.get("member_id");
 
       if (newStatus !== oldStatus && newStatus === "rejected") {
-        // Admin rejected loan
+        
+
         const rejectionNotification = new Record("notifications");
         rejectionNotification.set("member_id", memberId);
         rejectionNotification.set("type", "rejection");
@@ -25,7 +30,8 @@ onRecordUpdate((e) => {
       }
 
     } else if (collectionName === "members") {
-      // Admin member management actions
+      
+
       const newStatus = record.get("status");
       const oldStatus = originalRecord.get("status");
       const memberId = record.id;
@@ -51,13 +57,15 @@ onRecordUpdate((e) => {
       }
 
     } else if (collectionName === "groups") {
-      // Admin group management actions
+      
+
       const newStatus = record.get("status");
       const oldStatus = originalRecord.get("status");
       const groupId = record.id;
 
       if (newStatus !== oldStatus && newStatus === "inactive") {
-        // Group deactivated - notify all members
+        
+
         const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", { limit: 1000 });
 
         groupMembers.forEach((gm) => {

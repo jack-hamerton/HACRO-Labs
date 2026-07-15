@@ -1,20 +1,24 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordAfterUpdateSuccess((e) => {
-  // Handle guarantor acknowledgment of collateral commitment
+  
+
   const guarantorRecord = e.record;
   const loanId = guarantorRecord.get("loan_id");
   const guarantorId = guarantorRecord.get("guarantor_id");
   const collateralAmount = guarantorRecord.get("collateral_amount");
   const status = guarantorRecord.get("status");
 
-  // Only process if status changed to acknowledged
+  
+
   if (status !== "acknowledged") {
     e.next();
     return;
   }
 
   try {
-    // Get loan details
+    
+
     const loan = $app.findRecordById("loans", loanId);
     if (!loan || loan.get("loan_type") !== "GIL") {
       e.next();
@@ -24,7 +28,8 @@ onRecordAfterUpdateSuccess((e) => {
     const requestedAmount = loan.get("amount");
     const memberId = loan.get("member_id");
 
-    // Get guarantor's savings and deduct collateral
+    
+
     const guarantorSavings = $app.findRecordsByFilter("savings", "member_id = '" + guarantorId + "'", { limit: 1 });
     if (guarantorSavings.length === 0) {
       console.log("Error: Guarantor has no savings record during acknowledgment");
@@ -34,18 +39,21 @@ onRecordAfterUpdateSuccess((e) => {
 
     const availableSavings = guarantorSavings[0].get("total_savings") || 0;
 
-    // Double-check sufficient savings (should have been checked during offer)
+    
+
     if (collateralAmount > availableSavings) {
       console.log("Error: Insufficient savings during acknowledgment for guarantor " + guarantorId);
       e.next();
       return;
     }
 
-    // Deduct collateral from guarantor's savings
+    
+
     guarantorSavings[0].set("total_savings", availableSavings - collateralAmount);
     $app.save(guarantorSavings[0]);
 
-    // Create collateral deduction history
+    
+
     const collateralHistory = new Record("contributions_history");
     collateralHistory.set("member_id", guarantorId);
     collateralHistory.set("group_id", loan.get("group_id"));
@@ -56,7 +64,8 @@ onRecordAfterUpdateSuccess((e) => {
     collateralHistory.set("balance", availableSavings - collateralAmount);
     $app.save(collateralHistory);
 
-    // Notify guarantor of collateral deduction
+    
+
     const deductionNotification = new Record("notifications");
     deductionNotification.set("member_id", guarantorId);
     deductionNotification.set("type", "collateral_deducted");
@@ -65,7 +74,8 @@ onRecordAfterUpdateSuccess((e) => {
     deductionNotification.set("read_status", false);
     $app.save(deductionNotification);
 
-    // Check if all guarantors have acknowledged and loan is ready for admin review
+    
+
     const allGuarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loanId + "'", { limit: 1000 });
 
     let totalAcknowledgedCollateral = 0;
@@ -80,25 +90,32 @@ onRecordAfterUpdateSuccess((e) => {
       }
     });
 
-    // Get borrower savings
+    
+
     const borrowerSavings = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
     let borrowerSavingsAmount = 0;
     if (borrowerSavings.length > 0) {
       borrowerSavingsAmount = borrowerSavings[0].get("total_savings") || 0;
     }
 
-    // Calculate required amount: loan + 2% interest
+    
+
     const requiredAmount = requestedAmount * 1.02;
 
     if (allAcknowledged && totalAcknowledgedCollateral + borrowerSavingsAmount >= requiredAmount) {
-      // All guarantors acknowledged and sufficient collateral - loan is ready for admin disbursement
+      
+
       loan.set("status", "ready_for_disbursement");
-      loan.set("interest_rate", 0.02); // 2% flat rate
-      loan.set("repayment_period_months", 3); // 3 months repayment
-      loan.set("grace_period_months", 1); // 1 month grace period
+      loan.set("interest_rate", 0.02); 
+
+      loan.set("repayment_period_months", 3); 
+
+      loan.set("grace_period_months", 1); 
+
       $app.save(loan);
 
-      // Notify borrower that loan is ready for admin disbursement
+      
+
       const disbursementReadyNotification = new Record("notifications");
       disbursementReadyNotification.set("member_id", memberId);
       disbursementReadyNotification.set("type", "loan_ready_for_disbursement");
@@ -107,7 +124,8 @@ onRecordAfterUpdateSuccess((e) => {
       disbursementReadyNotification.set("read_status", false);
       $app.save(disbursementReadyNotification);
 
-      // Notify admin about loan ready for disbursement
+      
+
       const adminUsers = $app.findRecordsByFilter("admins", "role != 'super_admin'", { limit: 100 });
       adminUsers.forEach(admin => {
         const adminNotification = new Record("notifications");
@@ -119,7 +137,8 @@ onRecordAfterUpdateSuccess((e) => {
         $app.save(adminNotification);
       });
     } else {
-      // Keep the loan blocked until every guarantor has acknowledged the collateral commitment
+      
+
       loan.set("status", "pending_guarantor_acknowledgment");
       $app.save(loan);
     }

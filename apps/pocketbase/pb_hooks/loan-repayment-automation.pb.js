@@ -1,6 +1,8 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordAfterCreateSuccess((e) => {
-  // Comprehensive loan repayment automation with new rules
+  
+
   const repaymentRecord = e.record;
   const loanId = repaymentRecord.get("loan_id");
   const memberId = repaymentRecord.get("member_id");
@@ -12,7 +14,8 @@ onRecordAfterCreateSuccess((e) => {
   }
 
   try {
-    // 1. Get the loan details
+    
+
     const loan = $app.findRecordById("loans", loanId);
     if (!loan) {
       e.next();
@@ -23,11 +26,13 @@ onRecordAfterCreateSuccess((e) => {
     const newBalance = currentBalance - amount;
     const loanType = loan.get("loan_type");
 
-    // 2. Update loan balance
+    
+
     loan.set("balance", newBalance);
     loan.set("last_payment_date", new Date().toISOString());
 
-    // 3. Check if loan is fully repaid
+    
+
     if (newBalance <= 0) {
       loan.set("status", "repaid");
       loan.set("repayment_date", new Date().toISOString());
@@ -96,7 +101,8 @@ onRecordAfterCreateSuccess((e) => {
         console.log(`Interest distribution for fully repaid GIL loan ${loanId}: company=${companyShare}, group=${groupBonus}, guarantors=${guarantorBonus}`);
       }
 
-      // Handle full repayment - return collateral for GIL loans
+      
+
       if (loanType === "GIL") {
         const guarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loanId + "' && status = 'active'", { limit: 1000 });
 
@@ -104,14 +110,16 @@ onRecordAfterCreateSuccess((e) => {
           const guarantorId = guarantor.get("guarantor_id");
           const collateralAmount = guarantor.get("collateral_amount") || 0;
 
-          // Return collateral to guarantor
+          
+
           const guarantorSavings = $app.findRecordsByFilter("savings", "member_id = '" + guarantorId + "'", { limit: 1 });
           if (guarantorSavings.length > 0) {
             const currentSavings = guarantorSavings[0].get("total_savings") || 0;
             guarantorSavings[0].set("total_savings", currentSavings + collateralAmount);
             $app.save(guarantorSavings[0]);
 
-            // Create collateral return history
+            
+
             const returnHistory = new Record("contributions_history");
             returnHistory.set("member_id", guarantorId);
             returnHistory.set("group_id", loan.get("group_id"));
@@ -122,11 +130,13 @@ onRecordAfterCreateSuccess((e) => {
             returnHistory.set("balance", currentSavings + collateralAmount);
             $app.save(returnHistory);
 
-            // Update guarantor status
+            
+
             guarantor.set("status", "completed");
             $app.save(guarantor);
 
-            // Notify guarantor
+            
+
             const returnNotification = new Record("notifications");
             returnNotification.set("member_id", guarantorId);
             returnNotification.set("type", "collateral_returned");
@@ -138,7 +148,8 @@ onRecordAfterCreateSuccess((e) => {
         });
       }
 
-      // Notify member about full repayment
+      
+
       const fullRepaymentNotification = new Record("notifications");
       fullRepaymentNotification.set("member_id", memberId);
       fullRepaymentNotification.set("type", "repayment");
@@ -150,7 +161,8 @@ onRecordAfterCreateSuccess((e) => {
     } else {
       $app.save(loan);
 
-      // Notify member about partial repayment
+      
+
       const partialNotification = new Record("notifications");
       partialNotification.set("member_id", memberId);
       partialNotification.set("type", "repayment");
@@ -160,7 +172,8 @@ onRecordAfterCreateSuccess((e) => {
       $app.save(partialNotification);
     }
 
-    // 4. Create repayment history record
+    
+
     const repaymentHistory = new Record("contributions_history");
     repaymentHistory.set("member_id", memberId);
     repaymentHistory.set("group_id", loan.get("group_id"));

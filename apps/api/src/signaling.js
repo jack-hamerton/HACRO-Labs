@@ -2,43 +2,51 @@ import { WebSocketServer } from 'ws';
 import url from 'url';
 import pb, { authPb, authenticateSuperuser } from './utils/pocketbaseClient.js';
 
-// Simple in-memory room state: { roomId: Map(socketId -> {ws, userId}) }
+
+
 const rooms = new Map();
 
 function safeSend(ws, data) {
   try {
     ws.send(JSON.stringify(data));
   } catch (err) {
-    // ignore
+    
+
   }
 }
 
 async function verifyMembership(conferenceId, memberId, token) {
   try {
     if (token) {
-      // save token to authPb and try to fetch member record
+      
+
       authPb.authStore.save(token, 'members');
     }
 
-    // first try explicit membership collection
+    
+
     try {
       const res = await pb.collection('conference_memberships').getList(1, 50, {
         filter: `conference = "${conferenceId}" && member = "${memberId}"`
       });
       if (res && res.items && res.items.length > 0) return true;
     } catch (err) {
-      // collection may not exist - ignore
+      
+
     }
 
-    // fallback: check member's record for admin flag or groups relation
+    
+
     try {
       const member = await authPb.collection('members').getOne(memberId);
       if (!member) return false;
       if (member.is_admin || member.roles?.includes('admin')) return true;
-      // if member has groups and conferenceId matches a group id
+      
+
       if (member.groups && member.groups.includes(conferenceId)) return true;
     } catch (err) {
-      // ignore
+      
+
     }
 
     return false;
@@ -91,7 +99,8 @@ export default function attachSignaling(server) {
         }
         room.set(ws.id, { ws, userId });
 
-        // notify existing peers of new member
+        
+
         for (const [otherId, info] of room.entries()) {
           if (otherId === ws.id) continue;
           safeSend(info.ws, { type: 'peer-joined', userId, socketId: ws.id });
@@ -102,7 +111,8 @@ export default function attachSignaling(server) {
         return;
       }
 
-      // relay SDP/ICE messages to target socketId
+      
+
       if (type === 'offer' || type === 'answer' || type === 'ice-candidate' || type === 'signal') {
         const { to, payload } = data;
         if (!ws.roomId) return;

@@ -7,7 +7,8 @@ export default function useConference({ roomId, localUserId } = {}) {
   const wsRef = useRef(null);
   const pcMap = useRef(new Map());
   const [localStream, setLocalStream] = useState(null);
-  const [peers, setPeers] = useState([]); // { socketId, userId, stream }
+  const [peers, setPeers] = useState([]); 
+
   const ownSocketId = useRef(null);
 
   useEffect(() => {
@@ -35,7 +36,8 @@ export default function useConference({ roomId, localUserId } = {}) {
 
       if (type === 'peer-joined') {
         const { socketId, userId } = data;
-        // If we are the newcomer (our id > other) we create offer, otherwise wait
+        
+
         if (!pcMap.current.has(socketId)) {
           await createPeerConnection(socketId, userId, true);
         }
@@ -61,7 +63,7 @@ export default function useConference({ roomId, localUserId } = {}) {
         const { from, payload } = data;
         const pc = pcMap.current.get(from)?.pc;
         if (pc && payload) {
-          try { await pc.addIceCandidate(payload); } catch (e) { /* ignore */ }
+          try { await pc.addIceCandidate(payload); } catch (e) {          }
         }
         return;
       }
@@ -74,10 +76,12 @@ export default function useConference({ roomId, localUserId } = {}) {
     };
 
     ws.onclose = () => {
-      // cleanup
+      
+
     };
 
-    // getLocalMedia
+    
+
     (async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
@@ -105,7 +109,8 @@ export default function useConference({ roomId, localUserId } = {}) {
         }
       };
 
-      // add local tracks
+      
+
       if (localStream) {
         localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
       }

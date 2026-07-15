@@ -252,8 +252,8 @@ export default function HomePage() {
     <div className="relative min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
       <Header />
 
-      {/* Water droplet animation â€” fixed background */}
-      {/* â”€â”€ Hero â”€â”€ */}
+      {                                              }
+      {                    }
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden -mt-20 sm:-mt-24 pt-20 sm:pt-24">
         <HeroSlideshow />
 
@@ -301,7 +301,7 @@ export default function HomePage() {
         {HERO_IMAGES.length > 1 && <SlideDots />}
       </section>
 
-      {/* â”€â”€ Our Journey â”€â”€ */}
+      {                           }
       <section className="relative overflow-visible py-24 sm:py-28 lg:py-32 border-b border-emerald-200 bg-gradient-to-br from-emerald-50 via-emerald-100 to-white">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -left-10 top-6 h-40 w-40 rounded-full bg-emerald-300/30 blur-3xl" />
@@ -341,7 +341,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* â”€â”€ How We Work â”€â”€ */}
+      {                           }
       <section className="py-24 sm:py-28 lg:py-32 bg-[#111111]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <FadeIn className="text-center mb-20">
@@ -374,7 +374,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* â”€â”€ Team â”€â”€ */}
+      {                    }
       <section className="py-24 sm:py-28 lg:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <FadeIn className="text-center mb-12">

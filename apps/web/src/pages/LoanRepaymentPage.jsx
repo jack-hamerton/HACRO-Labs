@@ -42,7 +42,8 @@ const LoanRepaymentPage = () => {
         const totalDue = loan.amount + interestAmount;
         const remainingBalance = totalDue - totalRepaid;
 
-        // Calculate grace period status
+        
+
         const now = new Date();
         const gracePeriodEnd = new Date(loan.grace_period_end_date || loan.created_date);
         gracePeriodEnd.setMonth(gracePeriodEnd.getMonth() + 1);
@@ -52,7 +53,8 @@ const LoanRepaymentPage = () => {
         const repaymentEnd = new Date(repaymentStart);
         repaymentEnd.setMonth(repaymentEnd.getMonth() + 1);
 
-        // Check for penalties
+        
+
         const penalties = await pb.collection('penalties').getFullList({
           filter: `loan_id="${loan.id}"`,
           $autoCancel: false
@@ -106,7 +108,8 @@ const LoanRepaymentPage = () => {
       const dateStr = new Date().toISOString();
       const installmentNum = selectedLoan.repayments.length + 1;
 
-      // 1. Create repayment record
+      
+
       await pb.collection('loan_repayments').create({
         loan_id: selectedLoan.id,
         member_id: currentUser.id,
@@ -115,7 +118,8 @@ const LoanRepaymentPage = () => {
         installment_number: installmentNum
       }, { $autoCancel: false });
 
-      // 2. Create contribution history
+      
+
       await pb.collection('contributions_history').create({
         member_id: currentUser.id,
         group_id: selectedLoan.group_id,
@@ -126,7 +130,8 @@ const LoanRepaymentPage = () => {
         balance: selectedLoan.remainingBalance - amount
       }, { $autoCancel: false });
 
-      // 3. Update loan status if fully paid
+      
+
       if (amount >= selectedLoan.remainingBalance) {
         await pb.collection('loans').update(selectedLoan.id, {
           status: 'fully_paid'
@@ -140,7 +145,8 @@ const LoanRepaymentPage = () => {
       }
 
       setFormData({ amount: '' });
-      fetchActiveLoans(); // Refresh data
+      fetchActiveLoans(); 
+
     } catch (error) {
       console.error('Repayment error:', error);
       toast.error('Failed to process repayment. Please try again.');

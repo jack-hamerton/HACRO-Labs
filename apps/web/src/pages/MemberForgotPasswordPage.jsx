@@ -81,10 +81,15 @@ const MemberForgotPasswordPage = () => {
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Reset Link'}
                 </button>
                 
-                <div className="text-center">
+                <div className="text-center space-y-2">
                   <Link to="/member-login" className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back to Login
                   </Link>
+                  <div>
+                    <Link to="/member-reset-password" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                      Already have a reset link?
+                    </Link>
+                  </div>
                 </div>
               </form>
             </>

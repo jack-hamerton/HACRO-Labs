@@ -20,7 +20,8 @@ const LoanVotingPage = () => {
 
   const fetchPendingVotes = async () => {
     try {
-      // Fetch approvals assigned to current user that are not yet approved
+      
+
       const approvals = await pb.collection('loan_approvals').getFullList({
         filter: `member_id="${currentUser.id}" && approved=false`,
         expand: 'loan_id,loan_id.member_id',
@@ -28,10 +29,12 @@ const LoanVotingPage = () => {
         $autoCancel: false
       });
 
-      // Filter out loans that are no longer pending
+      
+
       const activePending = approvals.filter(a => a.expand?.loan_id?.status === 'pending');
 
-      // For each loan, fetch total approvals and loan type
+      
+
       const enrichedVotes = await Promise.all(activePending.map(async (approval) => {
         const loanId = approval.loan_id;
         const loan = approval.expand.loan_id;
@@ -44,7 +47,8 @@ const LoanVotingPage = () => {
         const approvedCount = allApprovals.filter(a => a.approved).length;
         const totalCount = allApprovals.length;
 
-        // Get borrower's savings for collateral display
+        
+
         const borrowerId = loan.member_id;
         const savings = await pb.collection('savings').getFullList({
           filter: `member_id="${borrowerId}"`,
@@ -52,7 +56,8 @@ const LoanVotingPage = () => {
         });
         const collateral = savings.reduce((sum, s) => sum + s.amount, 0);
 
-        // For GIL, get guarantor information
+        
+
         let guarantorInfo = null;
         if (loan.loan_type === 'GIL') {
           guarantorInfo = allApprovals.find(a => a.member_id === currentUser.id);
@@ -81,14 +86,16 @@ const LoanVotingPage = () => {
   const handleVote = async (approvalId, loanId, isApproved) => {
     setProcessingId(approvalId);
     try {
-      // 1. Update the approval record
+      
+
       await pb.collection('loan_approvals').update(approvalId, {
         approved: isApproved,
         vote_date: new Date().toISOString()
       }, { $autoCancel: false });
 
       if (isApproved) {
-        // 2. Check if all members have approved
+        
+
         const allApprovals = await pb.collection('loan_approvals').getFullList({
           filter: `loan_id="${loanId}"`,
           $autoCancel: false
@@ -97,10 +104,12 @@ const LoanVotingPage = () => {
         const approvedCount = allApprovals.filter(a => a.approved).length;
         
         if (approvedCount === allApprovals.length && allApprovals.length > 0) {
-          // Get the loan to check its type
+          
+
           const loan = await pb.collection('loans').getOne(loanId, { $autoCancel: false });
           
-          // Auto-approve the loan
+          
+
           await pb.collection('loans').update(loanId, {
             status: 'approved'
           }, { $autoCancel: false });
@@ -114,14 +123,16 @@ const LoanVotingPage = () => {
           toast.success(approvedCount === 1 ? 'Your approval was recorded.' : `Your approval was recorded (${approvedCount} approvals so far).`);
         }
       } else {
-        // If rejected, reject the whole loan
+        
+
         await pb.collection('loans').update(loanId, {
           status: 'rejected'
         }, { $autoCancel: false });
         toast.success('You rejected the loan request.');
       }
 
-      // Refresh list
+      
+
       fetchPendingVotes();
     } catch (error) {
       console.error('Voting error:', error);
@@ -206,7 +217,8 @@ const LoanVotingPage = () => {
                     </div>
 
                     {isGIL ? (
-                      // GIL: Show guarantor collateral confirmation
+                      
+
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4 mb-6">
                           <div className="bg-muted/50 rounded-xl p-4 border border-border/50">
@@ -243,7 +255,8 @@ const LoanVotingPage = () => {
                         </div>
                       </div>
                     ) : (
-                      // IL: Show group voting
+                      
+
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4 mb-6">
                           <div className="bg-muted/50 rounded-xl p-4 border border-border/50">

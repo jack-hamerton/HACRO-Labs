@@ -7,7 +7,8 @@ import pb from '@/lib/pocketbaseClient';
 import apiServerClient from '@/lib/apiServerClient.js';
 import Header from '@/components/Header.jsx';
 
-// Dynmic loctions
+
+
 const KENYA_LOCATION_DATA = {
   'Siaya County': {
     'Alego Usonga': {
@@ -226,7 +227,8 @@ const RegistrationPage = () => {
   const [polling, setPolling] = useState(false);
   const pollTimerRef = useRef(null);
 
-  // Added dynamic location state controls
+  
+
   const [selectedCounty, setSelectedCounty] = useState('');
   const [selectedSubCounty, setSelectedSubCounty] = useState('');
   const [selectedWard, setSelectedWard] = useState('');
@@ -447,7 +449,8 @@ const RegistrationPage = () => {
         if (key !== 'amount') memberFormData.append(key, formData[key]);
       });
       
-      // Inject concatenated readable physical address structure into Pocketbase form data instance
+      
+
       const absoluteLocationString = `${selectedVillage}, ${selectedWard} Ward, ${selectedSubCounty} Sub-County, ${selectedCounty}`;
       memberFormData.append('location', absoluteLocationString);
 
@@ -558,7 +561,7 @@ const RegistrationPage = () => {
                     )}
                   </div>
 
-                  {/* Cascading Location Selection Segment */}
+                  {                                      }
                   <div className={`md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 pt-5 transition-all duration-200 ${selectedCounty || selectedSubCounty || selectedWard || selectedVillage ? 'border-emerald-400 bg-emerald-100/80' : 'hover:border-emerald-400 hover:bg-emerald-100/70'}`}>
                     <div>
                       <label className="form-label">County <span className="text-destructive">*</span></label>

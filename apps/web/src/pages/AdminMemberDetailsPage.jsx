@@ -23,7 +23,8 @@ const AdminMemberDetailsPage = () => {
     contributions: false
   });
 
-  // Search members
+  
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
@@ -52,7 +53,8 @@ const AdminMemberDetailsPage = () => {
     }
   };
 
-  // Get member details
+  
+
   const fetchMemberDetails = async (memberId) => {
     setDetailsLoading(true);
     try {
@@ -117,7 +119,7 @@ const AdminMemberDetailsPage = () => {
       <AdminLayout title="Member Details" subtitle="View comprehensive member information and activity">
         <div className="max-w-7xl mx-auto px-4 py-8">
           
-          {/* Search Section */}
+          {                }
           <div className="mb-8">
             <form onSubmit={handleSearch} className="flex gap-2">
               <div className="flex-1 relative">
@@ -143,7 +145,7 @@ const AdminMemberDetailsPage = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {/* Search Results */}
+            {                }
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <h3 className="text-lg font-semibold mb-4">Members ({searchResults.length})</h3>
@@ -174,7 +176,7 @@ const AdminMemberDetailsPage = () => {
               </div>
             </div>
 
-            {/* Member Details */}
+            {                }
             <div className="lg:col-span-2">
               {detailsLoading ? (
                 <div className="flex justify-center items-center h-96">
@@ -183,7 +185,7 @@ const AdminMemberDetailsPage = () => {
               ) : memberDetails ? (
                 <div className="space-y-6">
                   
-                  {/* Profile Card */}
+                  {              }
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
@@ -212,7 +214,7 @@ const AdminMemberDetailsPage = () => {
                     </div>
                   </div>
 
-                  {/* Summary Cards */}
+                  {               }
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <p className="text-sm text-blue-600">Total Savings</p>
@@ -240,7 +242,7 @@ const AdminMemberDetailsPage = () => {
                     </div>
                   </div>
 
-                  {/* Savings Section */}
+                  {                 }
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                     <button
                       onClick={() => toggleSection('savings')}
@@ -276,7 +278,7 @@ const AdminMemberDetailsPage = () => {
                     )}
                   </div>
 
-                  {/* Loans Section */}
+                  {               }
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                     <button
                       onClick={() => toggleSection('loans')}
@@ -322,7 +324,7 @@ const AdminMemberDetailsPage = () => {
                     )}
                   </div>
 
-                  {/* Payments Section */}
+                  {                  }
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                     <button
                       onClick={() => toggleSection('payments')}
@@ -367,7 +369,7 @@ const AdminMemberDetailsPage = () => {
                     )}
                   </div>
 
-                  {/* Contributions History */}
+                  {                       }
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                     <button
                       onClick={() => toggleSection('contributions')}
@@ -401,7 +403,7 @@ const AdminMemberDetailsPage = () => {
                     )}
                   </div>
 
-                  {/* Read-only Notice */}
+                  {                  }
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
                     <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm">

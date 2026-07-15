@@ -24,38 +24,46 @@ async function createLedgerEntry({ memberId, groupId, type, amount, date, descri
   }, { $autoCancel: false });
 }
 
-/**
- * POST /mpesa/stk-push
- * Initiate M-Pesa STK Push payment request
- */
+ 
+
+                       
+
+                                           
+
+ 
 router.post('/stk-push', async (req, res) => {
   const { phoneNumber, amount, email, firstName, lastName, purpose } = req.body;
 
-  // Validate required fields (email, firstName, lastName are optional)
+  
+
   if (!phoneNumber || !amount) {
     return res.status(400).json({
       error: 'Missing required fields: phoneNumber, amount',
     });
   }
 
-  // Validate amount
+  
+
   if (typeof amount !== 'number' || amount <= 0) {
     return res.status(400).json({
       error: 'Amount must be a positive number',
     });
   }
 
-  // Validate phone number format (should be 254XXXXXXXXX)
+  
+
   if (!/^254\d{9}$/.test(phoneNumber)) {
     return res.status(400).json({
       error: 'Phone number must be in format 254XXXXXXXXX',
     });
   }
 
-  // Call M-Pesa API to initiate STK Push
+  
+
   const stkPushResponse = await initiateStkPush(phoneNumber, amount, purpose);
 
-  // Cache payment request for webhook matching
+  
+
   cachePayment(stkPushResponse.checkoutRequestId, {
     email: email || null,
     phoneNumber,
@@ -91,10 +99,13 @@ router.post('/stk-push', async (req, res) => {
   });
 });
 
-/**
- * GET /mpesa/check-payment/:checkoutRequestId
- * Check payment status for a given checkout request ID
- */
+ 
+
+                                              
+
+                                                       
+
+ 
 router.get('/check-payment/:checkoutRequestId', async (req, res) => {
   const { checkoutRequestId } = req.params;
 
@@ -104,7 +115,8 @@ router.get('/check-payment/:checkoutRequestId', async (req, res) => {
     });
   }
 
-  // Query M-Pesa API for payment status
+  
+
   const statusResponse = await checkPaymentStatus(checkoutRequestId);
 
   res.json({
@@ -114,10 +126,13 @@ router.get('/check-payment/:checkoutRequestId', async (req, res) => {
   });
 });
 
-/**
- * POST /mpesa/callback
- * Receive M-Pesa payment callbacks
- */
+ 
+
+                       
+
+                                   
+
+ 
 router.post('/callback', async (req, res) => {
   const { Body } = req.body;
 
@@ -138,16 +153,19 @@ router.post('/callback', async (req, res) => {
     resultDesc,
   });
 
-  // Get cached payment info
+  
+
   const paymentInfo = getPayment(checkoutRequestId);
 
   if (!paymentInfo) {
     logger.warn(`Payment info not found in cache for ${checkoutRequestId}`);
   }
 
-  // Check if payment was successful (resultCode = 0)
+  
+
   if (resultCode === '0' && callbackMetadata) {
-    // Extract callback metadata
+    
+
     const metadata = {};
     if (callbackMetadata.Item && Array.isArray(callbackMetadata.Item)) {
       callbackMetadata.Item.forEach((item) => {
@@ -166,7 +184,8 @@ router.post('/callback', async (req, res) => {
       phoneNumber,
     });
 
-    // Update donation/payment record in PocketBase using cached payment info
+    
+
     if (paymentInfo) {
       const donationRecord = {
         donor_name: `${paymentInfo.firstName || ''} ${paymentInfo.lastName || ''}`.trim() || phoneNumber,
@@ -184,7 +203,8 @@ router.post('/callback', async (req, res) => {
       };
 
       try {
-        // Try to update donations collection first
+        
+
         const existingDonations = await pb.collection('donations').getFullList({
           filter: `checkout_request_id = "${checkoutRequestId}"`,
         });
@@ -193,7 +213,8 @@ router.post('/callback', async (req, res) => {
           await pb.collection('donations').update(existingDonations[0].id, donationRecord);
           logger.info(`Donation record updated in PocketBase for ${checkoutRequestId}`);
         } else {
-          // If not a donation, try to update payments collection (member payments)
+          
+
           try {
             const existingPayments = await pb.collection('payments').getFullList({
               filter: `checkout_request_id = "${checkoutRequestId}"`,
@@ -291,7 +312,8 @@ router.post('/callback', async (req, res) => {
                 }
               }
             } else {
-              // Create as donation if no matching payment record
+              
+
               await pb.collection('donations').create(donationRecord);
               logger.info(`Donation record created in PocketBase for ${checkoutRequestId}`);
             }
@@ -310,7 +332,8 @@ router.post('/callback', async (req, res) => {
       resultDesc,
     });
 
-    // Update donation/payment record with failure status if payment info is available
+    
+
     if (paymentInfo) {
       const donationRecord = {
         donor_name: `${paymentInfo.firstName || ''} ${paymentInfo.lastName || ''}`.trim() || paymentInfo.phoneNumber,
@@ -326,7 +349,8 @@ router.post('/callback', async (req, res) => {
       };
 
       try {
-        // Try to update donations collection first
+        
+
         const existingDonations = await pb.collection('donations').getFullList({
           filter: `checkout_request_id = "${checkoutRequestId}"`,
         });
@@ -335,7 +359,8 @@ router.post('/callback', async (req, res) => {
           await pb.collection('donations').update(existingDonations[0].id, donationRecord);
           logger.info(`Donation failure recorded in PocketBase for ${checkoutRequestId}`);
         } else {
-          // If not a donation, try to update payments collection (member payments)
+          
+
           try {
             const existingPayments = await pb.collection('payments').getFullList({
               filter: `checkout_request_id = "${checkoutRequestId}"`,
@@ -350,7 +375,8 @@ router.post('/callback', async (req, res) => {
               await pb.collection('payments').update(existingPayments[0].id, paymentRecord);
               logger.info(`Payment failure recorded in PocketBase for ${checkoutRequestId}`);
             } else {
-              // Create as donation if no matching payment record
+              
+
               await pb.collection('donations').create(donationRecord);
               logger.info(`Donation failure record created in PocketBase for ${checkoutRequestId}`);
             }
@@ -365,7 +391,8 @@ router.post('/callback', async (req, res) => {
     }
   }
 
-  // Acknowledge receipt to M-Pesa (return ResultCode: 0)
+  
+
   res.json({ ResultCode: 0 });
 });
 

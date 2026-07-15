@@ -24,7 +24,8 @@ const waitTimeoutMs = Number(process.env.POCKETBASE_WAIT_TIMEOUT_MS || 30000);
 const waitIntervalMs = Number(process.env.POCKETBASE_WAIT_INTERVAL_MS || 500);
 const waitVerbose = process.env.POCKETBASE_WAIT_VERBOSE === 'true' || process.env.POCKETBASE_WAIT_VERBOSE === '1';
 
-// Function to authenticate superuser when needed
+
+
 export const authenticateSuperuser = async () => {
   if (SUPERUSER_EMAIL && SUPERUSER_PASSWORD) {
     const needsAuth = !pb.authStore.isValid || !pb.authStore.isSuperuser;
@@ -56,7 +57,8 @@ export const authenticateSuperuser = async () => {
 export default pb;
 export { authPb, SUPERUSER_EMAIL, SUPERUSER_PASSWORD };
 
-// Wait until PocketBase is reachable (polling)
+
+
 export async function waitForPocketBase({ timeoutMs = waitTimeoutMs, intervalMs = waitIntervalMs } = {}) {
   if (!pocketBaseWaitEnabled) {
     console.info(`PocketBase wait disabled (CI=${CI}, POCKETBASE_WAIT_ENABLED=${waitEnabledEnv}, POCKETBASE_WAIT_DISABLED=${waitDisabledEnv})`);

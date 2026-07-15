@@ -1,4 +1,5 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 migrate((app) => {
   const collection = new Collection({
     "createRule": null,
@@ -60,7 +61,8 @@ migrate((app) => {
         "type": "file",
         "required": true,
         "maxSelect": 1,
-        "maxSize": 52428800, // 50MB
+        "maxSize": 52428800, 
+
         "mimeTypes": ["application/pdf", "video/mp4", "video/avi", "video/mov", "video/wmv"]
       },
       {

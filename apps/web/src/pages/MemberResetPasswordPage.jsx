@@ -14,7 +14,8 @@ const MemberResetPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Validation rules
+  
+
   const hasLength = password.length >= 8;
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
@@ -123,6 +124,12 @@ const MemberResetPasswordPage = () => {
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Reset Password'}
                 </button>
+
+                <div className="text-center">
+                  <Link to="/member-forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                    Request a new reset link
+                  </Link>
+                </div>
               </form>
             </>
           )}

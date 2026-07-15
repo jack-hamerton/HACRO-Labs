@@ -1,10 +1,13 @@
 import pb from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
 
-/**
- * Middleware to verify member token from Authorization header
- * Sets req.memberId and req.member on success
- */
+ 
+
+                                                              
+
+                                              
+
+ 
 export async function verifyMemberToken(req, res, next) {
   const authHeader = req.get('Authorization');
 
@@ -21,7 +24,8 @@ export async function verifyMemberToken(req, res, next) {
     });
   }
 
-  // Find session by token
+  
+
   const sessions = await pb.collection('member_sessions').getFullList({
     filter: `token = "${token}"`,
   });
@@ -34,7 +38,8 @@ export async function verifyMemberToken(req, res, next) {
 
   const session = sessions[0];
 
-  // Check if session is expired
+  
+
   if (new Date(session.expires_date) < new Date()) {
     await pb.collection('member_sessions').delete(session.id);
     return res.status(401).json({
@@ -42,10 +47,12 @@ export async function verifyMemberToken(req, res, next) {
     });
   }
 
-  // Get member details
+  
+
   const member = await pb.collection('members').getOne(session.member_id);
 
-  // Set member info on request
+  
+
   req.memberId = member.id;
   req.member = member;
 

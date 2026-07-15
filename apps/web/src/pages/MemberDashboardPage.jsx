@@ -40,14 +40,17 @@ const MemberDashboardPage = () => {
         const totalSavingsAmount = savings.reduce((sum, s) => sum + Number(s.total_savings ?? s.amount ?? 0), 0);
         setSavingsBalance(totalSavingsAmount);
 
-        // Calculate withdrawal eligibility
+        
+
         if (savings.length > 0) {
-          // Sort by date to get earliest
+          
+
           const sortedSavings = [...savings].sort((a, b) => new Date(a.date) - new Date(b.date));
           const earliest = new Date(sortedSavings[0].date);
           setEarliestSavingsDate(earliest);
 
-          // Check for last 85% withdrawal
+          
+
           let lastWithdrawalDate = null;
           try {
             const withdrawals = await pb.collection('withdrawals').getFullList({
@@ -59,7 +62,8 @@ const MemberDashboardPage = () => {
               lastWithdrawalDate = new Date(withdrawals[0].get('withdrawal_date'));
             }
           } catch (e) {
-            // Collection might not exist yet
+            
+
           }
 
           const referenceDate = lastWithdrawalDate || earliest;

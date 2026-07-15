@@ -22,7 +22,8 @@ export async function setupAdminCredentials() {
   try {
     let superuserAuthenticated = false;
 
-    // Wait for PocketBase to be reachable before attempting admin auth/create
+    
+
     const maxRetries = 12;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -32,14 +33,16 @@ export async function setupAdminCredentials() {
         break;
       } catch (authError) {
         const msg = (authError && (authError.message || authError.toString())) || '';
-        // Connection refused or network error: retry
+        
+
         if (/ECONNREFUSED|connect .* 127.0.0.1:8090|Failed to fetch|fetch failed/i.test(msg) || (authError && authError.cause && authError.cause.code === 'ECONNREFUSED')) {
           logger.warn(`PocketBase unreachable (attempt ${attempt}/${maxRetries}), retrying in 1s...`);
           await new Promise((r) => setTimeout(r, 1000));
           continue;
         }
 
-        // Other auth error (invalid creds) - break to try create flow
+        
+
         logger.warn(`Superuser auth failed for ${superAdminEmail}, attempting creation...`, authError.message || authError);
         break;
       }
@@ -103,9 +106,11 @@ export async function setupAdminCredentials() {
   }
 }
 
-/**
- * Create a test member for testing
- */
+ 
+
+                                   
+
+ 
 export async function setupTestMember() {
   try {
     await authenticateSuperuser();
@@ -122,7 +127,8 @@ export async function setupTestMember() {
     };
 
     try {
-      // Check if member exists
+      
+
       const existing = await pb.collection('members').getFullList({
         filter: `email = "${testMember.email}"`,
       });

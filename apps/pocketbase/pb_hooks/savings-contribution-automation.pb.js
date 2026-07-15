@@ -1,6 +1,8 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordAfterCreateSuccess((e) => {
-  // Comprehensive savings contribution automation
+  
+
   const contributionRecord = e.record;
   const memberId = contributionRecord.get("member_id");
   const groupId = contributionRecord.get("group_id");
@@ -12,14 +14,16 @@ onRecordAfterCreateSuccess((e) => {
   }
 
   try {
-    // 1. Get or create savings record for the member
+    
+
     let savingsRecord = null;
     const existingSavings = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
 
     if (existingSavings.length > 0) {
       savingsRecord = existingSavings[0];
     } else {
-      // Create new savings record
+      
+
       savingsRecord = new Record("savings");
       savingsRecord.set("member_id", memberId);
       savingsRecord.set("group_id", groupId);
@@ -28,7 +32,8 @@ onRecordAfterCreateSuccess((e) => {
       $app.save(savingsRecord);
     }
 
-    // 2. Update savings balance
+    
+
     const currentSavings = savingsRecord.get("total_savings") || 0;
     const newSavings = currentSavings + amount;
 
@@ -36,7 +41,8 @@ onRecordAfterCreateSuccess((e) => {
     savingsRecord.set("last_contribution_date", new Date().toISOString());
     $app.save(savingsRecord);
 
-    // 3. Create contribution history record
+    
+
     const contributionHistory = new Record("contributions_history");
     contributionHistory.set("member_id", memberId);
     contributionHistory.set("group_id", groupId);
@@ -47,7 +53,8 @@ onRecordAfterCreateSuccess((e) => {
     contributionHistory.set("balance", newSavings);
     $app.save(contributionHistory);
 
-    // 4. Notify member about contribution
+    
+
     const contributionNotification = new Record("notifications");
     contributionNotification.set("member_id", memberId);
     contributionNotification.set("type", "contribution");
@@ -56,8 +63,10 @@ onRecordAfterCreateSuccess((e) => {
     contributionNotification.set("read_status", false);
     $app.save(contributionNotification);
 
-    // 5. Check if member has reached loan eligibility threshold
-    const loanEligibilityThreshold = 3000; // This could be configurable
+    
+
+    const loanEligibilityThreshold = 3000; 
+
     if (newSavings >= loanEligibilityThreshold && currentSavings < loanEligibilityThreshold) {
       const eligibilityNotification = new Record("notifications");
       eligibilityNotification.set("member_id", memberId);

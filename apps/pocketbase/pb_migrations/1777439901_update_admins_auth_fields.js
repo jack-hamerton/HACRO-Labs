@@ -1,10 +1,13 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 migrate((app) => {
-  // Try to find the admins collection
+  
+
   let collection = app.findCollectionByNameOrId("admins");
   
   if (!collection) {
-    // If it doesn't exist, create it
+    
+
     collection = new Collection({
       "createRule": null,
       "deleteRule": null,
@@ -106,7 +109,8 @@ migrate((app) => {
     return app.save(collection);
   }
 
-  // If it exists, add missing fields
+  
+
   const emailField = collection.fields.find(f => f.name === "email");
   const passwordField = collection.fields.find(f => f.name === "password");
   
@@ -138,7 +142,8 @@ migrate((app) => {
     });
   }
   
-  // Ensure first_name and last_name exist
+  
+
   const firstNameField = collection.fields.find(f => f.name === "first_name");
   const lastNameField = collection.fields.find(f => f.name === "last_name");
   
@@ -174,14 +179,16 @@ migrate((app) => {
     });
   }
 
-  // Change type to auth if it's not already
+  
+
   if (collection.type !== "auth") {
     collection.type = "auth";
   }
 
   return app.save(collection);
 }, (app) => {
-  // Rollback
+  
+
   const collection = app.findCollectionByNameOrId("admins");
   if (collection) {
     return app.delete(collection);

@@ -1,6 +1,8 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordUpdate((e) => {
-  // Comprehensive loan disbursement automation with new GIL/IL rules
+  
+
   const loanRecord = e.record;
   const originalRecord = e.record.original();
 
@@ -11,7 +13,8 @@ onRecordUpdate((e) => {
   const loanAmount = loanRecord.get("amount");
   const loanType = loanRecord.get("loan_type");
 
-  // Only process when status changes to 'active' (disbursed)
+  
+
   if (newStatus !== "active" || oldStatus === "active") {
     e.next();
     return;
@@ -25,11 +28,13 @@ onRecordUpdate((e) => {
   try {
     const disbursementDate = new Date().toISOString();
 
-    // 1. Update loan with disbursement date
+    
+
     loanRecord.set("disbursement_date", disbursementDate);
     $app.save(loanRecord);
 
-    // 2. Create disbursement history record
+    
+
     const disbursementHistory = new Record("contributions_history");
     disbursementHistory.set("member_id", memberId);
     disbursementHistory.set("group_id", groupId);
@@ -37,10 +42,12 @@ onRecordUpdate((e) => {
     disbursementHistory.set("amount", loanAmount);
     disbursementHistory.set("date", disbursementDate);
     disbursementHistory.set("description", "Loan Disbursement");
-    disbursementHistory.set("balance", loanAmount); // Initial loan balance
+    disbursementHistory.set("balance", loanAmount); 
+
     $app.save(disbursementHistory);
 
-    // 3. Notify the borrower
+    
+
     const disbursementNotification = new Record("notifications");
     disbursementNotification.set("member_id", memberId);
     disbursementNotification.set("type", "disbursement");
@@ -49,13 +56,15 @@ onRecordUpdate((e) => {
     disbursementNotification.set("read_status", false);
     $app.save(disbursementNotification);
 
-    // 5. Notify group members about the disbursement
+    
+
     const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", { limit: 1000 });
 
     groupMembers.forEach((gm) => {
       const gmMemberId = gm.get("member_id");
 
-      // Don't notify the borrower again
+      
+
       if (gmMemberId === memberId) {
         return;
       }
@@ -69,7 +78,8 @@ onRecordUpdate((e) => {
       $app.save(groupNotification);
     });
 
-    // 6. For GIL loans, update guarantor statuses to 'active'
+    
+
     if (loanType === "GIL") {
       const guarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loanRecord.id + "'", { limit: 1000 });
 

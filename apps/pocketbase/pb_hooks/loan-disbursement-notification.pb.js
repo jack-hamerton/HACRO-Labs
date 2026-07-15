@@ -1,6 +1,8 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordUpdate((e) => {
-  // When loan status changes to 'active', notify the borrower
+  
+
   const loanRecord = e.record;
   const originalRecord = e.record.original();
   

@@ -1,6 +1,8 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordAfterCreateSuccess((e) => {
-  // Automatically assign members to themed groups based on location
+  
+
   const memberRecord = e.record;
   const location = memberRecord.get("location");
   const memberId = memberRecord.id;

@@ -1,6 +1,8 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 onRecordAfterCreateSuccess((e) => {
-  // When a message is created, notify all group members
+  
+
   const messageRecord = e.record;
   const groupId = messageRecord.get("group_id");
   const senderId = messageRecord.get("member_id");
@@ -11,18 +13,21 @@ onRecordAfterCreateSuccess((e) => {
   }
   
   try {
-    // Find all members in the group
+    
+
     const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", { limit: 1000 });
     
     groupMembers.forEach((gm) => {
       const gmMemberId = gm.get("member_id");
       
-      // Don't notify the sender
+      
+
       if (gmMemberId === senderId) {
         return;
       }
       
-      // Create notification for each group member
+      
+
       const notification = new Record("notifications");
       notification.set("member_id", gmMemberId);
       notification.set("type", "message");

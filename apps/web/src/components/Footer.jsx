@@ -38,10 +38,10 @@ const Footer = () => {
   return (
     <footer className="bg-secondary text-secondary-foreground border-t border-border mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Horizontal layout for all sections */}
+        {                                    }
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-8">
           
-          {/* HACRO Hub */}
+          {           }
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-4">
               <Users className="w-8 h-8 text-primary" />
@@ -52,7 +52,7 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {             }
           <div className="flex-1">
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <div className="grid grid-cols-2 gap-y-2 text-sm">
@@ -65,7 +65,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Contact Us */}
+          {            }
           <div className="flex-1">
             <h3 className="font-semibold mb-4">Contact Us</h3>
             <ul className="space-y-2 text-sm">
@@ -84,7 +84,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Follow Us */}
+          {           }
           <div className="flex-1">
             <h3 className="font-semibold mb-4">Follow Us</h3>
             <ul className="space-y-2 text-sm">
@@ -110,7 +110,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Copyright + Footer signup */}
+        {                           }
         <div className="border-t border-green-500 mt-8 pt-6 text-sm text-slate-200 opacity-90" style={{ borderTopWidth: '1px' }}>
           <div className="flex flex-col gap-4 items-center justify-between sm:flex-row">
             <p className="font-semibold text-black">&copy; {new Date().getFullYear()} HACRO Hub. All rights reserved.</p>

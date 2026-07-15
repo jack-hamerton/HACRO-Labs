@@ -1,4 +1,5 @@
-/// <reference path="../pb_data/types.d.ts" />
+
+
 migrate((app) => {
   const adminSessions = new Collection({
     "createRule": null,

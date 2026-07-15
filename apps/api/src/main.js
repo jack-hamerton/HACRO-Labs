@@ -139,7 +139,8 @@ async function start() {
 
 	const server = createServer(app);
 
-	// attach websocket signalling server
+	
+
 	attachSignaling(server);
 
 	let activePort = port;
@@ -157,12 +158,14 @@ async function start() {
 
 	await setupAdminCredentials();
 
-	// Optionally run PocketBase migrations if enabled
+	
+
 	if (process.env.POCKETBASE_AUTO_MIGRATE === 'true') {
 		try {
 			logger.info('POCKETBASE_AUTO_MIGRATE enabled — running migrations');
 			const migrate = await import('../../pocketbase/migrate-conferences.js');
-			// script itself requires setup-schema which runs immediately
+			
+
 			logger.info('PocketBase migrations executed');
 		} catch (err) {
 			logger.error('Failed to run PocketBase migrations:', err);

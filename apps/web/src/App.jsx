@@ -34,7 +34,8 @@ import GenderEqualityAndInclusionPage from '@/pages/GenderEqualityAndInclusionPa
 import RegenerativeAgribusinessPage from '@/pages/RegenerativeAgribusinessPage.jsx';
 import AdminNewsletterPage from '@/pages/AdminNewsletterPage.jsx';
 
-// Admin Routes
+
+
 import AdminLoginPage from '@/pages/AdminLoginPage.jsx';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
@@ -71,14 +72,16 @@ function App() {
             <Route path="/registration-confirmation" element={<RegistrationConfirmationPage />} />
             <Route path="/member-login" element={<MemberLoginPage />} />
             <Route path="/forgot-password" element={<MemberForgotPasswordPage />} />
+            <Route path="/member-forgot-password" element={<MemberForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<MemberResetPasswordPage />} />
+            <Route path="/member-reset-password/:token?" element={<MemberResetPasswordPage />} />
             <Route path="/staff" element={<StaffPage />} />
             <Route path="/donate" element={<DonatePage />} />
             <Route path="/community-financial-empowerment" element={<CommunityFinancialEmpowermentPage />} />
             <Route path="/gender-equality-and-inclusion" element={<GenderEqualityAndInclusionPage />} />
             <Route path="/regenerative-agribusiness" element={<RegenerativeAgribusinessPage />} />
             
-            {/* Member Routes */}
+            {               }
             <Route path="/member-dashboard" element={<ProtectedRoute requireMember><MemberDashboardPage /></ProtectedRoute>} />
             <Route path="/messages" element={<ProtectedRoute requireMember><MessagesPage /></ProtectedRoute>} />
             <Route path="/make-payment" element={<ProtectedRoute requireMember><PaymentSelectionPage /></ProtectedRoute>} />
@@ -94,12 +97,12 @@ function App() {
             <Route path="/group/:groupId/chat" element={<ProtectedRoute requireMember><GroupMessaging /></ProtectedRoute>} />
             <Route path="/loan/:loanId/repayment" element={<ProtectedRoute requireMember><LoanRepaymentTracker /></ProtectedRoute>} />
             
-            {/* Admin Public Routes */}
+            {                     }
             <Route path="/admin-login" element={<AdminLoginPage />} />
             <Route path="/admin-forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/admin-reset-password/:token" element={<ResetPasswordPage />} />
 
-            {/* Admin Protected Routes */}
+            {                        }
             <Route path="/admin-dashboard" element={<ProtectedAdminRoute><AdminDashboardPage /></ProtectedAdminRoute>} />
             <Route path="/analytics" element={<ProtectedAdminRoute requiredPermission="view_analytics"><AnalyticsDashboard /></ProtectedAdminRoute>} />
             <Route path="/admin-manage-admins" element={<ProtectedAdminRoute requireSuperAdmin requiredPermission="manage_admins"><AdminManagementPage /></ProtectedAdminRoute>} />

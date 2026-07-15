@@ -3,12 +3,13 @@ import { MessageCircle, X } from 'lucide-react';
 
 const WhatsAppWidget = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const phoneNumber = '254757838028'; // Kenya format (0757838028 → +254757838028)
+  const phoneNumber = '254757838028'; 
+
   const whatsappLink = `https://wa.me/${phoneNumber}`;
 
   return (
     <>
-      {/* Floating WhatsApp Button */}
+      {                          }
       <div className="fixed bottom-6 right-6 z-40">
         {isOpen && (
           <div className="mb-4 bg-white rounded-2xl shadow-lg p-4 w-72 border border-slate-200 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -48,7 +49,7 @@ const WhatsAppWidget = () => {
           </div>
         )}
 
-        {/* Main WhatsApp Button */}
+        {                      }
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-2 animate-bounce flex items-center justify-center"
@@ -59,7 +60,7 @@ const WhatsAppWidget = () => {
         </button>
       </div>
 
-      {/* Overlay when menu is open */}
+      {                           }
       {isOpen && (
         <div
           className="fixed inset-0 z-30"
