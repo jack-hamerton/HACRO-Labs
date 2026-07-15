@@ -16,6 +16,8 @@ import logger from './utils/logger.js';
 import { BodyLimit } from './constants/common.js';
 import { setupAdminCredentials } from './utils/setupAdmin.js';
 import { waitForPocketBase } from './utils/pocketbaseClient.js';
+import { createServer } from 'http';
+import attachSignaling from './signaling.js';
 
 const app = express();
 
@@ -105,7 +107,26 @@ app.use((req, res) => {
 	res.status(404).json({ error: 'Route not found' });
 });
 
-const port = process.env.PORT || 3001;
+const defaultPort = 3001;
+const port = Number(process.env.PORT || defaultPort);
+
+function listenOnPort(server, portToUse) {
+	return new Promise((resolve, reject) => {
+		const onError = (err) => {
+			server.removeListener('listening', onListen);
+			reject(err);
+		};
+
+		const onListen = () => {
+			server.removeListener('error', onError);
+			resolve(portToUse);
+		};
+
+		server.once('error', onError);
+		server.once('listening', onListen);
+		server.listen(portToUse, '127.0.0.1');
+	});
+}
 
 async function start() {
 	try {
@@ -116,10 +137,39 @@ async function start() {
 		logger.warn('PocketBase did not become reachable in time, continuing to start API:', err.message || err);
 	}
 
-	app.listen(port, async () => {
-		await setupAdminCredentials();
-		logger.info(`API Server running on http://localhost:${port}`);
-	});
+	const server = createServer(app);
+
+	// attach websocket signalling server
+	attachSignaling(server);
+
+	let activePort = port;
+	try {
+		activePort = await listenOnPort(server, port);
+	} catch (err) {
+		if (err.code === 'EADDRINUSE' && port === defaultPort && !process.env.PORT) {
+			const fallbackPort = defaultPort + 1;
+			logger.warn(`Port ${defaultPort} is already in use. Trying fallback port ${fallbackPort}.`);
+			activePort = await listenOnPort(server, fallbackPort);
+		} else {
+			throw err;
+		}
+	}
+
+	await setupAdminCredentials();
+
+	// Optionally run PocketBase migrations if enabled
+	if (process.env.POCKETBASE_AUTO_MIGRATE === 'true') {
+		try {
+			logger.info('POCKETBASE_AUTO_MIGRATE enabled — running migrations');
+			const migrate = await import('../../pocketbase/migrate-conferences.js');
+			// script itself requires setup-schema which runs immediately
+			logger.info('PocketBase migrations executed');
+		} catch (err) {
+			logger.error('Failed to run PocketBase migrations:', err);
+		}
+	}
+
+	logger.info(`API Server running on http://localhost:${activePort}`);
 }
 
 start();

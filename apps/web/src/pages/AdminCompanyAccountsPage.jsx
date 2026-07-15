@@ -101,7 +101,6 @@ const AdminCompanyAccountsPage = () => {
             <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           </div>
         ) : (
-          data && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="dashboard-card">
@@ -315,7 +314,6 @@ const AdminCompanyAccountsPage = () => {
                 </div>
               </div>
             </>
-          )
         )}
       </div>
     </AdminLayout>

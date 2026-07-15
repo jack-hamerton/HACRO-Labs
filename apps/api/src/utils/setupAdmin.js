@@ -2,8 +2,13 @@ import pb, { authenticateSuperuser } from './pocketbaseClient.js';
 import logger from './logger.js';
 
 export async function setupAdminCredentials() {
-  const superAdminEmail = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL || 'hamertonotieno99@gmail.com';
-  const superAdminPassword = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD || 'E75p6p5!';
+  const superAdminEmail = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL || null;
+  const superAdminPassword = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD || null;
+
+  if (!superAdminEmail || !superAdminPassword) {
+    logger.warn('POCKETBASE_SUPERUSER_EMAIL / POCKETBASE_SUPERUSER_PASSWORD not configured; skipping admin setup.');
+    return;
+  }
 
   const superAdminData = {
     email: superAdminEmail,

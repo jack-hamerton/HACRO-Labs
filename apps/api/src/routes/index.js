@@ -5,6 +5,7 @@ import adminRouter from './admin.js';
 import membersRouter from './members.js';
 import staffRouter from './staff.js';
 import loanManagementRouter from './loan-management.js';
+import conferencesRouter from './conferences.js';
 
 const router = Router();
 
@@ -29,6 +30,7 @@ export default () => {
     router.use('/members', membersRouter);
     router.use('/staff', staffRouter);
     router.use('/admin', loanManagementRouter);
+    router.use('/conferences', conferencesRouter);
 
     return router;
 };

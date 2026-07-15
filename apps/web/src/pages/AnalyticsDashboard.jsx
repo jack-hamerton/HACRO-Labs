@@ -10,7 +10,13 @@ const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3
 
 const AnalyticsDashboard = () => {
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({
+    totalMembers: 0,
+    totalSavings: 0,
+    totalLoans: 0,
+    activeLoans: 0,
+    defaultRate: '0%'
+  });
   const [groupData, setGroupData] = useState([]);
 
   useEffect(() => {
@@ -70,22 +76,22 @@ const AnalyticsDashboard = () => {
               <div className="stat-card">
                 <Users className="w-6 h-6 text-primary mb-2" />
                 <p className="text-sm text-muted-foreground">Total Members</p>
-                <p className="text-2xl font-bold text-foreground">{stats?.totalMembers}</p>
+                <p className="text-2xl font-bold text-foreground">{stats.totalMembers ?? 0}</p>
               </div>
               <div className="stat-card">
                 <PiggyBank className="w-6 h-6 text-[hsl(var(--savings))] mb-2" />
                 <p className="text-sm text-muted-foreground">Total Savings</p>
-                <p className="text-2xl font-bold text-[hsl(var(--savings))]">KES {stats?.totalSavings.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-[hsl(var(--savings))]">KES {(stats.totalSavings ?? 0).toLocaleString()}</p>
               </div>
               <div className="stat-card">
                 <Wallet className="w-6 h-6 text-[hsl(var(--loans))] mb-2" />
                 <p className="text-sm text-muted-foreground">Total Loans Disbursed</p>
-                <p className="text-2xl font-bold text-[hsl(var(--loans))]">KES {stats?.totalLoans.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-[hsl(var(--loans))]">KES {(stats.totalLoans ?? 0).toLocaleString()}</p>
               </div>
               <div className="stat-card">
                 <AlertTriangle className="w-6 h-6 text-destructive mb-2" />
                 <p className="text-sm text-muted-foreground">Default Rate</p>
-                <p className="text-2xl font-bold text-destructive">{stats?.defaultRate}</p>
+                <p className="text-2xl font-bold text-destructive">{stats.defaultRate ?? '0%'}</p>
               </div>
             </div>
 
@@ -109,7 +115,7 @@ const AnalyticsDashboard = () => {
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={groupData} dataKey="loans" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                      <Pie data={groupData} dataKey="loans" nameKey="name" cx="50%" cy="50%" outerRadius={groupData.length > 0 ? 100 : 0} label>
                         {groupData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}

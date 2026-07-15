@@ -1,6 +1,7 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import pb, { authPb, authenticateSuperuser } from '../utils/pocketbaseClient.js';
+import membersPassword from './membersPassword.js';
 import logger from '../utils/logger.js';
 import { generateToken } from '../utils/adminUtils.js';
 import { verifyMemberToken } from '../middleware/memberAuth.js';
@@ -196,3 +197,6 @@ router.get('/profile', verifyMemberToken, async (req, res) => {
 });
 
 export default router;
+
+// mount password routes
+router.use('/password', membersPassword);

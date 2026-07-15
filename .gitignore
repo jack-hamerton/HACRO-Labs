@@ -1,1 +1,15 @@
 node_modules
+
+# Local environment files
+.env
+apps/api/.env
+apps/web/.env
+apps/pocketbase/.env
+
+# Build output
+dist/
+apps/web/dist
+
+# PocketBase runtime data
+apps/pocketbase/pb_data/*
+!apps/pocketbase/pb_data/types.d.ts

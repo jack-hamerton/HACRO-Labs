@@ -38,6 +38,8 @@ import AdminNewsletterPage from '@/pages/AdminNewsletterPage.jsx';
 import AdminLoginPage from '@/pages/AdminLoginPage.jsx';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
+import MemberForgotPasswordPage from '@/pages/MemberForgotPasswordPage.jsx';
+import MemberResetPasswordPage from '@/pages/MemberResetPasswordPage.jsx';
 import AdminDashboardPage from '@/pages/AdminDashboardPage.jsx';
 import AdminManagementPage from '@/pages/AdminManagementPage.jsx';
 import AdminTaskManagementPage from '@/pages/AdminTaskManagementPage.jsx';
@@ -52,6 +54,7 @@ import AdminMemberDetailsPage from '@/pages/AdminMemberDetailsPage.jsx';
 import AdminWithdrawalManagementPage from '@/pages/AdminWithdrawalManagementPage.jsx';
 import AdminMemberSearchPage from '@/pages/AdminMemberSearchPage.jsx';
 import AdminFraudManagementPage from '@/pages/AdminFraudManagementPage.jsx';
+import MessagesPage from '@/pages/MessagesPage.jsx';
 
 function App() {
   return (
@@ -67,6 +70,8 @@ function App() {
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/registration-confirmation" element={<RegistrationConfirmationPage />} />
             <Route path="/member-login" element={<MemberLoginPage />} />
+            <Route path="/forgot-password" element={<MemberForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<MemberResetPasswordPage />} />
             <Route path="/staff" element={<StaffPage />} />
             <Route path="/donate" element={<DonatePage />} />
             <Route path="/community-financial-empowerment" element={<CommunityFinancialEmpowermentPage />} />
@@ -75,6 +80,7 @@ function App() {
             
             {/* Member Routes */}
             <Route path="/member-dashboard" element={<ProtectedRoute requireMember><MemberDashboardPage /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute requireMember><MessagesPage /></ProtectedRoute>} />
             <Route path="/make-payment" element={<ProtectedRoute requireMember><PaymentSelectionPage /></ProtectedRoute>} />
             <Route path="/payment-history" element={<ProtectedRoute requireMember><MemberPaymentHistoryPage /></ProtectedRoute>} />
             <Route path="/group-dashboard" element={<ProtectedRoute requireMember><GroupDashboardPage /></ProtectedRoute>} />

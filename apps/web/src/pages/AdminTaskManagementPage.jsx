@@ -85,10 +85,16 @@ const AdminTaskManagementPage = () => {
     const title = newTitle.trim();
     setNewTitle('');
     try {
-      const payload = { title, assigned_to: newAssignee || null, progress: 0 };
+      const payload = { title, assigned_to: newAssignee ? [newAssignee] : null, progress: 0 };
       if (pb.collection) {
         const created = await pb.collection('tasks').create(payload, { $autoCancel: false });
-        setTasks((t) => [...t, { id: created.id, title: created.title || title, assigned_to: created.assigned_to || null, progress: created.progress || 0, raw: created }]);
+        setTasks((t) => [...t, {
+          id: created.id,
+          title: created.title || title,
+          assigned_to: Array.isArray(created.assigned_to) ? created.assigned_to[0] : created.assigned_to || null,
+          progress: Number(created.progress || 0),
+          raw: created
+        }] );
         toast.success('Task created');
         return;
       }
@@ -188,7 +194,7 @@ const AdminTaskManagementPage = () => {
                     <div className="w-8 h-8 rounded bg-emerald-500/20 flex items-center justify-center text-emerald-200 font-medium">{i + 1}</div>
                     <div>
                       <div className="font-medium">{t.title}</div>
-                      <div className="text-xs text-muted-foreground">Assigned: {t.assigned_to ? (admins.find(a => a.id === t.assigned_to)?.full_name || t.assigned_to) : 'Unassigned'}</div>
+                      <div className="text-xs text-muted-foreground">Assigned: {t.assigned_to ? (admins.find(a => a.id === (Array.isArray(t.assigned_to) ? t.assigned_to[0] : t.assigned_to))?.full_name || (Array.isArray(t.assigned_to) ? t.assigned_to[0] : t.assigned_to)) : 'Unassigned'}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

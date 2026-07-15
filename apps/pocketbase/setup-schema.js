@@ -9,8 +9,8 @@
  */
 
 const PB_URL = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
-const ADMIN_EMAIL = process.env.POCKETBASE_ADMIN_EMAIL || process.env.POCKETBASE_SUPERUSER_EMAIL || 'hamertonotieno99@gmail.com';
-const ADMIN_PASSWORD = process.env.POCKETBASE_ADMIN_PASSWORD || process.env.POCKETBASE_SUPERUSER_PASSWORD || 'E75p6p5!';
+const ADMIN_EMAIL = process.env.POCKETBASE_ADMIN_EMAIL || process.env.POCKETBASE_SUPERUSER_EMAIL || null;
+const ADMIN_PASSWORD = process.env.POCKETBASE_ADMIN_PASSWORD || process.env.POCKETBASE_SUPERUSER_PASSWORD || null;
 const ADMIN_TOKEN = process.env.POCKETBASE_ADMIN_TOKEN || null;
 
 let authToken = ADMIN_TOKEN;
@@ -20,6 +20,11 @@ async function authenticate() {
   if (ADMIN_TOKEN) {
     console.log('✅ Using provided admin token for authentication');
     return true;
+  }
+
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.error('❌ No admin credentials supplied. Set POCKETBASE_ADMIN_EMAIL and POCKETBASE_ADMIN_PASSWORD or POCKETBASE_ADMIN_TOKEN.');
+    return false;
   }
 
   const result = await makeRequest('POST', '/api/collections/_superusers/auth-with-password', {
@@ -642,6 +647,120 @@ async function main() {
       { name: 'pinned', type: 'bool', required: false }
     ]
   });
+
+  const memberMessagesCollection = await createCollectionIfMissing({
+    name: 'member_messages',
+    type: 'base',
+    schema: [
+      {
+        name: 'sender_id',
+        type: 'relation',
+        required: true,
+        options: {
+          collectionId: membersCollection?.id || '',
+          cascadeDelete: true,
+          minSelect: 1,
+          maxSelect: 1
+        }
+      },
+      {
+        name: 'recipient_id',
+        type: 'relation',
+        required: true,
+        options: {
+          collectionId: membersCollection?.id || '',
+          cascadeDelete: true,
+          minSelect: 1,
+          maxSelect: 1
+        }
+      },
+      { name: 'message_content', type: 'text', required: true },
+      { name: 'read_status', type: 'bool', required: false }
+    ],
+    createRule: 'sender_id = @request.auth.id',
+    listRule: 'sender_id = @request.auth.id || recipient_id = @request.auth.id',
+    viewRule: 'sender_id = @request.auth.id || recipient_id = @request.auth.id',
+    updateRule: 'sender_id = @request.auth.id',
+    deleteRule: 'sender_id = @request.auth.id || recipient_id = @request.auth.id'
+  });
+
+  // ---- Conferencing collections ----
+  const conferencesCollection = await createCollectionIfMissing({
+    name: 'conferences',
+    type: 'base',
+    schema: [
+      { name: 'title', type: 'text', required: true },
+      { name: 'description', type: 'text', required: false },
+      {
+        name: 'group_id',
+        type: 'relation',
+        required: true,
+        options: { collectionId: groupsCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 }
+      },
+      { name: 'created_by', type: 'relation', required: false, options: { collectionId: adminsCollection?.id || '', minSelect: 1, maxSelect: 1 } },
+      { name: 'is_private', type: 'bool', required: false },
+      { name: 'starts_at', type: 'date', required: false },
+      { name: 'ends_at', type: 'date', required: false },
+      { name: 'websocket_channel', type: 'text', required: false }
+    ]
+  });
+
+  const conferenceMembersCollection = await createCollectionIfMissing({
+    name: 'conference_memberships',
+    type: 'base',
+    schema: [
+      { name: 'conference_id', type: 'relation', required: true, options: { collectionId: conferencesCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'member_id', type: 'relation', required: true, options: { collectionId: membersCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'role', type: 'select', required: true, options: { values: ['host', 'cohost', 'participant', 'viewer'] } },
+      { name: 'joined_at', type: 'date', required: false }
+    ]
+  });
+
+  const conferenceMessagesCollection = await createCollectionIfMissing({
+    name: 'conference_messages',
+    type: 'base',
+    schema: [
+      { name: 'conference_id', type: 'relation', required: true, options: { collectionId: conferencesCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'member_id', type: 'relation', required: true, options: { collectionId: membersCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'content', type: 'text', required: true },
+      { name: 'type', type: 'select', required: true, options: { values: ['chat', 'system', 'announcement'] } },
+      { name: 'created_at', type: 'date', required: true }
+    ]
+  });
+
+  const voiceNotesCollection = await createCollectionIfMissing({
+    name: 'conference_voice_notes',
+    type: 'base',
+    schema: [
+      { name: 'conference_id', type: 'relation', required: true, options: { collectionId: conferencesCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'member_id', type: 'relation', required: true, options: { collectionId: membersCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'file', type: 'file', required: true, options: { maxSelect: 1, maxSize: 10485760, mimeTypes: ['audio/mpeg', 'audio/mp3', 'audio/wav'], thumbs: [] } },
+      { name: 'duration', type: 'number', required: false },
+      { name: 'created_at', type: 'date', required: true }
+    ]
+  });
+
+  const reactionsCollection = await createCollectionIfMissing({
+    name: 'conference_reactions',
+    type: 'base',
+    schema: [
+      { name: 'conference_id', type: 'relation', required: true, options: { collectionId: conferencesCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'member_id', type: 'relation', required: true, options: { collectionId: membersCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'emoji', type: 'text', required: true },
+      { name: 'created_at', type: 'date', required: true }
+    ]
+  });
+
+  const breakoutRoomsCollection = await createCollectionIfMissing({
+    name: 'breakout_rooms',
+    type: 'base',
+    schema: [
+      { name: 'conference_id', type: 'relation', required: true, options: { collectionId: conferencesCollection?.id || '', cascadeDelete: true, minSelect: 1, maxSelect: 1 } },
+      { name: 'title', type: 'text', required: true },
+      { name: 'created_at', type: 'date', required: true }
+    ]
+  });
+
 
   const achievementsCollection = await createCollectionIfMissing({
     name: 'achievements',

@@ -8,6 +8,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext.jsx';
 
 const AdminFraudManagementPage = () => {
   const { isSuperAdmin, currentAdmin } = useAdminAuth();
+  const SUPERADMIN_EMAIL = import.meta.env.VITE_SUPERADMIN_EMAIL || '';
   const [alerts, setAlerts] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -191,7 +192,7 @@ const AdminFraudManagementPage = () => {
                         </span>
                       </div>
 
-                      {(isSuperAdmin || currentAdmin?.email === 'hamertonotieno99@gmail.com') && (
+                      {(isSuperAdmin || currentAdmin?.email === SUPERADMIN_EMAIL) && (
                         <div className="mt-4 flex flex-wrap gap-2">
                           <button
                             type="button"

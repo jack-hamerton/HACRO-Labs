@@ -31,6 +31,8 @@ const emptyForm = () => ({
 });
 
 const AdminManagementPage = () => {
+  const SUPERADMIN_EMAIL = import.meta.env.VITE_SUPERADMIN_EMAIL || '';
+  const SUPERADMIN_NAME = import.meta.env.VITE_SUPERADMIN_NAME || 'Super Admin';
   const { currentAdmin, token } = useAdminAuth();
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -187,9 +189,9 @@ const AdminManagementPage = () => {
               <h2 className="mt-3 text-2xl font-bold text-slate-900 tracking-tight">System administrators</h2>
               <p className="mt-2 text-sm text-slate-600">Create new admin accounts, remove old ones, and assign the portal permissions each admin should see and use.</p>
             </div>
-            <div className="rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+              <div className="rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
               <p className="font-semibold text-slate-900">Current super admin</p>
-              <p className="mt-1">{currentAdmin?.full_name || 'Jack Hamerton'}</p>
+              <p className="mt-1">{currentAdmin?.full_name || SUPERADMIN_NAME}</p>
             </div>
           </div>
         </div>
@@ -266,7 +268,7 @@ const AdminManagementPage = () => {
             ) : (
               <div className="divide-y divide-slate-100">
                 {admins.map((admin) => {
-                  const isSuper = admin.role === 'super_admin' || admin.email === 'hamertonotieno99@gmail.com';
+                  const isSuper = admin.role === 'super_admin' || admin.email === SUPERADMIN_EMAIL;
                   return (
                     <div key={admin.id} className="flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between">
                       <div>

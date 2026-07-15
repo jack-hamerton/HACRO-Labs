@@ -5,8 +5,8 @@ import apiServerClient from '@/lib/apiServerClient.js';
 import { toast } from 'sonner';
 
 const AdminAuthContext = createContext(null);
-const SUPERADMIN_EMAIL = 'hamertonotieno99@gmail.com';
-const SUPERADMIN_NAME = 'Jack Hamerton';
+const SUPERADMIN_EMAIL = import.meta.env.VITE_SUPERADMIN_EMAIL || '';
+const SUPERADMIN_NAME = import.meta.env.VITE_SUPERADMIN_NAME || 'Super Admin';
 const DEFAULT_PERMISSIONS = [
   'manage_admins',
   'manage_members',
@@ -80,6 +80,7 @@ export const AdminAuthProvider = ({ children }) => {
         setToken(storedToken);
         localStorage.setItem('adminToken', storedToken);
         localStorage.setItem('pb_token', storedToken);
+        pb.authStore.save(storedToken, null);
       } catch (error) {
         console.warn('Failed to restore admin token from storage:', error.message || error);
         localStorage.removeItem('adminToken');
@@ -138,7 +139,7 @@ export const AdminAuthProvider = ({ children }) => {
     setCurrentAdmin(normalizedAdmin);
     localStorage.setItem('adminToken', nextToken);
     localStorage.setItem('pb_token', nextToken);
-    pb.authStore.clear();
+    pb.authStore.save(nextToken, null);
 
     return { token: nextToken, admin: normalizedAdmin };
   };

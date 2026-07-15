@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { User, Users, Wallet, PiggyBank, MessageSquare, History, CreditCard, Bell, ShieldCheck, LogOut, Menu, X } from 'lucide-react';
+import { User, Users, Wallet, PiggyBank, MessageSquare, MessageCircle, History, CreditCard, Bell, ShieldCheck, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 
 const MemberPortalLayout = ({ title, subtitle, children }) => {
@@ -12,6 +12,7 @@ const MemberPortalLayout = ({ title, subtitle, children }) => {
   const navLinks = [
     { path: '/member-dashboard', label: 'Dashboard', icon: User },
     { path: '/group-dashboard', label: 'My Group', icon: Users },
+    { path: '/messages', label: 'Messages', icon: MessageCircle },
     { path: '/make-payment', label: 'Make Payment', icon: Wallet },
     { path: '/payment-history', label: 'Payment History', icon: CreditCard },
     { path: '/savings-contribution', label: 'Contributions', icon: PiggyBank },

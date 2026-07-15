@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { Users, Wallet, PiggyBank, MessageSquare, AlertCircle } from 'lucide-react';
+import { Users, Wallet, PiggyBank, MessageSquare, MessageCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 import { useAuth } from '@/contexts/AuthContext.jsx';
@@ -139,6 +139,11 @@ const GroupDashboardPage = () => {
                     <span className="text-sm text-muted-foreground">Active Loan</span>
                     <span className={`text-sm font-semibold tabular-nums ${member.loanBalance > 0 ? 'text-[hsl(var(--loans))]' : 'text-muted-foreground'}`}>KES {member.loanBalance.toLocaleString()}</span>
                   </div>
+                  {member.id !== currentUser.id && (
+                    <Link to={`/messages?memberId=${member.id}`} className="btn-outline w-full text-center">
+                      Message
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}
