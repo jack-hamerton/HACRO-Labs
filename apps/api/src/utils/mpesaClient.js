@@ -2,12 +2,23 @@ import 'dotenv/config';
 import axios from 'axios';
 import logger from './logger.js';
 
-const MPESA_AUTH_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-const MPESA_STK_PUSH_URL = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-const MPESA_STK_QUERY_URL = 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query';
+const getMpesaBaseUrl = () => {
+  return (process.env.MPESA_MODE || '').toLowerCase() === 'sandbox'
+    ? 'https://sandbox.safaricom.co.ke'
+    : 'https://api.safaricom.co.ke';
+};
+
+const MPESA_AUTH_URL = `${getMpesaBaseUrl()}/oauth/v1/generate?grant_type=client_credentials`;
+const MPESA_STK_PUSH_URL = `${getMpesaBaseUrl()}/mpesa/stkpush/v1/processrequest`;
+const MPESA_STK_QUERY_URL = `${getMpesaBaseUrl()}/mpesa/stkpushquery/v1/query`;
 
 let cachedAccessToken = null;
 let tokenExpiryTime = null;
+const sandboxPayments = new Map();
+
+export const isMpesaSandbox = () => {
+  return (process.env.MPESA_MODE || '').toLowerCase() === 'sandbox';
+};
 
  
 
@@ -80,9 +91,21 @@ function generateTimestamp() {
                                             
 
  
+function getMpesaShortCode() {
+  return (process.env.MPESA_MODE || '').toLowerCase() === 'sandbox'
+    ? process.env.MPESA_SANDBOX_SHORTCODE || process.env.MPESA_SHORTCODE
+    : process.env.MPESA_SHORTCODE;
+}
+
+function getMpesaPasskey() {
+  return (process.env.MPESA_MODE || '').toLowerCase() === 'sandbox'
+    ? process.env.MPESA_SANDBOX_PASSKEY || process.env.MPESA_PASSKEY
+    : process.env.MPESA_PASSKEY;
+}
+
 function generatePassword(timestamp) {
-  const shortCode = process.env.MPESA_SHORTCODE;
-  const passkey = process.env.MPESA_PASSKEY;
+  const shortCode = getMpesaShortCode();
+  const passkey = getMpesaPasskey();
 
   if (!shortCode || !passkey) {
     throw new Error('M-Pesa configuration missing: MPESA_SHORTCODE or MPESA_PASSKEY');
@@ -94,19 +117,24 @@ function generatePassword(timestamp) {
 
  
 
-                            
+                             
 
-                                                                             
+                                                                              
 
-                                            
+                                             
 
-                                                                       
+                                                                        
 
                                                
 
  
 export async function initiateStkPush(phoneNumber, amount, purpose) {
-  const shortCode = process.env.MPESA_SHORTCODE;
+  const shortCode = getMpesaShortCode();
+  const passkey = getMpesaPasskey();
+
+  if (isMpesaSandbox() && (!shortCode || !passkey)) {
+    throw new Error('Sandbox M-Pesa requires MPESA_SANDBOX_SHORTCODE and MPESA_SANDBOX_PASSKEY to initiate an STK push. Set these values in apps/api/.env for sandbox testing.');
+  }
 
   if (!shortCode) {
     throw new Error('M-Pesa configuration missing: MPESA_SHORTCODE');
@@ -166,7 +194,16 @@ export async function initiateStkPush(phoneNumber, amount, purpose) {
 
  
 export async function checkPaymentStatus(checkoutRequestId) {
-  const shortCode = process.env.MPESA_SHORTCODE;
+  if (isMpesaSandbox()) {
+    const shortCode = getMpesaShortCode();
+    const passkey = getMpesaPasskey();
+
+    if (!shortCode || !passkey) {
+      throw new Error('Sandbox M-Pesa requires MPESA_SANDBOX_SHORTCODE and MPESA_SANDBOX_PASSKEY to check payment status.');
+    }
+  }
+
+  const shortCode = getMpesaShortCode();
 
   if (!shortCode) {
     throw new Error('M-Pesa configuration missing: MPESA_SHORTCODE');

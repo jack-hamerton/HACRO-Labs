@@ -87,7 +87,7 @@ router.post('/login', authRateLimiter, async (req, res) => {
 
     if (email === SUPERUSER_EMAIL && SUPERUSER_PASSWORD) {
       try {
-        await authPb.admins.authWithPassword(email, password);
+        const superuserAuth = await authPb.collection('_superusers').authWithPassword(email, password);
         await authenticateSuperuser();
 
         const existingAdmins = await pb.collection('pbc_admins_auth').getFullList({
@@ -118,7 +118,13 @@ router.post('/login', authRateLimiter, async (req, res) => {
           });
         }
 
-        authData = await authPb.collection('pbc_admins_auth').authWithPassword(email, password);
+        authData = {
+          token: superuserAuth.token,
+          record: {
+            ...adminRecord,
+            collectionName: 'pbc_admins_auth',
+          },
+        };
       } catch (adminFallbackError) {
         logger.warn(`Superuser fallback auth failed for ${email}:`, adminFallbackError.message || adminFallbackError);
         return res.status(401).json({

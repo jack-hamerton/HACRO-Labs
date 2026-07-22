@@ -93,13 +93,13 @@ const Header = () => {
   }, []);
 
   const linkColorClasses = (active) => {
-    const base = active ? 'text-green-500' : linkMode === 'dark' ? 'text-white' : 'text-slate-900';
-    const hover = active || linkMode === 'dark' ? 'hover:text-green-500' : 'hover:text-green-500';
-    return `text-sm font-medium transition-colors duration-200 ${base} ${!active ? hover : ''}`;
+    const base = active ? 'text-green-700' : 'text-green-600';
+    const hover = 'hover:text-green-500';
+    return `text-sm font-medium transition-colors duration-200 ${base} ${hover}`;
   };
 
   const mobileLinkColorClasses = (active) => {
-    const base = active ? 'text-green-500' : linkMode === 'dark' ? 'text-white' : 'text-slate-900';
+    const base = active ? 'text-green-700' : 'text-green-600';
     return `text-base font-medium transition-colors duration-200 ${base} hover:text-green-500`;
   };
 
@@ -213,15 +213,11 @@ const Header = () => {
               )}
               {isMember && (
                 <>
-                  <Link to="/member-dashboard" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium text-foreground hover:text-green-500">Dashboard</Link>
-                  <Link to="/notifications" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium text-foreground hover:text-green-500">Notifications ({unreadCount})</Link>
                   <button onClick={handleLogout} className="text-base font-medium text-destructive text-left">Logout</button>
                 </>
               )}
               {isAdmin && (
                 <>
-                  <Link to="/admin-dashboard" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium text-foreground hover:text-green-500">Admin Dashboard</Link>
-                  <Link to="/analytics" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium text-foreground hover:text-green-500">Analytics</Link>
                   <button onClick={handleLogout} className="text-base font-medium text-destructive text-left">Logout</button>
                 </>
               )}

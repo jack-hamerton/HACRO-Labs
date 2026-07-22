@@ -58,11 +58,16 @@ router.post('/stk-push', async (req, res) => {
     });
   }
 
-  
-
-  const stkPushResponse = await initiateStkPush(phoneNumber, amount, purpose);
-
-  
+  let stkPushResponse;
+  try {
+    stkPushResponse = await initiateStkPush(phoneNumber, amount, purpose);
+  } catch (error) {
+    logger.error('STK Push initiation error:', error.response?.data || error.message || error);
+    return res.status(500).json({
+      error: error.response?.data?.errorMessage || error.response?.data?.error || error.message || 'Failed to initiate STK Push',
+      details: error.response?.data || null,
+    });
+  }
 
   cachePayment(stkPushResponse.checkoutRequestId, {
     email: email || null,

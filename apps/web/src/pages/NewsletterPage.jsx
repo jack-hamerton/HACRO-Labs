@@ -107,12 +107,12 @@ const sdgGoals = [
 ];
 
 const partnerLogos = [
-  { name: 'UNDP', src: 'https://upload.wikimedia.org/wikipedia/commons/3/3f/UNDP_logo.svg' },
-  { name: 'UN Women', src: 'https://upload.wikimedia.org/wikipedia/commons/2/2e/UN_Women_logo.svg' },
-  { name: 'WHO', src: 'https://upload.wikimedia.org/wikipedia/commons/2/2d/WHO_logo.svg' },
-  { name: 'World Bank', src: 'https://upload.wikimedia.org/wikipedia/commons/8/8f/World_Bank_logo.svg' },
-  { name: 'FAO', src: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/FAO_logo.svg' },
-  { name: 'UNICEF', src: 'https://upload.wikimedia.org/wikipedia/commons/6/6d/UNICEF_logo.svg' },
+  { name: 'USAID', src: '/images/USAID.png' },
+  { name: 'IREX', src: '/images/IREX_Logo_Color-H.png' },
+  { name: 'Youth Excel', src: '/images/youth excel.jpg' },
+  { name: '....', src: '/images/' },
+  { name: '...', src: '/images/' },
+  { name: '....', src: '/images/' },
 ];
 
 const NewsletterPage = () => {
@@ -276,12 +276,6 @@ const NewsletterPage = () => {
                       >
                         <Eye className="w-4 h-4" />
                         <span>View</span>
-                      </button>
-                      <button
-                        onClick={() => downloadFile(item)}
-                        className="btn-outline flex items-center space-x-2"
-                      >
-                        <Download className="w-4 h-4" />
                       </button>
                     </div>
                   </div>

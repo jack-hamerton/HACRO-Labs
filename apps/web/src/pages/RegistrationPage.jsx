@@ -358,7 +358,7 @@ const RegistrationPage = () => {
         const res = await apiServerClient.fetch(`/mpesa/check-payment/${checkoutRequestId}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.resultCode === "0") {
+          if (data.resultCode === 0 || data.resultCode === '0') {
             try {
               const member = await pb.collection('members').create(memberFormData, { $autoCancel: false });
               

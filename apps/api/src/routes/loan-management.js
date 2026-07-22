@@ -1,7 +1,7 @@
 import express from 'express';
 import pb from '../utils/pocketbaseClient.js';
 import logger from '../utils/logger.js';
-import { verifyAdminToken } from '../middleware/adminAuth.js';
+import { verifyAdminToken, requireSuperAdmin } from '../middleware/adminAuth.js';
 
 const router = express.Router();
 
@@ -272,12 +272,12 @@ router.get('/dashboard/stats', verifyAdminToken, async (req, res) => {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const recentLoans = allLoans.filter(l => l.created >= thirtyDaysAgo);
-    const recentContributions = await pb.collection('savings_contributions').getFullList({
-      filter: `created_date >= "${thirtyDaysAgo}"`
-    });
-    const recentRepayments = await pb.collection('loan_repayments').getFullList({
-      filter: `created_date >= "${thirtyDaysAgo}"`
-    });
+    const [allContributions, allRepayments] = await Promise.all([
+      pb.collection('savings_contributions').getFullList(),
+      pb.collection('loan_repayments').getFullList(),
+    ]);
+    const recentContributions = allContributions.filter((record) => record.created >= thirtyDaysAgo);
+    const recentRepayments = allRepayments.filter((record) => record.created >= thirtyDaysAgo);
 
     res.json({
       loans: {
@@ -306,6 +306,48 @@ router.get('/dashboard/stats', verifyAdminToken, async (req, res) => {
   } catch (error) {
     logger.error('Error fetching dashboard stats:', error);
     res.status(500).json({ error: 'Failed to fetch dashboard statistics' });
+  }
+});
+
+router.get('/analytics', verifyAdminToken, requireSuperAdmin, async (req, res) => {
+  try {
+    const [members, savings, loans, groups] = await Promise.all([
+      pb.collection('members').getFullList({ $autoCancel: false }),
+      pb.collection('savings').getFullList({ $autoCancel: false }),
+      pb.collection('loans').getFullList({ $autoCancel: false }),
+      pb.collection('groups').getFullList({ $autoCancel: false }),
+    ]);
+
+    const totalSavings = savings.reduce((sum, record) => sum + Number(record.amount || record.total_savings || 0), 0);
+    const eligibleLoans = loans.filter((loan) => !['rejected', 'pending'].includes(loan.status));
+    const totalLoans = eligibleLoans.reduce((sum, loan) => sum + Number(loan.amount || 0), 0);
+    const activeLoans = loans.filter((loan) => ['active', 'partially_paid'].includes(loan.status)).length;
+    const defaultedLoans = loans.filter((loan) => ['defaulted', 'overdue'].includes(loan.status)).length;
+    const defaultRate = loans.length > 0 ? `${((defaultedLoans / loans.length) * 100).toFixed(1)}%` : '0%';
+
+    const groupData = groups.map((group) => ({
+      name: group.group_name || group.name || 'Unnamed group',
+      savings: savings
+        .filter((record) => record.group_id === group.id)
+        .reduce((sum, record) => sum + Number(record.amount || record.total_savings || 0), 0),
+      loans: loans
+        .filter((loan) => loan.group_id === group.id && loan.status !== 'rejected')
+        .reduce((sum, loan) => sum + Number(loan.amount || 0), 0),
+    }));
+
+    res.json({
+      stats: {
+        totalMembers: members.length,
+        totalSavings,
+        totalLoans,
+        activeLoans,
+        defaultRate,
+      },
+      groupData,
+    });
+  } catch (error) {
+    logger.error('Error fetching analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics' });
   }
 });
 

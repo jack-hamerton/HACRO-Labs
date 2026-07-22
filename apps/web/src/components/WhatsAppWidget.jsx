@@ -33,7 +33,7 @@ const WhatsAppWidget = () => {
             
             <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
               <p className="text-sm text-slate-700">
-                Hi there! 👋 How can we help you today? Feel free to reach out with any questions.
+                Hi there!  How can we help you today? Feel free to reach out with any questions.
               </p>
             </div>
             

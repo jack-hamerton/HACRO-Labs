@@ -24,14 +24,14 @@ const ADMIN_TOKEN = process.env.POCKETBASE_ADMIN_TOKEN || null;
 let authToken = ADMIN_TOKEN;
 
 async function authenticate() {
-  console.log('\n🔐 Authenticating with PocketBase...');
+  console.log('\n Authenticating with PocketBase...');
   if (ADMIN_TOKEN) {
-    console.log('✅ Using provided admin token for authentication');
+    console.log(' Using provided admin token for authentication');
     return true;
   }
 
   if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
-    console.error('❌ No admin credentials supplied. Set POCKETBASE_ADMIN_EMAIL and POCKETBASE_ADMIN_PASSWORD or POCKETBASE_ADMIN_TOKEN.');
+    console.error(' No admin credentials supplied. Set POCKETBASE_ADMIN_EMAIL and POCKETBASE_ADMIN_PASSWORD or POCKETBASE_ADMIN_TOKEN.');
     return false;
   }
 
@@ -42,10 +42,10 @@ async function authenticate() {
 
   if (result.ok && result.data.token) {
     authToken = result.data.token;
-    console.log('✅ Authenticated successfully');
+    console.log(' Authenticated successfully');
     return true;
   } else {
-    console.error('❌ Authentication failed:', result.data?.message || result.error);
+    console.error(' Authentication failed:', result.data?.message || result.error);
     console.log('   Make sure PocketBase is running and admin credentials are correct');
     console.log('   Set POCKETBASE_ADMIN_EMAIL and POCKETBASE_ADMIN_PASSWORD environment variables');
     return false;
@@ -78,21 +78,21 @@ async function makeRequest(method, endpoint, body = null) {
 }
 
 async function testConnection() {
-  console.log('\n🔌 Testing PocketBase connection...');
+  console.log('\n Testing PocketBase connection...');
   const result = await makeRequest('GET', '/api/collections');
   
   if (result.ok) {
-    console.log('✅ Connected to PocketBase at', PB_URL);
+    console.log(' Connected to PocketBase at', PB_URL);
     console.log(`   Found ${result.data.items?.length || 0} collections\n`);
     return true;
   }
 
   if (result.status === 401 || result.status === 403) {
-    console.log('✅ PocketBase is reachable at', PB_URL, '(admin auth required)');
+    console.log(' PocketBase is reachable at', PB_URL, '(admin auth required)');
     return true;
   }
 
-  console.error('❌ Cannot connect to PocketBase at', PB_URL);
+  console.error(' Cannot connect to PocketBase at', PB_URL);
   if (result.status) {
     console.error(`   HTTP ${result.status} - ${JSON.stringify(result.data)}`);
   }
@@ -111,10 +111,10 @@ async function getCollectionByName(name) {
 async function updateCollection(collectionId, updates) {
   const result = await makeRequest('PATCH', `/api/collections/${collectionId}`, updates);
   if (result.ok) {
-    console.log(`✅ Updated collection: ${updates.name || collectionId}`);
+    console.log(` Updated collection: ${updates.name || collectionId}`);
     return true;
   } else {
-    console.error(`❌ Failed to update collection:`, result.data ? JSON.stringify(result.data) : result.error);
+    console.error(` Failed to update collection:`, result.data ? JSON.stringify(result.data) : result.error);
     return false;
   }
 }
@@ -122,10 +122,10 @@ async function updateCollection(collectionId, updates) {
 async function createCollection(collectionData) {
   const result = await makeRequest('POST', '/api/collections', collectionData);
   if (result.ok) {
-    console.log(`✅ Created collection: ${collectionData.name}`);
+    console.log(` Created collection: ${collectionData.name}`);
     return true;
   } else {
-    console.error(`❌ Failed to create collection:`, result.data?.message || result.error);
+    console.error(` Failed to create collection:`, result.data?.message || result.error);
     return false;
   }
 }
@@ -138,17 +138,17 @@ async function getCollections() {
 async function createCollectionIfMissing(collectionData) {
   const existing = await getCollectionByName(collectionData.name);
   if (existing) {
-    console.log(`✅ ${collectionData.name} already exists`);
+    console.log(` ${collectionData.name} already exists`);
     return existing;
   }
 
   const result = await makeRequest('POST', '/api/collections', collectionData);
   if (result.ok) {
-    console.log(`✅ Created collection: ${collectionData.name}`);
+    console.log(` Created collection: ${collectionData.name}`);
     return result.data;
   }
 
-  console.error(`❌ Failed to create collection: ${collectionData.name}`, result.data ? JSON.stringify(result.data) : result.error);
+  console.error(` Failed to create collection: ${collectionData.name}`, result.data ? JSON.stringify(result.data) : result.error);
   return null;
 }
 
@@ -189,22 +189,22 @@ async function ensureRelationField(collection, fieldName, targetCollectionId) {
 
 async function main() {
   console.log('\n' + '='.repeat(70));
-  console.log('🚀 PocketBase Schema Migration for IL & GIL Loan System');
+  console.log(' PocketBase Schema Migration for IL & GIL Loan System');
   console.log('='.repeat(70));
 
   const connected = await testConnection();
   if (!connected) {
-    console.log('❌ Cannot connect to PocketBase. Make sure it\'s running.');
+    console.log(' Cannot connect to PocketBase. Make sure it\'s running.');
     return;
   }
 
   const authenticated = await authenticate();
   if (!authenticated) {
-    console.log('❌ Authentication failed. Cannot proceed with migration.');
+    console.log(' Authentication failed. Cannot proceed with migration.');
     return;
   }
 
-  console.log('\n🔄 Starting schema migration...\n');
+  console.log('\n Starting schema migration...\n');
 
   const membersCollection = await createCollectionIfMissing({
     name: 'members',
@@ -857,7 +857,7 @@ async function main() {
       staffMembersCollection.schema = [...(staffMembersCollection.schema || []), ...fieldsToAdd];
       await updateCollection(staffMembersCollection.id, { schema: staffMembersCollection.schema });
     } else {
-      console.log('✅ Staff members collection already up to date');
+      console.log(' Staff members collection already up to date');
     }
   }
 
@@ -883,10 +883,10 @@ async function main() {
       loansCollection.schema = [...(loansCollection.schema || []), ...fieldsToAdd];
       await updateCollection(loansCollection.id, { schema: loansCollection.schema });
     } else {
-      console.log('✅ Loans collection already up to date');
+      console.log(' Loans collection already up to date');
     }
   } else {
-    console.log('⚠️  Loans collection not found');
+    console.log('️  Loans collection not found');
   }
 
   if (loanApprovalsCollection) {
@@ -904,7 +904,7 @@ async function main() {
       approvalsCollection.schema = [...(approvalsCollection.schema || []), ...fieldsToAdd];
       await updateCollection(approvalsCollection.id, { schema: approvalsCollection.schema });
     } else {
-      console.log('✅ Loan approvals collection already up to date');
+      console.log(' Loan approvals collection already up to date');
     }
 
     if (membersCollection) {
@@ -916,7 +916,7 @@ async function main() {
       }
     }
   } else {
-    console.log('⚠️  Loan approvals collection not found');
+    console.log('️  Loan approvals collection not found');
   }
 
   if (savingsCollection) {
@@ -935,10 +935,10 @@ async function main() {
       savingsCollection.schema = [...(savingsCollection.schema || []), ...fieldsToAdd];
       await updateCollection(savingsCollection.id, { schema: savingsCollection.schema });
     } else {
-      console.log('✅ Savings collection already up to date');
+      console.log(' Savings collection already up to date');
     }
   } else {
-    console.log('⚠️  Savings collection not found');
+    console.log('️  Savings collection not found');
   }
 
   const guarantorsCollection = await getCollectionByName('loan_guarantors');
@@ -994,11 +994,11 @@ async function main() {
       viewRule: 'published = true'
     });
   } else {
-    console.log('⚠️  Newsletters collection not found; cannot enforce public access rules');
+    console.log('️  Newsletters collection not found; cannot enforce public access rules');
   }
 
   console.log('\n' + '='.repeat(70));
-  console.log('🎉 Schema migration completed!');
+  console.log(' Schema migration completed!');
   console.log('='.repeat(70));
   console.log('You can now use the IL & GIL loan system.');
   console.log('Make sure to update your frontend and backend hooks accordingly.');

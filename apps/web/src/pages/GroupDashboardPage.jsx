@@ -125,7 +125,7 @@ const GroupDashboardPage = () => {
                     </h3>
                     <div className="flex gap-1 mt-1">
                       {member.achievements.map(a => (
-                        <span key={a.id} className="w-4 h-4 rounded-full bg-yellow-100 flex items-center justify-center" title={a.achievement_type.replace('_', ' ')}>⭐</span>
+                        <span key={a.id} className="w-4 h-4 rounded-full bg-yellow-100 flex items-center justify-center" title={a.achievement_type.replace('_', ' ')}></span>
                       ))}
                     </div>
                   </div>

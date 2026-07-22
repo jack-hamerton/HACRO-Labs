@@ -1,6 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import pb, { authPb, authenticateSuperuser } from '../utils/pocketbaseClient.js';
+import pb, { authPb, authenticateSuperuser, POCKETBASE_URL } from '../utils/pocketbaseClient.js';
 import membersPassword from './membersPassword.js';
 import logger from '../utils/logger.js';
 import { generateToken } from '../utils/adminUtils.js';
@@ -10,7 +10,7 @@ const router = express.Router();
 
 const memberLoginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 8,
+  max: process.env.NODE_ENV === 'production' ? 8 : 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many login attempts, please try again later.' },
@@ -45,11 +45,32 @@ router.post('/login', memberLoginLimiter, async (req, res) => {
   let authData;
   try {
     if (isPhone) {
-      const members = await authPb.collection('members').getFullList({
-        filter: `phone = "${loginIdentity}"`,
+      const localPhone = loginIdentity.startsWith('254') ? `0${loginIdentity.slice(3)}` : loginIdentity;
+      // Authenticate as superuser via admin endpoint and query members over HTTP (reliable)
+      const adminEmail = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL || 'admin@example.com';
+      const adminPass = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD || 'Admin123!';
+      const authRes = await fetch(`${POCKETBASE_URL}/api/collections/_superusers/auth-with-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identity: adminEmail, password: adminPass }),
       });
-      if (members.length === 1 && members[0].email) {
-        authData = await authPb.collection('members').authWithPassword(members[0].email, password);
+      const authJson = await authRes.json();
+      const token = authJson.token;
+      const filter = encodeURIComponent(`(phone = "${loginIdentity}" || phone = "${localPhone}")`);
+      const membersRes = await fetch(`${POCKETBASE_URL}/api/collections/members/records?filter=${filter}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const membersJson = await membersRes.json();
+      const members = membersJson?.items || [];
+      if (members.length >= 1 && members[0].email) {
+        // Use direct HTTP call to PocketBase auth endpoint to avoid SDK client auth state issues
+        const resp = await fetch(`${POCKETBASE_URL}/api/collections/members/auth-with-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identity: members[0].email, password }),
+        });
+        if (!resp.ok) throw new Error(`PocketBase auth failed: HTTP ${resp.status}`);
+        authData = await resp.json();
       } else {
         throw new Error('No matching member for phone login');
       }

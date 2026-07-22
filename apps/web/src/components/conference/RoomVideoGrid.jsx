@@ -17,8 +17,8 @@ const ParticipantTile = ({p, spotlight, onReact, children}) => {
           {p.muted ? <span className="text-xs text-red-300">Muted</span> : <span className="text-xs text-emerald-200">Live</span>}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => onReact(p.id, '👍')} className="text-white/80 hover:text-emerald-300">👍</button>
-          <button onClick={() => onReact(p.id, '❤️')} className="text-white/80 hover:text-emerald-300">❤️</button>
+          <button onClick={() => onReact(p.id, '')} className="text-white/80 hover:text-emerald-300"></button>
+          <button onClick={() => onReact(p.id, '️')} className="text-white/80 hover:text-emerald-300">️</button>
         </div>
       </div>
     </div>
@@ -40,7 +40,7 @@ const RoomVideoGrid = ({ participants = [], spotlightId, onReact = () => {}, roo
               <RoleBadge role={'You'} />
             </div>
             <div className="flex items-center gap-2">
-              <button className="text-white/80 hover:text-emerald-300">📷</button>
+              <button className="text-white/80 hover:text-emerald-300"></button>
             </div>
           </div>
         </div>

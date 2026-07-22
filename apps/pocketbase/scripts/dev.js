@@ -55,7 +55,7 @@ async function main() {
 		process.exit(1);
 	}
 
-	const proc = spawn(pocketbaseExe, ['serve', `--http=${host}:${port}`], {
+	const proc = spawn(pocketbaseExe, ['serve', '--automigrate=false', `--http=${host}:${port}`], {
 		cwd: path.join(__dirname, '..'),
 		stdio: 'inherit',
 	});

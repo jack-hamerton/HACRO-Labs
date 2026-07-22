@@ -28,26 +28,14 @@ const waitVerbose = process.env.POCKETBASE_WAIT_VERBOSE === 'true' || process.en
 
 export const authenticateSuperuser = async () => {
   if (SUPERUSER_EMAIL && SUPERUSER_PASSWORD) {
-    const needsAuth = !pb.authStore.isValid || !pb.authStore.isSuperuser;
-    if (needsAuth) {
-      try {
-        if (pb.authStore.isValid && !pb.authStore.isSuperuser) {
-          pb.authStore.clear();
-        }
-        await pb.admins.authWithPassword(SUPERUSER_EMAIL, SUPERUSER_PASSWORD);
-        console.log('Superuser authenticated successfully');
-      } catch (error) {
-        console.error('PocketBase superuser authentication failed:', error.message || error);
-        try {
-          if (pb.authStore.isValid && !pb.authStore.isSuperuser) {
-            pb.authStore.clear();
-          }
-          await pb.admins.authWithPassword(SUPERUSER_EMAIL, SUPERUSER_PASSWORD);
-          console.log('Superuser authenticated successfully on retry');
-        } catch (retryError) {
-          console.error('PocketBase superuser authentication retry failed:', retryError.message || retryError);
-        }
+    try {
+      if (pb.authStore.isValid) {
+        pb.authStore.clear();
       }
+      await pb.admins.authWithPassword(SUPERUSER_EMAIL, SUPERUSER_PASSWORD);
+      console.log('Superuser authenticated successfully');
+    } catch (error) {
+      console.error('PocketBase superuser authentication failed:', error.message || error);
     }
   } else {
     console.warn('POCKETBASE_SUPERUSER_EMAIL and POCKETBASE_SUPERUSER_PASSWORD not configured; privileged PocketBase operations will be skipped.');

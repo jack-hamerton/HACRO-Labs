@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Loader2, Users, PiggyBank, Wallet, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
-import pb from '@/lib/pocketbaseClient';
+import apiServerClient from '@/lib/apiServerClient.js';
 import AdminLayout from '@/components/AdminLayout.jsx';
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
@@ -25,29 +25,16 @@ const AnalyticsDashboard = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const members = await pb.collection('members').getFullList({ $autoCancel: false });
-      const savings = await pb.collection('savings').getFullList({ expand: 'group_id', $autoCancel: false });
-      const loans = await pb.collection('loans').getFullList({ expand: 'group_id', $autoCancel: false });
-      const groups = await pb.collection('groups').getFullList({ $autoCancel: false });
-
-      const totalSavings = savings.reduce((sum, s) => sum + s.amount, 0);
-      const totalLoans = loans.filter(l => l.status !== 'rejected' && l.status !== 'pending').reduce((sum, l) => sum + l.amount, 0);
-      const activeLoans = loans.filter(l => l.status === 'active' || l.status === 'partially_paid').length;
-      
-      const groupStats = groups.map(g => {
-        const gSavings = savings.filter(s => s.group_id === g.id).reduce((sum, s) => sum + s.amount, 0);
-        const gLoans = loans.filter(l => l.group_id === g.id && l.status !== 'rejected').reduce((sum, l) => sum + l.amount, 0);
-        return { name: g.group_name, savings: gSavings, loans: gLoans };
+      const token = localStorage.getItem('adminToken');
+      const response = await apiServerClient.fetch('/admin/analytics', {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      setStats({
-        totalMembers: members.length,
-        totalSavings,
-        totalLoans,
-        activeLoans,
-        defaultRate: '2.4%'
-      });
-      setGroupData(groupStats);
+      if (!response.ok) {
+        throw new Error('Failed to load analytics');
+      }
+      const data = await response.json();
+      setStats(data.stats);
+      setGroupData(data.groupData || []);
     } catch (error) {
       console.error('Analytics error:', error);
       toast.error('Failed to load analytics');

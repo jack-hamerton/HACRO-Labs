@@ -55,7 +55,7 @@ const JOURNEY_ITEMS = [
     title: 'Where the Story Began',
     description:
       'In 2023, a powerful collaboration emerged in Kisumu through the Youth Excel project. Ten organizations came together with one shared purpose: to unlock real opportunities for young people. At the first Data Summit, we brought lived experiences, hard evidence, and bold ideas to the tableâ€”and discovered that our work was stronger when connected. That moment sparked HACRO Hub: a place where solutions for financial access could be tested, refined, and scaled.',
-    image: '/images/IMG-0487.jpg',
+    image: '/images/1st.jpg',
   },
   {
     year: '2024',
@@ -69,14 +69,14 @@ const JOURNEY_ITEMS = [
     title: 'When the Road Shifted',
     description:
       'January 2025 brought a difficult turning point when the Youth Excel program ended. For many, it marked the end of a chapter. For us, it became a test of purpose. We refused to step back. Instead, we doubled down on outreach, stayed rooted in Kisumu, and kept building for the young people still waiting for real solutions.',
-    image: '/images/IMG-0458.jpg',
+    image: '/images/2nd.jpg',
   },
   {
     year: '2026',
     title: 'A New Chapter of Possibility',
     description:
       'Today, HACRO Hub stands as a registered non-profit and a growing force for change in Kisumu. We have moved from research into action, turning lessons learned into practical, youth-led financial solutions. Our story is still unfoldingâ€”and the best part is that it is being written by the very communities we serve.',
-    image: '/images/IMG-0624.jpg',
+    image: '/images/3rd.jpg',
   },
 ];
 

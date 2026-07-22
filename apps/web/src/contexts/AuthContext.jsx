@@ -31,8 +31,9 @@ export const AuthProvider = ({ children }) => {
     let auth;
     if (isPhone) {
       const phone = normalized.replace(/^\+/, '');
+      const localPhone = phone.startsWith('254') ? `0${phone.slice(3)}` : phone;
       const members = await pb.collection('members').getFullList({
-        filter: `phone = "${phone}"`,
+        filter: `(phone = "${phone}" || phone = "${localPhone}")`,
       });
       if (members.length !== 1) {
         throw new Error('Invalid credentials');
