@@ -25,6 +25,15 @@ async function getCollections(token) {
   return data.items || [];
 }
 
+function normalizeCollectionPayload(collection) {
+  const payload = { ...collection };
+  if (payload.schema && !payload.fields) {
+    payload.fields = payload.schema;
+    delete payload.schema;
+  }
+  return payload;
+}
+
 async function createCollection(token, collection) {
   const res = await fetch(`${baseUrl}/api/collections`, {
     method: 'POST',
@@ -32,7 +41,7 @@ async function createCollection(token, collection) {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(collection)
+    body: JSON.stringify(normalizeCollectionPayload(collection))
   });
   const body = await res.text();
   if (!res.ok) {
@@ -48,7 +57,7 @@ async function updateCollection(token, collectionId, collection) {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(collection)
+    body: JSON.stringify(normalizeCollectionPayload(collection))
   });
   const body = await res.text();
   if (!res.ok) {

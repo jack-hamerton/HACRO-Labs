@@ -60,7 +60,7 @@ onRecordAfterCreateSuccess((e) => {
 
     const recentPenalties = $app.findRecordsByFilter(
       "penalties",
-      "member_id = '" + memberId + "' && created_date > '" + new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() + "'",
+      "member_id = '" + memberId + "' && created > '" + new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() + "'",
       { limit: 1000 }
     );
 

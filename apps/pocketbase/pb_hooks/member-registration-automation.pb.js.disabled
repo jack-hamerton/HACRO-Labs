@@ -1,0 +1,30 @@
+onRecordAfterCreateSuccess((e) => {
+  const memberRecord = e.record;
+  const memberId = memberRecord.id;
+
+  if (!memberId) {
+    e.next();
+    return;
+  }
+
+  try {
+    // Create welcome notification - wrapped in try/catch to prevent cascading failures
+    try {
+      const welcomeNotification = new Record("notifications");
+      welcomeNotification.set("member_id", memberId);
+      welcomeNotification.set("type", "welcome");
+      welcomeNotification.set("title", "Welcome to HACRO Labs!");
+      welcomeNotification.set("message", "Welcome to our savings and loan cooperative! You have successfully joined a group. Start by making your first savings contribution to become eligible for loans.");
+      welcomeNotification.set("read_status", false);
+      $app.save(welcomeNotification);
+      console.log("member-registration-automation: Welcome notification created for member " + memberId);
+    } catch (notifErr) {
+      console.log("member-registration-automation: Could not create notification - " + notifErr.message);
+      // Don't fail member creation if notification fails
+    }
+  } catch (err) {
+    console.log("member-registration-automation: Outer error - " + err.message);
+  }
+
+  e.next();
+}, "members");

@@ -108,8 +108,42 @@ async function getCollectionByName(name) {
   return null;
 }
 
+function normalizeCollectionPayload(collectionData) {
+  const payload = { ...collectionData };
+  if (payload.schema && !payload.fields) {
+    payload.fields = payload.schema;
+    delete payload.schema;
+  }
+
+  if (Array.isArray(payload.fields)) {
+    payload.fields = payload.fields.map((field) => {
+      const normalized = { ...field };
+      if (normalized.type === 'relation' && normalized.options && normalized.options.collectionId) {
+        normalized.collectionId = normalized.options.collectionId;
+        normalized.cascadeDelete = normalized.options.cascadeDelete ?? normalized.cascadeDelete;
+        normalized.minSelect = normalized.options.minSelect ?? normalized.minSelect;
+        normalized.maxSelect = normalized.options.maxSelect ?? normalized.maxSelect;
+        const remainingOptions = { ...normalized.options };
+        delete remainingOptions.collectionId;
+        delete remainingOptions.cascadeDelete;
+        delete remainingOptions.minSelect;
+        delete remainingOptions.maxSelect;
+        if (Object.keys(remainingOptions).length > 0) {
+          normalized.options = remainingOptions;
+        } else {
+          delete normalized.options;
+        }
+      }
+      return normalized;
+    });
+  }
+
+  return payload;
+}
+
 async function updateCollection(collectionId, updates) {
-  const result = await makeRequest('PATCH', `/api/collections/${collectionId}`, updates);
+  const payload = normalizeCollectionPayload(updates);
+  const result = await makeRequest('PATCH', `/api/collections/${collectionId}`, payload);
   if (result.ok) {
     console.log(` Updated collection: ${updates.name || collectionId}`);
     return true;
@@ -120,7 +154,8 @@ async function updateCollection(collectionId, updates) {
 }
 
 async function createCollection(collectionData) {
-  const result = await makeRequest('POST', '/api/collections', collectionData);
+  const payload = normalizeCollectionPayload(collectionData);
+  const result = await makeRequest('POST', '/api/collections', payload);
   if (result.ok) {
     console.log(` Created collection: ${collectionData.name}`);
     return true;
@@ -142,7 +177,8 @@ async function createCollectionIfMissing(collectionData) {
     return existing;
   }
 
-  const result = await makeRequest('POST', '/api/collections', collectionData);
+  const payload = normalizeCollectionPayload(collectionData);
+  const result = await makeRequest('POST', '/api/collections', payload);
   if (result.ok) {
     console.log(` Created collection: ${collectionData.name}`);
     return result.data;
@@ -153,6 +189,7 @@ async function createCollectionIfMissing(collectionData) {
 }
 
 async function addFieldIfMissing(collection, field) {
+  collection.schema = collection.schema || collection.fields || [];
   const existing = collection.schema.find((f) => f.name === field.name);
   if (existing) return false;
   collection.schema.push(field);
@@ -162,6 +199,8 @@ async function addFieldIfMissing(collection, field) {
 async function ensureCollectionFields(collectionName, fields) {
   const collection = await getCollectionByName(collectionName);
   if (!collection) return null;
+
+  collection.schema = collection.schema || collection.fields || [];
 
   let updated = false;
   for (const field of fields) {
@@ -214,6 +253,7 @@ async function main() {
       { name: 'last_name', type: 'text', required: true },
       { name: 'phone', type: 'text', required: true },
       { name: 'location', type: 'text', required: false },
+      { name: 'field_officer', type: 'text', required: false },
       { name: 'category', type: 'text', required: false },
       { name: 'spouse_kin_name', type: 'text', required: false },
       { name: 'age', type: 'number', required: false },
@@ -269,10 +309,19 @@ async function main() {
     schema: [
       { name: 'group_name', type: 'text', required: true },
       { name: 'region', type: 'text', required: false },
+      { name: 'field_officer', type: 'text', required: false },
       { name: 'member_count', type: 'number', required: false },
       { name: 'description', type: 'text', required: false }
     ]
   });
+
+  await ensureCollectionFields('members', [
+    { name: 'field_officer', type: 'text', required: false }
+  ]);
+
+  await ensureCollectionFields('groups', [
+    { name: 'field_officer', type: 'text', required: false }
+  ]);
 
   const groupMembersCollection = await createCollectionIfMissing({
     name: 'group_members',

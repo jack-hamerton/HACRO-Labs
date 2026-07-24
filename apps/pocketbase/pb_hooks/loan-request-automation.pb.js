@@ -43,7 +43,7 @@ onRecordAfterCreateSuccess(async (e) => {
       );
       let totalBonuses = 0;
       bonusesEarned.forEach((bonus) => {
-        totalBonuses += roundCurrency(bonus.get("amount") || 0);
+        totalBonuses += roundCurrencyLoanRequest(bonus.get("amount") || 0);
       });
 
       const maxLoanAmount = roundCurrencyLoanRequest((totalSavings + totalBonuses) / 1.02);

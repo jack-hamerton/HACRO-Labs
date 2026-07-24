@@ -1,0 +1,105 @@
+
+onRecordAfterCreateSuccess((e) => {
+  const memberRecord = e.record;
+  const memberId = memberRecord.id;
+  const location = memberRecord.get("location");
+  const fieldOfficer = memberRecord.get("field_officer") || "";
+
+  if (!location || !memberId) {
+    e.next();
+    return;
+  }
+
+  const animalThemes = ["Phoenix", "Eagle", "Lion", "Tiger", "Falcon", "Hawk", "Raven", "Wolf", "Bear", "Panther", "Cheetah", "Leopard", "Jaguar", "Puma", "Cougar"];
+  const escapedLocation = String(location).replace(/'/g, "\\'");
+  const escapedFieldOfficer = String(fieldOfficer).replace(/'/g, "\\'");
+
+  const regionFilter = `region = '${escapedLocation}'`;
+  const fieldOfficerFilter = escapedFieldOfficer ? `${regionFilter} && field_officer = '${escapedFieldOfficer}'` : null;
+
+  let group = null;
+  if (fieldOfficerFilter) {
+    try {
+      console.log("auto-group-assignment: Searching for group with field_officer filter");
+      group = $app.findFirstRecordByFilter("groups", fieldOfficerFilter);
+      console.log("auto-group-assignment: Found matching group");
+    } catch (err) {
+      // No group found, that's ok
+    }
+  }
+
+  if (!group) {
+    try {
+      console.log("auto-group-assignment: Searching for group with region filter");
+      group = $app.findFirstRecordByFilter("groups", regionFilter);
+      console.log("auto-group-assignment: Found matching group by region");
+    } catch (err) {
+      // No group found, that's ok
+    }
+  }
+
+  if (!group) {
+    try {
+      console.log("auto-group-assignment: Creating new group for " + location);
+      const allGroups = $app.findRecordsByFilter("groups", "", "", 10000, 0);
+      const themeIndex = allGroups.length % animalThemes.length;
+      const themeName = animalThemes[themeIndex];
+
+      group = new Record("groups");
+      group.set("group_name", themeName + " - " + location + (fieldOfficer ? ` (${fieldOfficer})` : ""));
+      group.set("region", location);
+      if (fieldOfficer) {
+        group.set("field_officer", fieldOfficer);
+      }
+      $app.save(group);
+      console.log("auto-group-assignment: Created new group " + group.id);
+    } catch (err) {
+      console.log("auto-group-assignment: Failed to create group: " + (err?.message || err));
+      e.next();
+      return;
+    }
+  }
+
+  if (!group || !group.id) {
+    console.log("auto-group-assignment: No group available");
+    e.next();
+    return;
+  }
+
+  // Create group_members link
+  const existingMemberLink = (() => {
+    try {
+      return $app.findFirstRecordByFilter(
+        "group_members",
+        "group_id = '" + group.id + "' && member_id = '" + memberId + "'"
+      );
+    } catch (err) {
+      return null;
+    }
+  })();
+
+  if (!existingMemberLink) {
+    try {
+      const groupMember = new Record("group_members");
+      groupMember.set("group_id", group.id);
+      groupMember.set("member_id", memberId);
+      groupMember.set("joined_date", new Date().toISOString());
+      $app.save(groupMember);
+      console.log("auto-group-assignment: Created group_members link for member " + memberId);
+    } catch (err) {
+      console.log("auto-group-assignment: Failed to create group_members: " + (err?.message || err));
+    }
+  }
+
+  // Update member count
+  try {
+    const memberCount = $app.findRecordsByFilter("group_members", "group_id = '" + group.id + "'", "", 1000, 0).length;
+    group.set("member_count", memberCount);
+    $app.save(group);
+    console.log("auto-group-assignment: Success - group " + group.id + " has " + memberCount + " members");
+  } catch (err) {
+    console.log("auto-group-assignment: Failed to update member count: " + (err?.message || err));
+  }
+
+  e.next();
+}, "members");

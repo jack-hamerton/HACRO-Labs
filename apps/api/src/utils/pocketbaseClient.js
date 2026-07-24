@@ -1,13 +1,12 @@
 import PocketBase from 'pocketbase';
 
 const baseUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
-const SUPERUSER_EMAIL = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL || null;
-const SUPERUSER_PASSWORD = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD || null;
-
-const pb = new PocketBase(baseUrl);
-const authPb = new PocketBase(baseUrl);
+export const SUPERUSER_EMAIL = process.env.POCKETBASE_SUPERUSER_EMAIL || process.env.POCKETBASE_ADMIN_EMAIL || null;
+export const SUPERUSER_PASSWORD = process.env.POCKETBASE_SUPERUSER_PASSWORD || process.env.POCKETBASE_ADMIN_PASSWORD || null;
 
 export const POCKETBASE_URL = baseUrl;
+export const pb = new PocketBase(baseUrl);
+export const authPb = new PocketBase(baseUrl);
 export function createPocketBaseClient() {
   return new PocketBase(baseUrl);
 }
@@ -43,7 +42,7 @@ export const authenticateSuperuser = async () => {
 };
 
 export default pb;
-export { authPb, SUPERUSER_EMAIL, SUPERUSER_PASSWORD };
+
 
 
 

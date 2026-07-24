@@ -57,7 +57,7 @@ cronAdd("check_overdue_loans", "0 9 * * *", () => {
 
         const existingNotifications = $app.findRecordsByFilter(
           "notifications",
-          "member_id = '" + memberId + "' && type = 'loan_overdue' && created_date >= '" + disbursementDate + "'",
+          "member_id = '" + memberId + "' && type = 'loan_overdue' && created >= '" + disbursementDate + "'",
           { limit: 1000 }
         );
 

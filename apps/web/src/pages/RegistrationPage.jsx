@@ -239,7 +239,7 @@ const RegistrationPage = () => {
     middle_name: '',
     last_name: '',
     age: '',
-    spouse_kin_name: '',
+    field_officer: '',
     category: 'Individual',
     email: '',
     phone: '',
@@ -255,11 +255,36 @@ const RegistrationPage = () => {
   const [profilePicPreview, setProfilePicPreview] = useState(null);
   const [mpesaPhone, setMpesaPhone] = useState('');
 
+  // Group selection state
+  const [availableGroups, setAvailableGroups] = useState([]);
+  const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [groupAction, setGroupAction] = useState(''); // 'join' or 'create'
+  const [newGroupName, setNewGroupName] = useState('');
+  const [loadingGroups, setLoadingGroups] = useState(false);
+
   useEffect(() => {
     return () => {
       if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
     };
   }, []);
+
+  const loadGroupsForLocation = async (location) => {
+    setLoadingGroups(true);
+    try {
+      const response = await pb.collection('groups').getList(1, 50, {
+        filter: `region = '${location}'`
+      });
+      setAvailableGroups(response.items || []);
+      setSelectedGroupId('');
+      setGroupAction('');
+      setNewGroupName('');
+    } catch (err) {
+      console.error('Error loading groups:', err);
+      setAvailableGroups([]);
+    } finally {
+      setLoadingGroups(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -291,12 +316,25 @@ const RegistrationPage = () => {
       toast.error('Please complete your complete structural location mapping');
       return false;
     }
-    if (formData.category === 'Corporate' && !formData.spouse_kin_name) {
-      toast.error('Corporate members must provide a spouse / next of kin name for group matching');
+    if (!formData.field_officer) {
+      toast.error('Please enter the field officer assigned to your registration');
       return false;
     }
     if (formData.age < 18) {
       toast.error('You must be at least 18 years old to register');
+      return false;
+    }
+    // Validate group selection
+    if (!groupAction) {
+      toast.error('Please select or create a group');
+      return false;
+    }
+    if (groupAction === 'join' && !selectedGroupId) {
+      toast.error('Please select a group to join');
+      return false;
+    }
+    if (groupAction === 'create' && !newGroupName.trim()) {
+      toast.error('Please enter a group name');
       return false;
     }
     return true;
@@ -361,6 +399,28 @@ const RegistrationPage = () => {
           if (data.resultCode === 0 || data.resultCode === '0') {
             try {
               const member = await pb.collection('members').create(memberFormData, { $autoCancel: false });
+              
+              let groupId = selectedGroupId;
+              // Create group if user chose to create a new one
+              if (groupAction === 'create') {
+                const absoluteLocationString = `${selectedVillage}, ${selectedWard} Ward, ${selectedSubCounty} Sub-County, ${selectedCounty}`;
+                const newGroup = await pb.collection('groups').create({
+                  group_name: newGroupName,
+                  region: absoluteLocationString,
+                  field_officer: formData.field_officer,
+                  description: `Created by ${formData.first_name} ${formData.last_name} during registration`
+                }, { $autoCancel: false });
+                groupId = newGroup.id;
+              }
+
+              // Create group_members link
+              if (groupId) {
+                await pb.collection('group_members').create({
+                  group_id: groupId,
+                  member_id: member.id,
+                  joined_date: new Date().toISOString()
+                }, { $autoCancel: false });
+              }
               
               const paymentData = {
                 member_id: member.id,
@@ -554,14 +614,10 @@ const RegistrationPage = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="form-label">Spouse / Next of Kin {formData.category === 'Corporate' ? <span className="text-destructive">*</span> : null}</label>
-                    <input type="text" name="spouse_kin_name" value={formData.spouse_kin_name} onChange={handleInputChange} className="form-input" placeholder="Enter spouse or next of kin name" />
-                    {formData.category === 'Corporate' && (
-                      <p className="text-sm text-emerald-600 mt-2">Corporate registrations with matching location and spouse/next of kin details are prioritized into the same group.</p>
-                    )}
+                    <label className="form-label">Field Officer <span className="text-destructive">*</span></label>
+                    <input type="text" name="field_officer" value={formData.field_officer} onChange={handleInputChange} className="form-input" placeholder="Enter field officer name" />
+                    <p className="text-sm text-emerald-600 mt-2">Your registration will be grouped using the assigned field officer together with your location.</p>
                   </div>
-
-                  {                                      }
                   <div className={`md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 pt-5 transition-all duration-200 ${selectedCounty || selectedSubCounty || selectedWard || selectedVillage ? 'border-emerald-400 bg-emerald-100/80' : 'hover:border-emerald-400 hover:bg-emerald-100/70'}`}>
                     <div>
                       <label className="form-label">County <span className="text-destructive">*</span></label>
@@ -572,6 +628,9 @@ const RegistrationPage = () => {
                           setSelectedSubCounty('');
                           setSelectedWard('');
                           setSelectedVillage('');
+                          setAvailableGroups([]);
+                          setGroupAction('');
+                          setSelectedGroupId('');
                         }} 
                         className="form-input border-emerald-400 bg-white/90 text-foreground transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-100 focus:border-emerald-500 focus:ring-emerald-500" 
                         required
@@ -591,6 +650,9 @@ const RegistrationPage = () => {
                           setSelectedSubCounty(e.target.value);
                           setSelectedWard('');
                           setSelectedVillage('');
+                          setAvailableGroups([]);
+                          setGroupAction('');
+                          setSelectedGroupId('');
                         }} 
                         className="form-input border-emerald-400 bg-white/90 text-foreground transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-100 focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedCounty}
@@ -610,6 +672,9 @@ const RegistrationPage = () => {
                         onChange={(e) => {
                           setSelectedWard(e.target.value);
                           setSelectedVillage('');
+                          setAvailableGroups([]);
+                          setGroupAction('');
+                          setSelectedGroupId('');
                         }} 
                         className="form-input border-emerald-400 bg-white/90 text-foreground transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-100 focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedSubCounty}
@@ -626,7 +691,11 @@ const RegistrationPage = () => {
                       <label className="form-label">Village / Area Unit <span className="text-destructive">*</span></label>
                       <select 
                         value={selectedVillage} 
-                        onChange={(e) => setSelectedVillage(e.target.value)} 
+                        onChange={(e) => {
+                          setSelectedVillage(e.target.value);
+                          const absoluteLocationString = `${e.target.value}, ${selectedWard} Ward, ${selectedSubCounty} Sub-County, ${selectedCounty}`;
+                          loadGroupsForLocation(absoluteLocationString);
+                        }} 
                         className="form-input border-emerald-400 bg-white/90 text-foreground transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-100 focus:border-emerald-500 focus:ring-emerald-500" 
                         disabled={!selectedWard}
                         required
@@ -638,6 +707,89 @@ const RegistrationPage = () => {
                       </select>
                     </div>
                   </div>
+
+                  {/* Group Selection Section */}
+                  {selectedVillage && (
+                    <div className="md:col-span-2 rounded-2xl border border-blue-200 bg-blue-50/70 p-6 space-y-4">
+                      <h3 className="text-lg font-semibold text-foreground">Join or Create a Group</h3>
+                      <p className="text-sm text-muted-foreground">Select an existing group in your location or create a new one</p>
+                      
+                      {loadingGroups ? (
+                        <div className="flex items-center justify-center py-4">
+                          <Loader2 className="w-5 h-5 text-primary animate-spin mr-2" />
+                          <span className="text-muted-foreground">Loading groups...</span>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Join Existing Group Option */}
+                          {availableGroups.length > 0 && (
+                            <div className="space-y-3">
+                              <label className="flex items-center gap-3 p-3 rounded-lg border border-blue-300 cursor-pointer hover:bg-blue-100/50 transition-colors" style={{ backgroundColor: groupAction === 'join' ? 'rgba(59, 130, 246, 0.1)' : '' }}>
+                                <input 
+                                  type="radio" 
+                                  name="groupAction" 
+                                  value="join" 
+                                  checked={groupAction === 'join'}
+                                  onChange={(e) => setGroupAction(e.target.value)}
+                                  className="w-4 h-4 text-primary"
+                                />
+                                <span className="font-medium text-foreground">Join an existing group</span>
+                              </label>
+                              
+                              {groupAction === 'join' && (
+                                <div className="pl-7 space-y-2">
+                                  {availableGroups.map((group) => (
+                                    <label key={group.id} className="flex items-center gap-3 p-2 rounded border border-blue-200 cursor-pointer hover:bg-blue-100/30">
+                                      <input 
+                                        type="radio" 
+                                        name="selectedGroup" 
+                                        value={group.id}
+                                        checked={selectedGroupId === group.id}
+                                        onChange={(e) => setSelectedGroupId(e.target.value)}
+                                        className="w-4 h-4 text-primary"
+                                      />
+                                      <div>
+                                        <div className="font-medium text-foreground">{group.group_name}</div>
+                                        <div className="text-xs text-muted-foreground">{group.member_count || 0} members</div>
+                                      </div>
+                                    </label>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Create New Group Option */}
+                          <div className="space-y-3 pt-4 border-t border-blue-200">
+                            <label className="flex items-center gap-3 p-3 rounded-lg border border-blue-300 cursor-pointer hover:bg-blue-100/50 transition-colors" style={{ backgroundColor: groupAction === 'create' ? 'rgba(59, 130, 246, 0.1)' : '' }}>
+                              <input 
+                                type="radio" 
+                                name="groupAction" 
+                                value="create" 
+                                checked={groupAction === 'create'}
+                                onChange={(e) => setGroupAction(e.target.value)}
+                                className="w-4 h-4 text-primary"
+                              />
+                              <span className="font-medium text-foreground">Create a new group</span>
+                            </label>
+                            
+                            {groupAction === 'create' && (
+                              <div className="pl-7">
+                                <input 
+                                  type="text" 
+                                  placeholder="Enter group name" 
+                                  value={newGroupName}
+                                  onChange={(e) => setNewGroupName(e.target.value)}
+                                  className="form-input"
+                                />
+                                <p className="text-xs text-muted-foreground mt-2">The group will be created with your location as the region.</p>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
 
                 </div>
               </div>
