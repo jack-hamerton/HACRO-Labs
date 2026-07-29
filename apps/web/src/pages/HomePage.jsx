@@ -106,26 +106,80 @@ function TypeWriter({ text, typeSpeed = 38, deleteSpeed = 18, pauseAfterType = 1
     return () => clearTimeout(timeout);
   }, [displayed, phase, text, typeSpeed, deleteSpeed, pauseAfterType, pauseAfterDelete]);
 
-  return (
-    <>
-      {displayed}
-      <span
-        style={{
-          display: 'inline-block',
-          width: '3px',
-          height: '0.85em',
-          background: '#22c55e',
-          marginLeft: '2px',
-          verticalAlign: 'middle',
-          animation: 'blink 0.7s step-end infinite',
-        }}
-      />
-    </>
-  );
+  return <span className="typing-text">{displayed}&nbsp;</span>;
 }
 
-function FadeIn({ children, delay = 0, className = '' }) {
-  const ref = useRef(null);
+const TOTAL_FRAMES = 300;
+const FRAME_DIR = '/images/ezgif-71b2b3261ea4ced2-jpg';
+const APP_GREEN = 'var(--app-green, #22c55e)';
+const HEADING = ['Harnessing Community on', 'Resource-based Outreach (HACRO) Hub'];
+
+const getFrameUrl = (index) =>
+  `${FRAME_DIR}/ezgif-frame-${String(index + 1).padStart(3, '0')}.jpg`;
+
+const EDITORIAL_SECTIONS = [
+  {
+    headerLine1: 'Harnessing Community on Resource-base ',
+    headerLine2: 'Outreach (HACRO) Hub',
+    nextPage: '/CommunityFinancialEmpowermentPage',
+    paragraphs: [
+      'The relationship of community and sustainable outreach inspires our core work. Using collaborative programs and transparent digital tools, we establish a sustainable rhythm for community growth.',
+      'HACRO Hub is dedicated to empowering local populations through financial inclusion, regenerative agriculture, gender equality, and collaborative resource sharing to build a resilient future.',
+    ],
+    textPosition: 'right',
+  },
+  {
+    headerLine1: 'OUR',
+    headerLine2: 'MISSION',
+    nextPage: '/CommunityFinancialEmpowermentPage',
+    paragraphs: [
+      'Fostering member-owned savings groups, micro-loans, and economic resilience across regions through transparent, accessible, and scalable digital systems.',
+      'We believe that empowering individuals at the grassroots level creates a ripple effect of self-reliance, innovation, and shared prosperity.',
+    ],
+    textPosition: 'left',
+  },
+  {
+    headerLine1: 'REGENERATIVE',
+    headerLine2: 'AGRIBUSINESS',
+    nextPage: '/CommunityFinancialEmpowermentPage',
+    paragraphs: [
+      'Supporting regenerative agriculture practices, food security, and environmental stewardship to build resilient ecosystems for future generations.',
+      'Connecting farmers with resources, knowledge, and modern tools to maximize crop yields while preserving biodiversity and soil health.',
+    ],
+    textPosition: 'offset',
+  },
+  {
+    headerLine1: 'GENDER',
+    headerLine2: 'EQUALITY',
+    nextPage: '/GenderEqualityAndInclusionPage',
+    paragraphs: [
+      'Promoting inclusive financial participation, leadership opportunities, and equal rights for women and youth across all community programs.',
+      'Ensuring every voice is heard and every member has equal access to financial tools and decision-making power.',
+    ],
+    textPosition: 'left',
+  },
+  {
+    headerLine1: 'JOIN THE',
+    headerLine2: 'ECOSYSTEM',
+    nextPage: '/GenderEqualityAndInclusionPage',
+    paragraphs: [
+      'Explore our initiatives, become a member, or partner with us to drive meaningful, lasting transformation across communities.',
+      'Together, we harness community strength to build self-sustaining socio-economic solutions.',
+    ],
+    textPosition: 'right',
+  },
+];
+
+export default function HomePage() {
+  const canvasRef = useRef(null);
+  const containerRef = useRef(null);
+  const imagesRef = useRef([]);
+  const frameRef = useRef({ current: 0, target: 0 });
+  const animFrameIdRef = useRef(null);
+
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const lastProgressRef = useRef(0);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
