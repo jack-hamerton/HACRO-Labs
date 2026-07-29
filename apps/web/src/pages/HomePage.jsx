@@ -331,11 +331,11 @@ export default function HomePage() {
                             ? 'md:col-span-7 md:col-start-3'
                             : 'md:col-span-7 md:col-start-1'
                         }`}
-                        style={{ backgroundColor: 'rgba(34,197,94,0.18)' }}
+                        style={{ background: 'transparent', boxShadow: 'none' }}
                       >
                         <p
                           className="text-sm sm:text-base font-semibold uppercase tracking-[0.24em] mb-4"
-                          style={{ color: APP_GREEN }}
+                          style={{ color: APP_GREEN, background: 'transparent' }}
                         >
                           {section.leadText}
                         </p>
@@ -343,6 +343,7 @@ export default function HomePage() {
                           <p
                             key={pIdx}
                             className="text-sm sm:text-base leading-relaxed text-slate-100/95 mb-4"
+                            style={{ background: 'transparent' }}
                           >
                             {p}
                           </p>
@@ -352,7 +353,7 @@ export default function HomePage() {
                             <a
                               href={section.nextPage}
                               className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold uppercase tracking-[0.32em] text-[var(--app-green,#22c55e)] hover:text-white"
-                              style={{ textDecoration: 'none' }}
+                              style={{ textDecoration: 'none', background: 'transparent' }}
                             >
                               HACRO Hub
                               <span aria-hidden="true">→</span>
