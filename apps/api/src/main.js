@@ -144,15 +144,17 @@ async function start() {
 	attachSignaling(server);
 
 	let activePort = port;
-	try {
-		activePort = await listenOnPort(server, port);
-	} catch (err) {
-		if (err.code === 'EADDRINUSE' && port === defaultPort && !process.env.PORT) {
-			const fallbackPort = defaultPort + 1;
-			logger.warn(`Port ${defaultPort} is already in use. Trying fallback port ${fallbackPort}.`);
-			activePort = await listenOnPort(server, fallbackPort);
-		} else {
-			throw err;
+	for (let offset = 0; offset < 10; offset++) {
+		const tryPort = port + offset;
+		try {
+			activePort = await listenOnPort(server, tryPort);
+			break;
+		} catch (err) {
+			if (err.code === 'EADDRINUSE' && offset < 9) {
+				logger.warn(`Port ${tryPort} is already in use. Trying port ${tryPort + 1}.`);
+			} else {
+				throw err;
+			}
 		}
 	}
 

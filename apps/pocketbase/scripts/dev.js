@@ -46,7 +46,8 @@ async function main() {
 	if (portInUse) {
 		const ready = await checkPocketBaseReady();
 		if (ready) {
-			console.log(`PocketBase is already available at ${apiUrl}. Skipping startup.`);
+			console.log(`PocketBase is already available at ${apiUrl}. Keeping process alive.`);
+			await new Promise(() => {});
 			return;
 		}
 

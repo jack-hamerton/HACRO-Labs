@@ -158,7 +158,34 @@ const MemberDashboardPage = () => {
     <>
       <Helmet><title>Member Dashboard - HACRO Hub</title></Helmet>
       <MemberPortalLayout title="Member Dashboard" subtitle="Your member portal home">
-        <div className="mb-8 rounded-[28px] border border-[hsl(var(--primary)_/_0.16)] bg-gradient-to-br from-[hsl(var(--primary)_/_0.14)] via-white to-[hsl(var(--primary)_/_0.05)] p-6 shadow-sm sm:p-8">
+        <div className="mb-5 rounded-[30px] border border-slate-200/70 bg-gradient-to-br from-slate-950 via-emerald-900 to-cyan-700 p-4 text-white shadow-[0_25px_60px_-25px_rgba(2,6,23,0.8)] md:hidden">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Member vault</p>
+              <p className="mt-2 text-3xl font-semibold">KES {savingsBalance.toLocaleString()}</p>
+              <p className="mt-1 text-sm text-emerald-100/80">Live savings balance</p>
+            </div>
+            <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-100">
+              Live
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-3 backdrop-blur">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-emerald-100/80">Collateral</p>
+              <p className="mt-1 text-lg font-semibold">KES {collateralBalance.toLocaleString()}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-3 backdrop-blur">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-emerald-100/80">Loans</p>
+              <p className="mt-1 text-lg font-semibold">KES {loanBalance.toLocaleString()}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link to="/savings-contribution" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900">Top up</Link>
+            <Link to="/withdrawal" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white">Withdraw</Link>
+          </div>
+        </div>
+
+        <div className="mb-8 hidden rounded-[28px] border border-[hsl(var(--primary)_/_0.16)] bg-gradient-to-br from-[hsl(var(--primary)_/_0.14)] via-white to-[hsl(var(--primary)_/_0.05)] p-6 shadow-sm sm:p-8 md:flex">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex items-center gap-4">
               {member?.profile_picture ? (

@@ -5,7 +5,7 @@ import { Linkedin, Twitter, Facebook } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
 
-const Footer = () => {
+const Footer = ({ className = '' }) => {
   const [footerEmail, setFooterEmail] = useState('');
   const [footerMessage, setFooterMessage] = useState('');
 
@@ -36,7 +36,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-secondary text-secondary-foreground border-t border-border mt-20">
+    <footer className={`bg-secondary text-secondary-foreground border-t border-border mt-20 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {                                    }
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-8">
