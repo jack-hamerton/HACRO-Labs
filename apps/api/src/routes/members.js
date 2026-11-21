@@ -16,6 +16,109 @@ const memberLoginLimiter = rateLimit({
   message: { error: 'Too many login attempts, please try again later.' },
 });
 
+const memberRegistrationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 5 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many registration attempts. Please try again later.' },
+});
+
+router.post('/register', memberRegistrationLimiter, async (req, res) => {
+  const {
+    first_name, middle_name, last_name, age, category, field_officer,
+    email, phone, password, location, hub_area, group_action, group_id, group_name,
+  } = req.body || {};
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const normalizedPhone = String(phone || '').replace(/\D/g, '');
+  const normalizedAge = Number(age);
+  const normalizedLocation = String(location || '').trim();
+
+  if (!first_name || !last_name || !normalizedEmail || !normalizedPhone || !password || !normalizedLocation || !field_officer || !category) {
+    return res.status(400).json({ error: 'Complete all required registration fields.' });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) return res.status(400).json({ error: 'Enter a valid email address.' });
+  if (String(password).length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  if (!Number.isInteger(normalizedAge) || normalizedAge < 18 || normalizedAge > 120) return res.status(400).json({ error: 'Members must be at least 18 years old.' });
+  if (!['join', 'create'].includes(group_action)) return res.status(400).json({ error: 'Choose a group to join or provide a new group name.' });
+  if (group_action === 'join' && !group_id) return res.status(400).json({ error: 'Select a group to join.' });
+  if (group_action === 'create' && !String(group_name || '').trim()) return res.status(400).json({ error: 'Enter a name for your new group.' });
+
+  try {
+    await authenticateSuperuser();
+    if (!pb.authStore.isValid) return res.status(503).json({ error: 'Registration service is unavailable.' });
+
+    const duplicateEmail = await pb.collection('members').getFirstListItem(`email = "${normalizedEmail.replaceAll('"', '\\"')}"`, { $autoCancel: false }).catch(() => null);
+    if (duplicateEmail) return res.status(409).json({ error: 'An account with this email already exists. Please sign in instead.' });
+
+    const member = await pb.collection('members').create({
+      first_name: String(first_name).trim(),
+      middle_name: String(middle_name || '').trim(),
+      last_name: String(last_name).trim(),
+      age: normalizedAge,
+      category: String(category).trim(),
+      field_officer: String(field_officer).trim(),
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      location: normalizedLocation,
+      hub_area: String(hub_area || normalizedLocation).trim(),
+      password: String(password),
+      passwordConfirm: String(password),
+    }, { $autoCancel: false });
+
+    try {
+      let group;
+      if (group_action === 'create') {
+        group = await pb.collection('groups').create({
+          group_name: String(group_name).trim(),
+          region: normalizedLocation,
+          field_officer: String(field_officer).trim(),
+          description: `Community group created by ${String(first_name).trim()} ${String(last_name).trim()} during registration`,
+        }, { $autoCancel: false });
+      } else {
+        group = await pb.collection('groups').getOne(String(group_id), { $autoCancel: false });
+        if (String(group.region || '').toLowerCase() !== normalizedLocation.toLowerCase()) {
+          throw new Error('The selected group does not match your registration location.');
+        }
+      }
+
+      await pb.collection('group_members').create({
+        group_id: group.id,
+        member_id: member.id,
+        joined_date: new Date().toISOString(),
+      }, { $autoCancel: false });
+
+      try {
+        const areaLocation = String(hub_area || normalizedLocation).trim();
+        const existingArea = await pb.collection('hub_areas').getFirstListItem(`location = "${areaLocation.replaceAll('"', '\\"')}"`, { $autoCancel: false }).catch(() => null);
+        if (!existingArea) {
+          const parts = areaLocation.split(',').map((part) => part.trim()).filter(Boolean);
+          await pb.collection('hub_areas').create({
+            owner: member.id,
+            name: parts[0] || areaLocation,
+            location: areaLocation,
+            labor_market_notes: '',
+            sectors: [],
+            verified: false,
+          }, { $autoCancel: false });
+        }
+      } catch (areaError) {
+        logger.warn('Could not queue registration area for verification:', areaError?.response?.message || areaError.message || areaError);
+      }
+
+      return res.status(201).json({ member, group, registration_fee: 0, payment_required: false });
+    } catch (groupError) {
+      await pb.collection('members').delete(member.id, { $autoCancel: false }).catch((cleanupError) => {
+        logger.error('Failed to clean up incomplete registration:', cleanupError?.message || cleanupError);
+      });
+      throw groupError;
+    }
+  } catch (error) {
+    logger.error('Member registration failed:', error?.response?.message || error.message || error);
+    return res.status(400).json({ error: error?.response?.message || error.message || 'Registration could not be completed.' });
+  }
+});
+
  
 
                       
@@ -32,7 +135,7 @@ router.post('/login', memberLoginLimiter, async (req, res) => {
 
   if (!rawIdentity || !password) {
     return res.status(400).json({
-      error: 'Email/phone and password are required',
+      error: 'Email and password are required',
     });
   }
 
@@ -80,7 +183,7 @@ router.post('/login', memberLoginLimiter, async (req, res) => {
   } catch (error) {
     logger.warn(`Failed member login attempt for ${rawIdentity}:`, error.message);
     return res.status(401).json({
-      error: 'Invalid email/phone or password',
+      error: 'Invalid email or password',
     });
   }
 

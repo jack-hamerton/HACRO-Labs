@@ -1,0 +1,72 @@
+[2026-07-29T17:08:23.793Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:599:19
+[2026-07-29T17:08:28.844Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:599:19
+[2026-08-12T12:13:00.187Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T12:13:13.734Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T14:57:17.179Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T14:57:57.450Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T14:59:28.832Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T15:00:23.009Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T15:00:26.803Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T15:02:36.343Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T15:03:31.267Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T15:03:42.850Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T15:03:45.147Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:285:18
+[2026-08-12T15:57:19.714Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:638:20
+[2026-08-12T15:57:19.835Z] [ERROR] ClientResponseError 400: Something went wrong while processing your request.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:599:19
+[2026-08-12T15:58:07.557Z] [ERROR] ClientResponseError 400: Failed to update record.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:531:24
+[2026-08-12T15:58:52.988Z] [ERROR] ClientResponseError 400: Failed to update record.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:464:3
+[2026-08-12T16:31:27.063Z] [ERROR] ClientResponseError 404: Missing or invalid collection context.
+    at file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/node_modules/pocketbase/dist/pocketbase.es.mjs:1:37884
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/Admin/Desktop/HACRO-Labs/apps/api/src/routes/admin.js:831:3

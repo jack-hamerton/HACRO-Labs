@@ -3,7 +3,7 @@ import { MessageCircle, X } from 'lucide-react';
 
 const WhatsAppWidget = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const phoneNumber = '254757838028'; 
+  const phoneNumber = '254182055532'; 
 
   const whatsappLink = `https://wa.me/${phoneNumber}`;
 

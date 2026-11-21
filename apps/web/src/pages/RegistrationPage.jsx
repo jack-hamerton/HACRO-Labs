@@ -1,11 +1,11 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, User, Mail, CreditCard, Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import pb from '@/lib/pocketbaseClient';
-import apiServerClient from '@/lib/apiServerClient.js';
 import Header from '@/components/Header.jsx';
+import { useAuth } from '@/contexts/AuthContext.jsx';
 
 
 
@@ -222,17 +222,14 @@ const KENYA_LOCATION_DATA = {
 
 const RegistrationPage = () => {
   const navigate = useNavigate();
+  const { updateCurrentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [polling, setPolling] = useState(false);
-  const pollTimerRef = useRef(null);
-
-  
-
   const [selectedCounty, setSelectedCounty] = useState('');
   const [selectedSubCounty, setSelectedSubCounty] = useState('');
   const [selectedWard, setSelectedWard] = useState('');
   const [selectedVillage, setSelectedVillage] = useState('');
+  const [customArea, setCustomArea] = useState('');
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -245,15 +242,11 @@ const RegistrationPage = () => {
     phone: '',
     password: '',
     passwordConfirm: '',
-    amount: 50,
   });
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-  const [profilePic, setProfilePic] = useState(null);
-  const [profilePicPreview, setProfilePicPreview] = useState(null);
-  const [mpesaPhone, setMpesaPhone] = useState('');
 
   // Group selection state
   const [availableGroups, setAvailableGroups] = useState([]);
@@ -261,12 +254,6 @@ const RegistrationPage = () => {
   const [groupAction, setGroupAction] = useState(''); // 'join' or 'create'
   const [newGroupName, setNewGroupName] = useState('');
   const [loadingGroups, setLoadingGroups] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
-    };
-  }, []);
 
   const loadGroupsForLocation = async (location) => {
     setLoadingGroups(true);
@@ -289,22 +276,6 @@ const RegistrationPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size must be less than 5MB');
-        return;
-      }
-      if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
-        toast.error('Only JPG, PNG, and GIF files are allowed');
-        return;
-      }
-      setProfilePic(file);
-      setProfilePicPreview(URL.createObjectURL(file));
-    }
   };
 
   const validateStep1 = () => {
@@ -364,167 +335,84 @@ const RegistrationPage = () => {
         toast.error('Please accept the Terms & Conditions before continuing.');
         return;
       }
-      if (!mpesaPhone && formData.phone) {
-        setMpesaPhone(formData.phone);
-      }
       setCurrentStep(3);
     }
   };
 
   const handleBack = () => {
-    if (!polling) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
-
-  const formatPhoneNumber = (phone) => {
-    let formatted = phone.replace(/\D/g, '');
-    if (formatted.startsWith('0')) {
-      formatted = '254' + formatted.slice(1);
-    } else if (formatted.startsWith('7') || formatted.startsWith('1')) {
-      formatted = '254' + formatted;
-    }
-    return formatted;
-  };
-
-  const startPolling = (checkoutRequestId, memberFormData) => {
-    let attempts = 0;
-    const maxAttempts = 40;
-
-    const poll = async () => {
-      try {
-        const res = await apiServerClient.fetch(`/mpesa/check-payment/${checkoutRequestId}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.resultCode === 0 || data.resultCode === '0') {
-            try {
-              const member = await pb.collection('members').create(memberFormData, { $autoCancel: false });
-              
-              let groupId = selectedGroupId;
-              // Create group if user chose to create a new one
-              if (groupAction === 'create') {
-                const absoluteLocationString = `${selectedVillage}, ${selectedWard} Ward, ${selectedSubCounty} Sub-County, ${selectedCounty}`;
-                const newGroup = await pb.collection('groups').create({
-                  group_name: newGroupName,
-                  region: absoluteLocationString,
-                  field_officer: formData.field_officer,
-                  description: `Created by ${formData.first_name} ${formData.last_name} during registration`
-                }, { $autoCancel: false });
-                groupId = newGroup.id;
-              }
-
-              // Create group_members link
-              if (groupId) {
-                await pb.collection('group_members').create({
-                  group_id: groupId,
-                  member_id: member.id,
-                  joined_date: new Date().toISOString()
-                }, { $autoCancel: false });
-              }
-              
-              const paymentData = {
-                member_id: member.id,
-                amount: formData.amount,
-                payment_date: new Date().toISOString(),
-                mpesa_reference: checkoutRequestId,
-                checkout_request_id: checkoutRequestId,
-                payment_status: 'completed',
-              };
-
-              const payment = await pb.collection('payments').create(paymentData, { $autoCancel: false });
-
-              setPolling(false);
-              toast.success('Payment confirmed! Registration complete.');
-              navigate('/registration-confirmation', { state: { member, payment } });
-              return;
-            } catch (creationError) {
-              console.error("Account creation error:", creationError);
-              toast.error("Payment succeeded, but account creation failed.");
-              setPolling(false);
-              return;
-            }
-          } else if (data.resultCode && data.resultCode !== "0") {
-            setPolling(false);
-            toast.error(data.resultDesc || 'Payment failed or was cancelled.');
-            return;
-          }
-        }
-      } catch (err) {
-        console.error("Polling error:", err);
-      }
-
-      attempts++;
-      if (attempts >= maxAttempts) {
-        setPolling(false);
-        toast.error('Payment verification timeout. Please try again.');
-      } else {
-        pollTimerRef.current = setTimeout(poll, 3000);
-      }
-    };
-
-    pollTimerRef.current = setTimeout(poll, 3000);
+    setCurrentStep((prev) => prev - 1);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!mpesaPhone) {
-      toast.error('Please enter your M-Pesa phone number');
-      return;
-    }
-
-    const formattedPhone = formatPhoneNumber(mpesaPhone);
-    if (!/^254\d{9}$/.test(formattedPhone)) {
-      toast.error('Invalid phone number format.');
-      return;
-    }
-
     setLoading(true);
-    setPolling(true);
 
     try {
-      const payload = {
-        phoneNumber: formattedPhone,
-        amount: formData.amount,
-        email: formData.email,
-        firstName: formData.first_name,
-        lastName: formData.last_name,
-        purpose: 'Member Registration Fee',
-      };
-
-      const response = await apiServerClient.fetch('/mpesa/stk-push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Failed to initiate M-Pesa payment');
+      const location = `${selectedVillage}, ${selectedWard} Ward, ${selectedSubCounty} Sub-County, ${selectedCounty}`;
+      const hubArea = customArea.trim() ? `${customArea.trim()}, ${location}` : location;
+      const normalizedPhone = formData.phone.replace(/\D/g, '').replace(/^254/, '0').replace(/^\+/, '');
+      const normalizedEmail = formData.email.trim().toLowerCase();
+      const existing = await pb.collection('members').getFirstListItem(`email = "${normalizedEmail.replaceAll('"', '\\"')}"`, { $autoCancel: false }).catch(() => null);
+      if (existing) {
+        throw new Error('This email is already registered. Please log in or use a different email.');
       }
 
-      const data = await response.json();
-      
-      const memberFormData = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (key !== 'amount') memberFormData.append(key, formData[key]);
-      });
-      
-      
+      const member = await pb.collection('members').create({
+        first_name: formData.first_name.trim(),
+        middle_name: formData.middle_name.trim(),
+        last_name: formData.last_name.trim(),
+        age: Number(formData.age),
+        category: formData.category,
+        field_officer: formData.field_officer.trim(),
+        email: normalizedEmail,
+        phone: normalizedPhone,
+        password: formData.password,
+        passwordConfirm: formData.passwordConfirm,
+        location,
+        hub_area: hubArea,
+      }, { $autoCancel: false });
 
-      const absoluteLocationString = `${selectedVillage}, ${selectedWard} Ward, ${selectedSubCounty} Sub-County, ${selectedCounty}`;
-      memberFormData.append('location', absoluteLocationString);
+      const auth = await pb.collection('members').authWithPassword(member.email || formData.email.trim().toLowerCase(), formData.password);
+      pb.authStore.save(auth.token, auth.record);
+      updateCurrentUser(auth.record);
 
-      if (profilePic) {
-        memberFormData.append('profile_picture', profilePic);
+      let group;
+      if (groupAction === 'create') {
+        group = await pb.collection('groups').create({
+          group_name: newGroupName.trim(),
+          region: location,
+          field_officer: formData.field_officer.trim(),
+          description: `Community group created by ${formData.first_name.trim()} ${formData.last_name.trim()} during registration`,
+        }, { $autoCancel: false });
+      } else {
+        group = await pb.collection('groups').getOne(selectedGroupId, { $autoCancel: false });
+        if (String(group.region || '').toLowerCase() !== location.toLowerCase()) {
+          throw new Error('The selected group does not match your registration location.');
+        }
       }
 
-      startPolling(data.checkoutRequestId, memberFormData);
-      toast.success('M-Pesa prompt sent to your phone');
+      try {
+        await pb.collection('group_members').create({
+          group_id: group.id,
+          member_id: member.id,
+          joined_date: new Date().toISOString(),
+        }, { $autoCancel: false });
+      } catch (membershipError) {
+        console.warn('Group membership will be completed from the member dashboard.', membershipError?.message);
+      }
 
+      try {
+        await pb.collection('hub_member_preferences').create({ owner: member.id, focus_area: hubArea }, { $autoCancel: false });
+      } catch (preferenceError) {
+        console.info('Hub preference will be saved on the next Hub visit.', preferenceError?.message);
+      }
+
+      toast.success('Your free HACRO Hub registration is complete.');
+      navigate('/registration-confirmation', { replace: true, state: { member: auth.record, group, payment: null, registrationFee: 0 } });
     } catch (error) {
-      console.error('STK Push error:', error);
-      toast.error(error.message || 'Payment initiation failed.');
-      setPolling(false);
+      console.error('Registration failed:', error);
+      const message = error?.response?.message || error?.message || 'Registration failed. Please try again.';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -533,7 +421,7 @@ const RegistrationPage = () => {
   const steps = [
     { number: 1, title: 'Personal Info', icon: User },
     { number: 2, title: 'Contact', icon: Mail },
-    { number: 3, title: 'Payment', icon: CreditCard },
+    { number: 3, title: 'Review', icon: CreditCard },
   ];
 
   return (
@@ -573,18 +461,6 @@ const RegistrationPage = () => {
             {currentStep === 1 && (
               <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-foreground mb-6">Personal information</h2>
-
-                <div className="flex flex-col items-center mb-6">
-                  <div className="relative w-24 h-24 rounded-xl bg-muted border-2 border-dashed border-border flex items-center justify-center overflow-hidden mb-2">
-                    {profilePicPreview ? (
-                      <img src={profilePicPreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-8 h-8 text-muted-foreground" />
-                    )}
-                    <input type="file" accept="image/jpeg, image/png, image/gif" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">Upload Profile Picture (Max 5MB)</p>
-                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -705,6 +581,11 @@ const RegistrationPage = () => {
                           <option key={village} value={village}>{village}</option>
                         ))}
                       </select>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="form-label">Neighborhood, settlement, or community name <span className="text-muted-foreground">(optional)</span></label>
+                      <input type="text" value={customArea} onChange={(event) => setCustomArea(event.target.value)} className="form-input" placeholder="e.g. Nyalenda, Obunga, Manyatta" maxLength={160} />
+                      <p className="mt-1 text-xs text-muted-foreground">This helps us connect your account to the specific local area you work in; your selected village and county are still saved separately in your address.</p>
                     </div>
                   </div>
 
@@ -873,30 +754,24 @@ const RegistrationPage = () => {
             )}
 
             {currentStep === 3 && (
-              <div className="space-y-6 relative">
-                {polling && (
-                  <div className="absolute inset-0 bg-card/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-xl p-6">
-                    <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-                    <p className="text-lg font-medium text-foreground text-center">Waiting for M-Pesa payment prompt...</p>
-                  </div>
-                )}
-                <h2 className="text-xl font-semibold text-foreground mb-6">Secure M-Pesa Payment</h2>
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-6 mb-6">
-                  <h3 className="font-semibold text-foreground mb-4">Registration fee</h3>
-                  <p className="text-3xl font-bold text-primary mb-2">{formData.amount.toLocaleString()} KSH</p>
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-foreground">Review your registration</h2>
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-emerald-800">Registration fee</p>
+                  <p className="mt-2 text-3xl font-bold text-emerald-900">Free</p>
+                  <p className="mt-2 text-sm leading-6 text-emerald-900/80">No payment or automatic savings deduction is made during registration. Any future financial transaction must be separately authorized by you.</p>
                 </div>
-                <div className="bg-muted rounded-lg p-6 space-y-4">
-                  <div>
-                    <label className="form-label">M-Pesa Phone Number <span className="text-destructive">*</span></label>
-                    <input type="tel" value={mpesaPhone} onChange={(e) => setMpesaPhone(e.target.value)} className="form-input" placeholder="e.g., 0712345678" required disabled={polling} />
-                  </div>
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <h3 className="font-semibold text-foreground">Your community location</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{customArea.trim() ? `${customArea.trim()}, ` : ''}{selectedVillage}, {selectedWard} Ward, {selectedSubCounty} Sub-County, {selectedCounty}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">This location will be used to select your default Youth Livelihoods Hub area.</p>
                 </div>
               </div>
             )}
 
             <div className="flex justify-between mt-8 pt-6 border-t border-border">
               {currentStep > 1 && (
-                <button type="button" onClick={handleBack} disabled={polling} className="btn-secondary flex items-center space-x-2 disabled:opacity-50">
+                <button type="button" onClick={handleBack} disabled={loading} className="btn-secondary flex items-center space-x-2 disabled:opacity-50">
                   <ChevronLeft className="w-5 h-5" /><span>Back</span>
                 </button>
               )}
@@ -905,8 +780,8 @@ const RegistrationPage = () => {
                   <span>Next</span><ChevronRight className="w-5 h-5" />
                 </button>
               ) : (
-                <button type="submit" disabled={polling} className="btn-primary flex items-center justify-center space-x-2 ml-auto min-w-[200px]">
-                  {polling ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Processing...</span></> : <span>Pay {formData.amount} KSH</span>}
+                <button type="submit" disabled={loading} className="btn-primary flex items-center justify-center space-x-2 ml-auto min-w-[200px]">
+                  {loading ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Creating account…</span></> : <span>Complete free registration</span>}
                 </button>
               )}
             </div>

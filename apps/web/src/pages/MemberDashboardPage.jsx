@@ -21,16 +21,58 @@ const MemberDashboardPage = () => {
   const [withdrawalEligibility, setWithdrawalEligibility] = useState(null);
   const [earliestSavingsDate, setEarliestSavingsDate] = useState(null);
   const [submittingWithdrawal, setSubmittingWithdrawal] = useState(false);
+  const [hubOverview, setHubOverview] = useState({ areas: 0, partners: 0, projects: 0, outcomes: 0, myProfile: null });
+  const [hubHomeArea, setHubHomeArea] = useState('');
 
   useEffect(() => {
     fetchMemberData();
   }, [currentUser]);
 
-  const fetchMemberData = async () => {
+  useEffect(() => {
     if (!currentUser) return;
+    let active = true;
+    const loadHubOverview = async () => {
+      try {
+        const memberRecord = await pb.collection('members').getOne(currentUser.id, { $autoCancel: false }).catch(() => currentUser);
+        const area = String(memberRecord.hub_area || memberRecord.location || '').trim();
+        if (active) setHubHomeArea(area);
+        const [areaList, partners, projectList, outcomes, myProfiles, preferences] = await Promise.all([
+          pb.collection('hub_areas').getFullList({ filter: 'verified = true', $autoCancel: false }).catch(() => []),
+          pb.collection('hub_stakeholders').getFullList({ filter: 'visibility = "public" && verified = true', $autoCancel: false }).catch(() => []),
+          pb.collection('hub_projects').getFullList({ filter: `visibility = "public" || owner = "${currentUser.id}"`, $autoCancel: false }).catch(() => []),
+          pb.collection('hub_outcomes').getFullList({ filter: 'status = "published"', $autoCancel: false }).catch(() => []),
+          pb.collection('hub_stakeholders').getFullList({ filter: `owner = "${currentUser.id}"`, $autoCancel: false }).catch(() => []),
+          pb.collection('hub_member_preferences').getFullList({ filter: `owner = "${currentUser.id}"`, $autoCancel: false }).catch(() => []),
+        ]);
+        const selectedArea = preferences[0]?.focus_area || area;
+        if (active) setHubHomeArea(selectedArea);
+        const normalize = (value) => String(value || '').split(',').map((part) => part.trim().toLowerCase()).filter(Boolean);
+        const areaParts = normalize(selectedArea);
+        const sameArea = (record) => [...normalize(record.area), ...normalize(record.location)].some((value) => areaParts.includes(value));
+        if (active) setHubOverview({
+          areas: areaList.filter((item) => !area || sameArea(item)).length,
+          partners: partners.filter((item) => !area || sameArea(item)).length,
+          projects: projectList.filter((item) => !area || sameArea(item)).length,
+          outcomes: outcomes.filter((item) => !area || sameArea(item)).length,
+          myProfile: myProfiles[0] || null,
+          area: selectedArea,
+        });
+      } catch (error) {
+        console.info('Member overview is not available yet.', error?.status || error?.message);
+      }
+    };
+    loadHubOverview();
+    return () => { active = false; };
+  }, [currentUser]);
+
+  const fetchMemberData = async () => {
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
 
     try {
-      const memberData = await pb.collection('members').getOne(currentUser.id, { $autoCancel: false });
+      const memberData = await pb.collection('members').getOne(currentUser.id, { $autoCancel: false }).catch(() => currentUser);
       setMember(memberData);
 
       const memberGroup = await pb.collection('group_members').getFirstListItem(`member_id="${currentUser.id}"`, { expand: 'group_id', $autoCancel: false }).catch(() => null);
@@ -368,6 +410,15 @@ const MemberDashboardPage = () => {
                   <p className="text-sm text-muted-foreground mt-1">Stay updated on approvals and messages</p>
                 </Link>
               </div>
+            </div>
+
+            <div className="dashboard-card border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Local livelihoods</p>
+              <h3 className="mt-2 text-lg font-semibold text-slate-900">Connect your skills and community to opportunity</h3>
+              <p className="mt-2 text-sm text-slate-600">Your registered area is {hubHomeArea || member?.hub_area || currentUser?.hub_area || member?.location || currentUser?.location || 'not yet set'}. See local partners, projects, collaborations, and assessment outcomes.</p>
+              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">{[['Verified areas', hubOverview.areas], ['Verified partners', hubOverview.partners], ['Projects', hubOverview.projects], ['Outcomes', hubOverview.outcomes]].map(([label, value]) => <div key={label} className="rounded-xl bg-white/80 p-3"><p className="text-[10px] uppercase tracking-wide text-slate-500">{label}</p><p className="mt-1 text-xl font-semibold text-emerald-900">{value}</p></div>)}</div>
+              <p className="mt-3 text-xs text-slate-600">Stakeholder profile: {hubOverview.myProfile ? (hubOverview.myProfile.verified ? 'Verified and listed' : 'Submitted, awaiting verification') : 'Not created yet'}</p>
+              <div className="mt-4 flex flex-wrap gap-2"><Link to="/hub" className="inline-flex items-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Open Youth Livelihoods Hub <Users className="h-4 w-4" /></Link>{hubOverview.myProfile && <Link to={`/hub/stakeholders/${hubOverview.myProfile.id}`} className="inline-flex items-center gap-2 rounded-xl border border-emerald-800 px-4 py-2.5 text-sm font-semibold text-emerald-900 hover:bg-white">View my profile</Link>}</div>
             </div>
           </div>
         </div>

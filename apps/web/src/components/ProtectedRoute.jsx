@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireMember = false 
   const { isAuthenticated, isAdmin, isMember } = useAuth();
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={requireMember ? '/member-login' : '/'} replace />;
   }
 
   if (requireAdmin && !isAdmin) {
@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireMember = false 
   }
 
   if (requireMember && !isMember) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/member-login" replace />;
   }
 
   return children;

@@ -9,6 +9,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext.jsx';
 const PERMISSION_OPTIONS = [
   { key: 'manage_admins', label: 'Manage admins' },
   { key: 'manage_members', label: 'Manage members' },
+  { key: 'manage_hub', label: 'Verify Community Hub profiles and areas' },
   { key: 'manage_loans', label: 'Manage loans' },
   { key: 'manage_payments', label: 'Manage payments' },
   { key: 'manage_withdrawals', label: 'Manage withdrawals' },

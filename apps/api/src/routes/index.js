@@ -6,6 +6,7 @@ import membersRouter from './members.js';
 import staffRouter from './staff.js';
 import loanManagementRouter from './loan-management.js';
 import conferencesRouter from './conferences.js';
+import hubAdminRouter from './hubAdmin.js';
 
 const router = Router();
 
@@ -26,6 +27,7 @@ export default () => {
     });
     router.get('/health', healthCheck);
     router.use('/mpesa', mpesaRouter);
+    router.use('/admin/hub', hubAdminRouter);
     router.use('/admin', adminRouter);
     router.use('/members', membersRouter);
     router.use('/staff', staffRouter);

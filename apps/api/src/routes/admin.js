@@ -19,11 +19,6 @@ const router = express.Router();
 const logFile = path.resolve(path.join(process.cwd(), 'logs', 'api.log'));
 function appendLog(...parts) { try { fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${parts.join(' ')}\n`); } catch (e) {} }
 
- 
-
-                    
-
-                                             
 
  
 router.post('/login', authRateLimiter, async (req, res) => {
@@ -37,39 +32,7 @@ router.post('/login', authRateLimiter, async (req, res) => {
     });
   }
 
-  
 
-  
-
-                         
-
-                                                                     
-
-
-
-                                                                            
-
-                                                                                        
-
-     
-
-
-
-                        
-
-                                                              
-
-                                                              
-
-                                 
-
-                                                                                                     
-
-       
-
-   
-
-  
 
   const now = new Date();
 
@@ -112,7 +75,7 @@ router.post('/login', authRateLimiter, async (req, res) => {
             email,
             password,
             passwordConfirm: password,
-            full_name: 'Super Admin',
+            full_name: 'Jack Hamerton',
             role: 'super_admin',
             verified: true,
           });
@@ -138,21 +101,7 @@ router.post('/login', authRateLimiter, async (req, res) => {
     }
   }
 
-  
 
-  
-
-                                              
-
-                            
-
-                                                                       
-
-   
-
-  
-
-  
 
   const token = generateToken();
   const expiresDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -650,11 +599,6 @@ router.get('/login-history', verifyAdminToken, async (req, res) => {
   });
 });
 
- 
-
-                      
-
-                                  
 
  
 router.put('/:adminId', verifyAdminToken, requireSuperAdmin, async (req, res) => {

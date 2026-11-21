@@ -21,12 +21,6 @@ export const isMpesaSandbox = () => {
 };
 
  
-
-                          
-
-                                          
-
- 
 export async function getAccessToken() {
   
 
@@ -64,12 +58,6 @@ export async function getAccessToken() {
 }
 
  
-
-                                              
-
-                              
-
- 
 function generateTimestamp() {
   const now = new Date();
   const year = now.getFullYear();
@@ -81,14 +69,6 @@ function generateTimestamp() {
 
   return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
-
- 
-
-                                                                                     
-
-                                                                 
-
-                                            
 
  
 function getMpesaShortCode() {
@@ -115,19 +95,7 @@ function generatePassword(timestamp) {
   return Buffer.from(passwordString).toString('base64');
 }
 
- 
 
-                             
-
-                                                                              
-
-                                             
-
-                                                                        
-
-                                               
-
- 
 export async function initiateStkPush(phoneNumber, amount, purpose) {
   const shortCode = getMpesaShortCode();
   const passkey = getMpesaPasskey();
@@ -183,16 +151,8 @@ export async function initiateStkPush(phoneNumber, amount, purpose) {
     throw new Error(`STK Push failed: ${error.response?.data?.errorMessage || error.message}`);
   }
 }
+                                      
 
- 
-
-                       
-
-                                                                        
-
-                                            
-
- 
 export async function checkPaymentStatus(checkoutRequestId) {
   if (isMpesaSandbox()) {
     const shortCode = getMpesaShortCode();

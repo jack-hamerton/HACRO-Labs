@@ -1,0 +1,581 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { ArrowRight, BarChart3, BriefcaseBusiness, CheckCircle2, ChevronDown, CircleHelp, ClipboardCheck, Download, Handshake, LoaderCircle, MapPin, Plus, Search, ShieldCheck, Sparkles, UsersRound } from 'lucide-react';
+import MemberPortalLayout from '@/components/MemberPortalLayout.jsx';
+import pb from '@/lib/pocketbaseClient';
+import { HUB_COLLECTIONS, getHubAreaOptions, getMemberHomeArea, isHubSchemaMissing, readHubCollection } from '@/lib/hubData.js';
+import { useAuth } from '@/contexts/AuthContext.jsx';
+
+const AREA_KEY = 'hacro-hub-focus-area';
+const TYPES = ['Youth Group', 'Vocational Trainer', 'Private-Sector Vendor/Employer', 'CBO', 'Local Leader', 'Individual'];
+const PHASES = ['baseline', 'midline', 'endline'];
+const EMPTY_PROFILE = { display_name: '', entity_type: TYPES[0], location: '', description: '', sectorsText: '', offersText: '', seeksText: '', community_work: '', visibility: 'public' };
+const EMPTY_PROJECT = { title: '', area: '', description: '', goals: '', status: 'active', visibility: 'public' };
+const EMPTY_ASSESSMENT = { title: '', phase: 'baseline', youth_enrolled: '', apprenticeships_placed: '', women_participants: '', men_participants: '', nonbinary_participants: '', age_18_24: '', age_25_34: '', age_35_plus: '', disability_participants: '', marginalized_participants: '', barriers: '', employer_feedback: '', learning_actions: '', community_owned: false };
+const EMPTY_SURVEY = { title: '', question: 'What helped or prevented you from accessing this work-readiness program?', instructions: '' };
+const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : [];
+const parseList = (value) => value.split(',').map((item) => item.trim()).filter(Boolean);
+const csvEscape = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+
+function downloadFile(name, content, type) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function Card({ children, className = '' }) {
+  return <section className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 ${className}`}>{children}</section>;
+}
+
+export default function HubPage() {
+  const { currentUser, isMember } = useAuth();
+  const routerLocation = useLocation();
+  const navigate = useNavigate();
+  const [areas, setAreas] = useState([]);
+  const [areaPreference, setAreaPreference] = useState(null);
+  const [stakeholders, setStakeholders] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [collaborations, setCollaborations] = useState([]);
+  const [assessments, setAssessments] = useState([]);
+  const [myResponseAssessmentIds, setMyResponseAssessmentIds] = useState([]);
+  const [adminPendingReviews, setAdminPendingReviews] = useState({ areas: [], stakeholders: [] });
+  const [outcomes, setOutcomes] = useState([]);
+  const [area, setArea] = useState('');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All partners');
+  const [phase, setPhase] = useState('baseline');
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [preferenceLoaded, setPreferenceLoaded] = useState(false);
+  const areaInitialized = useRef(false);
+  const memberAreaRef = useRef(null);
+  const [schemaMissing, setSchemaMissing] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [projectOpen, setProjectOpen] = useState(false);
+  const [areaOpen, setAreaOpen] = useState(false);
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
+  const [surveyOpen, setSurveyOpen] = useState(false);
+  const [responseTarget, setResponseTarget] = useState(null);
+  const [collabTarget, setCollabTarget] = useState(null);
+  const [selectedProject, setSelectedProject] = useState('');
+  const [profileForm, setProfileForm] = useState(EMPTY_PROFILE);
+  const [projectForm, setProjectForm] = useState(EMPTY_PROJECT);
+  const [projectStakeholderIds, setProjectStakeholderIds] = useState([]);
+  const [areaForm, setAreaForm] = useState({ name: '', location: '', labor_market_notes: '', sectorsText: '' });
+  const [assessmentForm, setAssessmentForm] = useState(EMPTY_ASSESSMENT);
+  const [surveyForm, setSurveyForm] = useState(EMPTY_SURVEY);
+  const [participantResponse, setParticipantResponse] = useState({ answer: '', barriers: '', gender: '', age_band: '', consent: false });
+  const [collaborationForm, setCollaborationForm] = useState({ proposed_role: '', message: '' });
+
+  const areasForPicker = useMemo(() => getHubAreaOptions(areas, currentUser), [areas, currentUser]);
+  const homeArea = getMemberHomeArea(currentUser);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [areaRows, stakeholderRows, projectRows, collaborationRows, assessmentRows, outcomeRows, responseRows] = await Promise.all([
+        readHubCollection(HUB_COLLECTIONS.areas, { filter: isMember ? `verified = true || owner = "${currentUser.id}"` : 'verified = true' }),
+        readHubCollection(HUB_COLLECTIONS.stakeholders, { filter: isMember ? `visibility = "public" || owner = "${currentUser.id}"` : 'visibility = "public"', expand: 'area_id,owner' }),
+        readHubCollection(HUB_COLLECTIONS.projects, { filter: isMember ? `visibility = "public" || owner = "${currentUser.id}"` : 'visibility = "public"', expand: 'area_id,owner,stakeholder_ids' }),
+        isMember ? readHubCollection(HUB_COLLECTIONS.collaborations, { filter: `requester = "${currentUser.id}" || stakeholder.owner = "${currentUser.id}" || project.owner = "${currentUser.id}"`, expand: 'stakeholder,project' }) : Promise.resolve([]),
+        readHubCollection(HUB_COLLECTIONS.assessments, { filter: 'status = "open"', expand: 'project' }),
+        readHubCollection(HUB_COLLECTIONS.outcomes, { filter: 'status = "published"', expand: 'project' }),
+        isMember ? readHubCollection(HUB_COLLECTIONS.responses, { filter: `respondent = "${currentUser.id}"` }) : Promise.resolve([]),
+      ]);
+      let savedPreference = null;
+      if (isMember) {
+        try { savedPreference = await pb.collection(HUB_COLLECTIONS.preferences).getFirstListItem(`owner = "${currentUser.id}"`, { $autoCancel: false }); }
+        catch (error) { if (error?.status !== 404) throw error; }
+        if (savedPreference?.focus_area) setArea(savedPreference.focus_area);
+        if (!savedPreference && homeArea) {
+          savedPreference = await pb.collection(HUB_COLLECTIONS.preferences).create({ owner: currentUser.id, focus_area: homeArea }, { $autoCancel: false }).catch(() => null);
+        }
+      }
+      setAreas(areaRows);
+      setAreaPreference(savedPreference);
+      setPreferenceLoaded(true);
+      setStakeholders(stakeholderRows);
+      setProjects(projectRows);
+      setCollaborations(collaborationRows);
+      setAssessments(assessmentRows);
+      setOutcomes(outcomeRows);
+      setMyResponseAssessmentIds(responseRows.map((item) => item.assessment));
+      setSchemaMissing(false);
+    } catch (error) {
+      console.error('Community Hub data load failed:', error);
+      setSchemaMissing(isHubSchemaMissing(error));
+      if (!isHubSchemaMissing(error)) toast.error('Unable to load the Community Hub data.');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser, isMember]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    let adminToken = localStorage.getItem('adminToken');
+    try { adminToken = JSON.parse(localStorage.getItem('adminToken') || 'null')?.token || adminToken; } catch { /* Stored token may be a raw string. */ }
+    if (!adminToken) return;
+    fetch(`${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_SERVER_URL || 'http://localhost:3001'}/api/admin/hub/pending`, { headers: { Authorization: `Bearer ${adminToken}` } })
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return response.json();
+      })
+      .then((result) => { if (result) setAdminPendingReviews(result); })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const targetId = routerLocation.state?.collaborateWith;
+    const target = targetId && stakeholders.find((item) => item.id === targetId);
+    if (target) {
+      setCollabTarget(target);
+      navigate('/hub', { replace: true, state: null });
+    }
+  }, [routerLocation.state, stakeholders, navigate]);
+
+  useEffect(() => {
+    if (loading || !preferenceLoaded || areaInitialized.current) return;
+    const areaValues = areasForPicker.map((item) => item.value);
+    const home = areaValues.find((item) => item.toLowerCase() === homeArea.toLowerCase());
+    let saved = '';
+    try { saved = localStorage.getItem(AREA_KEY) || ''; } catch { /* Local storage is an optional guest fallback. */ }
+    const savedMatch = areaValues.find((item) => item.toLowerCase() === saved.toLowerCase());
+    const currentExists = areaValues.some((item) => item.toLowerCase() === area.toLowerCase());
+    const memberDefault = areaPreference?.focus_area || home || homeArea;
+    if (!currentExists || (isMember && memberAreaRef.current !== currentUser?.id)) setArea(memberDefault || savedMatch || areaValues[0] || homeArea);
+    if (isMember && memberDefault) memberAreaRef.current = currentUser?.id;
+    areaInitialized.current = true;
+  }, [areasForPicker, homeArea, area, areaPreference, loading, preferenceLoaded, isMember, currentUser]);
+
+  const areaRecordId = areasForPicker.find((item) => item.value.toLowerCase() === area.toLowerCase())?.record?.id || '';
+  const isPendingArea = areasForPicker.some((item) => item.value.toLowerCase() === area.toLowerCase() && item.record && !item.record.verified);
+  const normalizeArea = (value) => String(value || '').split(',').map((part) => part.trim().toLowerCase()).filter(Boolean);
+  const inArea = (record) => {
+    const selectedParts = normalizeArea(area);
+    const recordAreas = [record.area, record.location, record.expand?.area_id?.location, record.expand?.area_id?.name].flatMap(normalizeArea);
+    return selectedParts.some((part) => recordAreas.includes(part));
+  };
+
+  const visibleStakeholders = useMemo(() => stakeholders.filter((person) => {
+    const matchesArea = inArea(person);
+    const matchesType = category === 'All partners' || person.entity_type === category;
+    const content = [person.display_name, person.description, person.community_work, ...asList(person.sectors), ...asList(person.offers), ...asList(person.seeks)].join(' ').toLowerCase();
+    return matchesArea && matchesType && content.includes(search.trim().toLowerCase());
+  }), [stakeholders, area, category, search]);
+
+  const activeProjects = projects.filter((project) => inArea(project));
+  const areaOutcomes = outcomes.filter((outcome) => inArea(outcome) && (!selectedProject || outcome.project === selectedProject) && (outcome.expand?.project?.visibility === 'public' || outcome.expand?.project?.owner === currentUser?.id));
+  const currentPhaseData = areaOutcomes.filter((outcome) => outcome.phase === phase);
+  const phaseProgress = PHASES.map((item) => {
+    const records = areaOutcomes.filter((outcome) => outcome.phase === item);
+    const enrolled = records.reduce((sum, record) => sum + Number(record.youth_enrolled || 0), 0);
+    const placed = records.reduce((sum, record) => sum + Number(record.apprenticeships_placed || 0), 0);
+    const women = records.reduce((sum, record) => sum + Number(record.women_participants || 0), 0);
+    const disability = records.reduce((sum, record) => sum + Number(record.disability_participants || 0), 0);
+    return { phase: item, enrolled, placed, women, disability, placementRate: enrolled ? Math.round((placed / enrolled) * 100) : 0, womenRate: enrolled ? Math.round((women / enrolled) * 100) : 0, disabilityRate: enrolled ? Math.round((disability / enrolled) * 100) : 0 };
+  });
+  const ownStakeholder = stakeholders.find((item) => item.owner === currentUser?.id);
+  const matches = useMemo(() => {
+    if (!ownStakeholder) return [];
+    const myOffers = asList(ownStakeholder.offers).map((value) => value.toLowerCase());
+    const myNeeds = asList(ownStakeholder.seeks).map((value) => value.toLowerCase());
+    return visibleStakeholders.filter((person) => person.id !== ownStakeholder.id).map((person) => {
+      const theirs = [...asList(person.offers), ...asList(person.seeks)].map((value) => value.toLowerCase());
+      const score = [...myOffers, ...myNeeds].filter((value) => theirs.some((item) => item.includes(value) || value.includes(item))).length;
+      return { person, score };
+    }).filter((entry) => entry.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
+  }, [ownStakeholder, visibleStakeholders]);
+
+  const refresh = async () => { await loadData(); };
+
+  const onAreaChange = (event) => {
+    const next = event.target.value;
+    setArea(next);
+    try { localStorage.setItem(AREA_KEY, next); } catch { /* The area still works for this page session. */ }
+    if (isMember && next) {
+      const savePreference = areaPreference
+        ? pb.collection(HUB_COLLECTIONS.preferences).update(areaPreference.id, { focus_area: next }, { $autoCancel: false })
+        : pb.collection(HUB_COLLECTIONS.preferences).create({ owner: currentUser.id, focus_area: next }, { $autoCancel: false });
+      savePreference.then(setAreaPreference).catch((error) => {
+        if (error?.data?.code === 'validation_not_unique' || error?.response?.data?.code === 'validation_not_unique') {
+          pb.collection(HUB_COLLECTIONS.preferences).getFirstListItem(`owner = "${currentUser.id}"`, { $autoCancel: false })
+            .then((preference) => pb.collection(HUB_COLLECTIONS.preferences).update(preference.id, { focus_area: next }, { $autoCancel: false }))
+            .then(setAreaPreference)
+            .catch(() => toast.error('Area changed for this session, but could not be saved to your account.'));
+          return;
+        }
+        toast.error('Area changed for this session, but could not be saved to your account.');
+      });
+    }
+  };
+
+  const ensureAreaRecord = async () => {
+    if (areaRecordId || !area) return areaRecordId;
+    const escaped = area.replaceAll('"', '\\"');
+    let record = await pb.collection(HUB_COLLECTIONS.areas).getFirstListItem(`location = "${escaped}"`, { $autoCancel: false }).catch(() => null);
+    if (!record) {
+      const parts = area.split(',').map((part) => part.trim()).filter(Boolean);
+      record = await pb.collection(HUB_COLLECTIONS.areas).create({ owner: currentUser.id, name: parts[0] || area, location: area, labor_market_notes: '', sectors: [], verified: false }, { $autoCancel: false });
+    }
+    setAreas((previous) => previous.some((item) => item.id === record.id) ? previous : [...previous, record]);
+    return record.id;
+  };
+
+  const handleAreaSubmit = async (event) => {
+    event.preventDefault();
+    if (!isMember) { toast.error('Sign in to suggest a community area.'); return; }
+    setBusy(true);
+    try {
+      const record = await pb.collection(HUB_COLLECTIONS.areas).create({ owner: currentUser.id, name: areaForm.name.trim(), location: areaForm.location.trim(), labor_market_notes: areaForm.labor_market_notes.trim(), sectors: parseList(areaForm.sectorsText), verified: false }, { $autoCancel: false });
+      setAreaForm({ name: '', location: '', labor_market_notes: '', sectorsText: '' });
+      setAreaOpen(false);
+      toast.success('Area suggestion submitted. It will appear in public listings after verification.');
+      await refresh();
+      if (record.location) setArea(record.location);
+    } catch (error) { toast.error(error?.data?.message || 'Could not submit the area.'); }
+    finally { setBusy(false); }
+  };
+
+  const setVerification = async (kind, record, verified) => {
+    let adminToken = localStorage.getItem('adminToken');
+    try { adminToken = JSON.parse(localStorage.getItem('adminToken') || 'null')?.token || adminToken; } catch { /* The stored value may already be a token string. */ }
+    if (!adminToken) { toast.error('An authorized administrator session is required.'); return; }
+    const endpoint = kind === 'area' ? 'areas' : 'stakeholders';
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_SERVER_URL || 'http://localhost:3001'}/api/admin/hub/${endpoint}/${record.id}/verification`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
+        body: JSON.stringify({ verified }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Verification update failed.');
+      toast.success(`${kind === 'area' ? 'Area' : 'Stakeholder'} ${verified ? 'verified' : 'verification removed'}.`);
+      setAdminPendingReviews((previous) => ({
+        areas: kind === 'area' ? previous.areas.filter((item) => item.id !== record.id) : previous.areas,
+        stakeholders: kind === 'stakeholder' ? previous.stakeholders.filter((item) => item.id !== record.id) : previous.stakeholders,
+      }));
+      await refresh();
+    } catch (error) { toast.error(error.message || 'Unable to update verification.'); }
+  };
+
+  const handleProfileSubmit = async (event) => {
+    event.preventDefault();
+    if (!isMember) { toast.error('Sign in as a member to create your profile.'); return; }
+    if (isPendingArea) { toast.error('This area is awaiting HACRO verification. Select a verified area to publish your profile.'); return; }
+    setBusy(true);
+    try {
+      const areaId = await ensureAreaRecord();
+      const payload = {
+        owner: currentUser.id,
+        display_name: profileForm.display_name.trim(),
+        entity_type: profileForm.entity_type,
+        area: area,
+        ...(areaId ? { area_id: areaId } : {}),
+        location: profileForm.location.trim(),
+        description: profileForm.description.trim(),
+        sectors: parseList(profileForm.sectorsText),
+        offers: parseList(profileForm.offersText),
+        seeks: parseList(profileForm.seeksText),
+        community_work: profileForm.community_work.trim(),
+        visibility: profileForm.visibility,
+        verified: false,
+      };
+      if (ownStakeholder) await pb.collection(HUB_COLLECTIONS.stakeholders).update(ownStakeholder.id, payload, { $autoCancel: false });
+      else await pb.collection(HUB_COLLECTIONS.stakeholders).create(payload, { $autoCancel: false });
+      if (!areaRecordId && areaId) toast.info('Your selected area is submitted for verification.');
+      toast.success('Profile saved. A HACRO administrator can review it for verification.');
+      setProfileOpen(false);
+      await refresh();
+    } catch (error) { console.error(error); toast.error(error?.data?.message || 'Could not save your profile. Ensure the Hub schema is installed.'); }
+    finally { setBusy(false); }
+  };
+
+  const handleProjectSubmit = async (event) => {
+    event.preventDefault();
+    if (!isMember) { toast.error('Sign in as a member to create a project.'); return; }
+    if (!area) { toast.error('Select a focus area first.'); return; }
+    if (isPendingArea) { toast.error('This area is awaiting HACRO verification. Select a verified area to create a public project.'); return; }
+    setBusy(true);
+    let createdProject;
+    try {
+      if (projectForm.visibility !== 'public' || projectForm.status !== 'active') throw new Error('Hub projects currently need to be active and public to invite partners and track community outcomes.');
+      const areaId = await ensureAreaRecord();
+      const selectedIds = projectStakeholderIds.length ? projectStakeholderIds : visibleStakeholders.filter((item) => item.id !== ownStakeholder?.id).map((item) => item.id);
+      if (!selectedIds.length) throw new Error('Select at least one local partner to create a collaborative project.');
+      const selectedPartners = stakeholders.filter((item) => selectedIds.includes(item.id));
+      if (selectedPartners.some((item) => item.area !== area)) throw new Error('All project partners must be in the selected community area.');
+      const partnerIds = [...new Set([...(ownStakeholder ? [ownStakeholder.id] : []), ...selectedIds])];
+      const payload = { ...projectForm, owner: currentUser.id, area, ...(areaId ? { area_id: areaId } : {}), stakeholder_ids: partnerIds };
+      const record = await pb.collection(HUB_COLLECTIONS.projects).create(payload, { $autoCancel: false });
+      createdProject = record;
+      const uniquePartnerIds = partnerIds.filter((id) => id !== ownStakeholder?.id);
+      if (uniquePartnerIds.length) {
+        await Promise.all(uniquePartnerIds.map((stakeholderId) => pb.collection(HUB_COLLECTIONS.collaborations).create({ project: record.id, stakeholder: stakeholderId, requester: currentUser.id, proposed_role: 'Project partner', message: `Invitation to collaborate on ${projectForm.title.trim()}`, status: 'pending' }, { $autoCancel: false })));
+      }
+      setSelectedProject(record.id);
+      setProjectOpen(false);
+      setProjectForm({ ...EMPTY_PROJECT, area });
+      setProjectStakeholderIds([]);
+      toast.success(uniquePartnerIds.length ? 'Project created and partner invitations sent.' : 'Project created. Add partners and assessment data to track it.');
+      await refresh();
+    } catch (error) {
+      console.error(error);
+      if (createdProject) {
+        setSelectedProject(createdProject.id);
+        setProjectOpen(false);
+        toast.error('The project was created, but partner invitations could not all be saved. You can resend them from the project workflow.');
+        await refresh();
+      } else toast.error(error?.data?.message || 'Could not create project. Ensure the Hub schema is installed.');
+    }
+    finally { setBusy(false); }
+  };
+
+  const handleCollaborationSubmit = async (event) => {
+    event.preventDefault();
+    if (!isMember || !collabTarget) { toast.error('Sign in as a member to propose a collaboration.'); return; }
+    if (!selectedProject) { toast.error('Create or select one of your projects before inviting a partner.'); return; }
+    setBusy(true);
+    try {
+      const selectedProjectRecord = activeProjects.find((item) => item.id === selectedProject);
+      if (!selectedProjectRecord || selectedProjectRecord.owner !== currentUser.id) throw new Error('You can only invite partners to a project you own.');
+      if (selectedProjectRecord.area !== collabTarget.area) throw new Error('Choose a project and partner in the same community area.');
+      await pb.collection(HUB_COLLECTIONS.collaborations).create({ project: selectedProject, stakeholder: collabTarget.id, requester: currentUser.id, proposed_role: collaborationForm.proposed_role.trim(), message: collaborationForm.message.trim(), status: 'pending' }, { $autoCancel: false });
+      toast.success('Collaboration invitation sent.');
+      setCollabTarget(null);
+      setCollaborationForm({ proposed_role: '', message: '' });
+      await refresh();
+    } catch (error) { console.error(error); toast.error(error?.data?.message || 'Could not send invitation.'); }
+    finally { setBusy(false); }
+  };
+
+  const updateCollaboration = async (record, status) => {
+    try {
+      await pb.collection(HUB_COLLECTIONS.collaborations).update(record.id, { status }, { $autoCancel: false });
+      toast.success(`Invitation ${status}.`);
+      await refresh();
+    } catch (error) { toast.error(error?.data?.message || 'Unable to update invitation.'); }
+  };
+
+  const handleAssessmentSubmit = async (event) => {
+    event.preventDefault();
+    const project = selectedProject || activeProjects.find((item) => item.owner === currentUser?.id)?.id;
+    if (!isMember || !project) { toast.error('Create or select a project you lead to record assessment data.'); return; }
+    if (isPendingArea) { toast.error('This area is awaiting HACRO verification. Select a verified project area to record outcomes.'); return; }
+    const countFields = ['youth_enrolled', 'apprenticeships_placed', 'women_participants', 'men_participants', 'nonbinary_participants', 'age_18_24', 'age_25_34', 'age_35_plus', 'disability_participants', 'marginalized_participants'];
+    const values = countFields.map((key) => Number(assessmentForm[key] || 0));
+    if (values.some((value) => !Number.isInteger(value) || value < 0)) { toast.error('Participant counts must be non-negative whole numbers.'); return; }
+    if (values.slice(1).some((value) => value > values[0])) { toast.error('Placements and disaggregated participant counts cannot exceed total youth enrolled.'); return; }
+    setBusy(true);
+    try {
+      const areaId = await ensureAreaRecord();
+      const ownerProject = activeProjects.find((item) => item.id === project);
+      if (!ownerProject || ownerProject.owner !== currentUser.id) throw new Error('You can only submit outcomes for a project you own.');
+      const assessment = assessments.find((row) => row.project === project && row.phase === phase) || await pb.collection(HUB_COLLECTIONS.assessments).getFirstListItem(`project = "${project}" && phase = "${phase}"`, { $autoCancel: false }).catch(() => null);
+      let assessmentId = assessment?.id;
+      const assessmentPayload = { project, owner: currentUser.id, title: assessmentForm.title.trim() || `${phase[0].toUpperCase()}${phase.slice(1)} assessment`, phase, status: 'closed', area, ...(areaId ? { area_id: areaId } : {}), instructions: 'Project-lead aggregate assessment. Submit de-identified counts only.', questions: [] };
+      if (!assessmentId) {
+        const created = await pb.collection(HUB_COLLECTIONS.assessments).create(assessmentPayload, { $autoCancel: false });
+        assessmentId = created.id;
+      } else if (assessment.status === 'open' && assessment.questions?.length) {
+        throw new Error('This phase is currently collecting participant survey responses. Close the survey before recording aggregate outcomes.');
+      }
+      const disaggregated = Object.fromEntries(countFields.map((key, index) => [key, values[index]]));
+      const outcomePayload = { project, assessment: assessmentId, recorded_by: currentUser.id, title: assessmentPayload.title, summary: assessmentForm.learning_actions.trim() || `${phase} project checkpoint`, phase, ...disaggregated, barriers: parseList(assessmentForm.barriers), employer_feedback: assessmentForm.employer_feedback.trim(), learning_actions: assessmentForm.learning_actions.trim(), community_owned: assessmentForm.community_owned, metrics: disaggregated, status: 'published', area, ...(areaId ? { area_id: areaId } : {}) };
+      const existingOutcome = await pb.collection(HUB_COLLECTIONS.outcomes).getFirstListItem(`project = "${project}" && phase = "${phase}"`, { $autoCancel: false }).catch(() => null);
+      if (existingOutcome) await pb.collection(HUB_COLLECTIONS.outcomes).update(existingOutcome.id, outcomePayload, { $autoCancel: false });
+      else await pb.collection(HUB_COLLECTIONS.outcomes).create(outcomePayload, { $autoCancel: false });
+      toast.success(`${phase[0].toUpperCase()}${phase.slice(1)} assessment submitted.`);
+      setAssessmentOpen(false);
+      setAssessmentForm(EMPTY_ASSESSMENT);
+      await refresh();
+    } catch (error) { console.error(error); toast.error(error?.data?.message || 'Could not save assessment data. Ensure the Hub schema is installed.');
+    } finally { setBusy(false); }
+  };
+
+  const handleSurveySubmit = async (event) => {
+    event.preventDefault();
+    const project = selectedProject || activeProjects.find((item) => item.owner === currentUser?.id)?.id;
+    if (!isMember || !project) { toast.error('Create or select a project you lead to open a participant assessment.'); return; }
+    if (isPendingArea) { toast.error('This area is awaiting HACRO verification. Select a verified project area to open a survey.'); return; }
+    setBusy(true);
+    try {
+      const areaId = await ensureAreaRecord();
+      const projectRecord = activeProjects.find((item) => item.id === project);
+      if (!projectRecord || projectRecord.owner !== currentUser.id) throw new Error('You can only open a survey for a project you own.');
+      const existing = assessments.find((item) => item.project === project && item.phase === phase);
+      const payload = { project, owner: currentUser.id, title: surveyForm.title.trim() || `${phase[0].toUpperCase()}${phase.slice(1)} participant survey`, phase, status: 'open', area, ...(areaId ? { area_id: areaId } : {}), instructions: surveyForm.instructions.trim(), questions: [{ id: 'experience', label: surveyForm.question.trim(), type: 'text', required: true }, { id: 'barriers', label: 'What barriers did you experience?', type: 'text', required: false }] };
+      const record = existing ? await pb.collection(HUB_COLLECTIONS.assessments).update(existing.id, payload, { $autoCancel: false }) : await pb.collection(HUB_COLLECTIONS.assessments).create(payload, { $autoCancel: false });
+      toast.success(`${record.title} is open for consented responses.`);
+      setSurveyOpen(false);
+      setSurveyForm(EMPTY_SURVEY);
+      await refresh();
+    } catch (error) {
+      if (error?.data?.code === 'validation_not_unique' || error?.response?.data?.code === 'validation_not_unique') {
+        try {
+          const existing = await pb.collection(HUB_COLLECTIONS.assessments).getFirstListItem(`project = "${project}" && phase = "${phase}"`, { $autoCancel: false });
+          const record = await pb.collection(HUB_COLLECTIONS.assessments).update(existing.id, { status: 'open', title: surveyForm.title.trim() || existing.title, instructions: surveyForm.instructions.trim(), questions: [{ id: 'experience', label: surveyForm.question.trim(), type: 'text', required: true }, { id: 'barriers', label: 'What barriers did you experience?', type: 'text', required: false }] }, { $autoCancel: false });
+          toast.success(`${record.title} is open for consented responses.`);
+          setSurveyOpen(false);
+          await refresh();
+        } catch (retryError) { toast.error(retryError?.data?.message || 'Could not update the existing assessment.'); }
+      } else toast.error(error?.data?.message || error.message || 'Could not open participant assessment.');
+    }
+    finally { setBusy(false); }
+  };
+
+  const closeSurvey = async (assessment) => {
+    setBusy(true);
+    try {
+      await pb.collection(HUB_COLLECTIONS.assessments).update(assessment.id, { status: 'closed' }, { $autoCancel: false });
+      toast.success('Participant survey closed. You can now submit aggregate outcomes for this phase.');
+      await refresh();
+    } catch (error) { toast.error(error?.data?.message || 'Could not close the survey.'); }
+    finally { setBusy(false); }
+  };
+
+
+  const handleParticipantResponse = async (event) => {
+    event.preventDefault();
+    if (!isMember || !responseTarget) return;
+    if (!participantResponse.consent) { toast.error('Consent is required before submitting this response.'); return; }
+    setBusy(true);
+    const alreadyResponded = await pb.collection(HUB_COLLECTIONS.responses).getFirstListItem(`assessment = "${responseTarget.id}" && respondent = "${currentUser.id}"`, { $autoCancel: false }).catch(() => null);
+    setBusy(false);
+    if (alreadyResponded) { toast.error('You have already submitted a response to this assessment.'); return; }
+    const listedQuestions = Array.isArray(responseTarget.questions) ? responseTarget.questions : [];
+    const mainQuestion = listedQuestions.find((question) => question.id === 'experience')?.label || listedQuestions[0]?.label || 'Your experience';
+    setBusy(true);
+    try {
+      await pb.collection(HUB_COLLECTIONS.responses).create({ assessment: responseTarget.id, respondent: currentUser.id, consent: true, answers: { [mainQuestion]: participantResponse.answer.trim(), barriers: parseList(participantResponse.barriers) }, area, gender: participantResponse.gender || 'prefer_not_to_say', age_band: participantResponse.age_band || 'prefer_not_to_say' }, { $autoCancel: false });
+      toast.success('Your consented response was saved. Your name is not shared with project viewers.');
+      setMyResponseAssessmentIds((previous) => [...new Set([...previous, responseTarget.id])]);
+      setResponseTarget(null);
+      setParticipantResponse({ answer: '', barriers: '', gender: '', age_band: '', consent: false });
+    } catch (error) { toast.error(error?.data?.message || 'Could not submit your response.'); }
+    finally { setBusy(false); }
+  };
+
+  const respondToInvitation = async (record, status) => {
+    setBusy(true);
+    try {
+      await pb.collection(HUB_COLLECTIONS.collaborations).update(record.id, { status }, { $autoCancel: false });
+      toast.success(`Invitation ${status}.`);
+      await refresh();
+    } catch (error) { toast.error(error?.data?.message || `Unable to ${status} invitation.`); }
+    finally { setBusy(false); }
+  };
+
+  const exportOutcomes = (format) => {
+    const rows = areaOutcomes.map(({ id, project, phase: outcomePhase, title, created, youth_enrolled, apprenticeships_placed, women_participants, marginalized_participants, barriers, employer_feedback, learning_actions, community_owned }) => ({ id, project, phase: outcomePhase, title, created, youth_enrolled, apprenticeships_placed, women_participants, marginalized_participants, barriers, employer_feedback, learning_actions, community_owned }));
+    if (!rows.length) { toast.error('There is no published outcome data for this area yet.'); return; }
+    if (format === 'json') downloadFile(`hacro-${area}-outcomes.json`, JSON.stringify(rows, null, 2), 'application/json');
+    else {
+      const keys = Object.keys(rows[0]);
+      downloadFile(`hacro-${area}-outcomes.csv`, [keys.map(csvEscape).join(','), ...rows.map((row) => keys.map((key) => csvEscape(Array.isArray(row[key]) ? row[key].join('; ') : row[key])).join(','))].join('\n'), 'text/csv;charset=utf-8');
+    }
+  };
+
+  const generatePolicyBrief = () => {
+    const enrolled = areaOutcomes.reduce((sum, item) => sum + Number(item.youth_enrolled || 0), 0);
+    const placed = areaOutcomes.reduce((sum, item) => sum + Number(item.apprenticeships_placed || 0), 0);
+    const women = areaOutcomes.reduce((sum, item) => sum + Number(item.women_participants || 0), 0);
+    const marginalized = areaOutcomes.reduce((sum, item) => sum + Number(item.marginalized_participants || 0), 0);
+    const brief = `# Community livelihoods policy brief\n\nArea: ${area}\nGenerated: ${new Date().toLocaleDateString()}\n\n## Evidence summary\n- Projects reporting: ${new Set(areaOutcomes.map((item) => item.project)).size}\n- Youth enrolled (reported across checkpoints): ${enrolled}\n- Apprenticeship placements (reported across checkpoints): ${placed}\n- Women participants (reported): ${women}\n- Marginalized participants (reported): ${marginalized}\n\n## Learning and sustainability\n${areaOutcomes.map((item) => `- ${item.phase}: ${item.learning_actions || item.summary || 'No learning note recorded.'}${item.community_owned ? ' (community ownership marked)' : ''}`).join('\n') || '- No published outcomes recorded.'}\n\nAggregates are reported as submitted by participating project teams. Confirm collection periods and avoid interpreting repeated checkpoint counts as unique people.`;
+    downloadFile(`hacro-${area}-policy-brief.md`, brief, 'text/markdown;charset=utf-8');
+  };
+
+  const acceptConsentAndRespond = async (assessment) => {
+    if (!isMember) { toast.error('Sign in to submit an assessment response.'); return; }
+    if (myResponseAssessmentIds.includes(assessment.id)) { toast.info('You have already submitted a response to this assessment.'); return; }
+    setParticipantResponse({ answer: '', barriers: '', gender: '', age_band: '', consent: false });
+    setResponseTarget(assessment);
+  };
+
+  const updateText = (setter, key) => (event) => setter((previous) => ({ ...previous, [key]: event.target.type === 'checkbox' ? event.target.checked : event.target.value }));
+  const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60';
+  const fieldClass = 'mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15';
+
+  return (
+    <MemberPortalLayout title="Youth Livelihoods Hub" subtitle={area ? `Your local ecosystem: ${area}` : 'Community-owned economic opportunity'}>
+      <div className="min-h-[calc(100vh-12rem)] overflow-hidden bg-[#f7faf7] text-slate-900">
+        <main className="pt-16">
+          <section className="relative overflow-hidden bg-[#10251d] px-6 py-14 text-white sm:px-8 sm:py-16 lg:px-12">
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: "url('/images/2nd.jpg')",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundAttachment: 'scroll',
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/70 to-black/90" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.12),_transparent_38%)]" />
+            <div className="mx-auto grid max-w-7xl items-center gap-9 lg:grid-cols-[1fr_auto]">
+              <div><p className="inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1.5 text-xs font-semibold text-emerald-100"><Sparkles className="h-4 w-4" /> Community livelihoods network</p><h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">Local knowledge. Shared opportunity.</h1><p className="mt-4 max-w-2xl leading-7 text-white/70">Discover verified local organizations, coordinate projects, and use consent-led evidence to adapt work-readiness initiatives.</p></div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-5 sm:min-w-[280px]"><label htmlFor="hub-area" className="text-xs font-semibold uppercase tracking-wider text-emerald-100/70">Focus area</label><div className="relative mt-2"><MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-300" /><select id="hub-area" value={area} onChange={onAreaChange} className="w-full appearance-none rounded-xl border border-white/15 bg-[#18362a] py-3 pl-10 pr-9 text-sm text-white outline-none focus:border-emerald-300">{area && !areasForPicker.some((option) => option.value === area) && <option value={area}>{area}</option>}{areasForPicker.map(({ value, record }) => <option key={record?.id || value} value={value}>{value}{record && !record.verified ? ' · awaiting verification' : ''}</option>)}</select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-200" /></div><p className="mt-2 text-xs text-white/45">{isMember ? `Your registered home location: ${homeArea || 'not set'}` : 'Guest preference is saved on this browser.'}</p>{isMember && <button className="mt-3 text-xs font-semibold text-emerald-200 hover:text-white" onClick={() => setAreaOpen(true)}>Suggest a new area</button>}</div>
+            </div>
+          </section>
+
+          <div className="mx-auto max-w-7xl space-y-8 px-6 py-10 sm:px-8 lg:px-12">
+            {schemaMissing && <Card className="border-amber-300 bg-amber-50"><h2 className="font-semibold text-amber-950">Hub database setup is required</h2><p className="mt-2 text-sm leading-6 text-amber-900">The PocketBase Hub collections were not found. Apply the community Hub migrations in order, then reload. The page will not show fabricated partners or assessment values.</p>{isMember && <p className="mt-2 text-sm text-amber-950">Your registered area: {homeArea || 'not provided'}</p>}</Card>}
+            {loading && <div className="flex items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-10 text-slate-600"><LoaderCircle className="h-5 w-5 animate-spin" /> Loading community data…</div>}
+            {!loading && !schemaMissing && <>
+              {adminPendingReviews.areas.length + adminPendingReviews.stakeholders.length > 0 && <Card className="border-amber-200 bg-amber-50"><h2 className="font-semibold text-amber-950">HACRO verification queue</h2><p className="mt-1 text-sm text-amber-900">Review location and stakeholder submissions before they are listed as verified.</p><div className="mt-4 space-y-3">{adminPendingReviews.areas.map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white p-3"><div><p className="font-medium">Area · {item.name}</p><p className="text-xs text-slate-500">{item.location} · Sectors: {asList(item.sectors).join(', ') || 'not given'}</p><p className="mt-1 text-xs text-slate-600">{item.labor_market_notes}</p></div><button className="rounded-lg bg-emerald-800 px-3 py-2 text-xs font-semibold text-white" onClick={() => setVerification('area', item, true)}>Verify area</button></div>)}{adminPendingReviews.stakeholders.map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white p-3"><div><p className="font-medium">Stakeholder · {item.display_name}</p><p className="text-xs text-slate-500">{item.entity_type} · {item.area}</p><p className="mt-1 text-xs text-slate-600">{item.description}</p></div><button className="rounded-lg bg-emerald-800 px-3 py-2 text-xs font-semibold text-white" onClick={() => setVerification('stakeholder', item, true)}>Verify profile</button></div>)}</div></Card>}
+              {isMember && areas.some((item) => item.owner === currentUser.id && !item.verified) && <Card><h2 className="font-semibold">Your area suggestions</h2><div className="mt-3 space-y-2">{areas.filter((item) => item.owner === currentUser.id && !item.verified).map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-amber-50 p-3"><div><p className="font-medium">{item.name} · {item.location}</p><p className="text-xs text-amber-900">Awaiting HACRO verification</p></div></div>)}</div></Card>}
+              <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[{ label: 'Verified areas', value: areas.length, icon: MapPin }, { label: 'Verified partners', value: stakeholders.filter((item) => item.verified).length, icon: UsersRound }, { label: 'Active projects', value: projects.filter((item) => item.status === 'active').length, icon: BriefcaseBusiness }, { label: 'Assessment records', value: outcomes.length, icon: BarChart3 }].map(({ label, value, icon: Icon }) => <div key={label} className="rounded-2xl border border-slate-200 bg-white p-4"><div className="flex items-center justify-between text-sm text-slate-500"><span>{label}</span><Icon className="h-4 w-4 text-emerald-700" /></div><p className="mt-3 text-3xl font-semibold">{value}</p></div>)}
+              </section>
+
+              <Card>
+                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-widest text-emerald-700">People & organizations</p><h2 className="mt-2 text-2xl font-semibold">Build your local network</h2><p className="mt-1 text-sm text-slate-500">Profiles appear after their owners publish them. Only HACRO-approved profiles receive a verified badge.</p></div><div className="flex flex-wrap gap-2">{isMember && <button className={buttonClass} onClick={() => { setProfileForm(ownStakeholder ? { ...EMPTY_PROFILE, display_name: ownStakeholder.display_name, entity_type: ownStakeholder.entity_type, location: ownStakeholder.location || '', description: ownStakeholder.description || '', sectorsText: asList(ownStakeholder.sectors).join(', '), offersText: asList(ownStakeholder.offers).join(', '), seeksText: asList(ownStakeholder.seeks).join(', '), community_work: ownStakeholder.community_work || '', visibility: ownStakeholder.visibility || 'public' } : EMPTY_PROFILE); setProfileOpen(true); }}><Plus className="h-4 w-4" />{ownStakeholder ? 'Edit my profile' : 'Create my profile'}</button>}<button onClick={refresh} className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold hover:bg-slate-50">Refresh</button></div></div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input className={fieldClass + ' mt-0 pl-9'} aria-label="Search verified profiles" placeholder="Search capabilities, sectors, or needs" value={search} onChange={(event) => setSearch(event.target.value)} /></div><div className="flex flex-wrap gap-2">{['All partners', ...TYPES].map((type) => <button key={type} onClick={() => setCategory(type)} className={`rounded-full border px-3 py-2 text-xs font-semibold ${category === type ? 'border-emerald-800 bg-emerald-800 text-white' : 'border-slate-200 text-slate-600 hover:border-emerald-500'}`}>{type}</button>)}</div></div>
+                  <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{visibleStakeholders.map((person) => <div key={person.id} className="rounded-2xl border border-slate-200 p-5 text-left transition hover:border-emerald-400 hover:shadow-lg"><Link to={`/hub/stakeholders/${person.id}`}><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{person.display_name}</h3><p className="mt-1 text-xs text-slate-500">{person.entity_type} · {person.area || person.expand?.area_id?.location || area}</p></div>{person.verified ? <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-900"><CheckCircle2 className="h-3 w-3" />Verified</span> : <span className="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-semibold text-amber-900">Unverified</span>}</div><p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">{person.description}</p><p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-400">Offers</p><div className="mt-2 flex flex-wrap gap-1.5">{asList(person.offers).slice(0, 4).map((item) => <span key={item} className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs text-emerald-800">{item}</span>)}</div><span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-emerald-800">View profile <ArrowRight className="h-4 w-4" /></span></Link>{localStorage.getItem('adminToken') && !person.verified && <button className="mt-4 rounded-lg bg-emerald-800 px-3 py-2 text-xs font-semibold text-white" onClick={() => setVerification('stakeholder', person, true)}>Verify profile</button>}</div>)}</div>
+                {!visibleStakeholders.length && <div className="mt-6 rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500"><CircleHelp className="mx-auto mb-2 h-6 w-6" />No public profiles match this area and filter yet. Create a profile to start the network.</div>}
+                {matches.length > 0 && <div className="mt-7 rounded-2xl bg-emerald-50 p-5"><h3 className="font-semibold text-emerald-950">Possible capability matches</h3><p className="mt-1 text-xs text-emerald-900/70">Suggested by overlapping profile offers and needs; confirm directly before planning a partnership.</p><div className="mt-3 flex flex-wrap gap-2">{matches.map(({ person, score }) => <button key={person.id} onClick={() => setProfileOpen(person.id)} className="rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-950">{person.display_name} · {score} match{score === 1 ? '' : 'es'}</button>)}</div></div>}
+              </Card>
+
+              <Card>
+                <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Community interventions</p><h2 className="mt-2 text-2xl font-semibold">Projects in {area || 'your area'}</h2><p className="mt-1 text-sm text-slate-500">Create a project, connect its stakeholder partners, then record phase outcomes.</p></div>{isMember && <button className={buttonClass} onClick={() => { setProjectForm({ ...EMPTY_PROJECT, area }); setProjectOpen(true); }}><Plus className="h-4 w-4" />Create project</button>}</div>
+                <div className="mt-5 flex flex-wrap items-center gap-3"><label className="text-sm font-medium" htmlFor="hub-project">Selected project</label><select id="hub-project" className="min-w-64 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm" value={selectedProject} onChange={(event) => setSelectedProject(event.target.value)}><option value="">All projects in this area</option>{activeProjects.map((project) => <option key={project.id} value={project.id}>{project.title}</option>)}</select></div>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">{activeProjects.map((project) => <article key={project.id} className="rounded-xl border border-slate-200 p-4"><div className="flex items-center justify-between gap-3"><h3 className="font-semibold">{project.title}</h3><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs capitalize">{project.status}</span></div><p className="mt-2 text-sm text-slate-600">{project.description}</p><p className="mt-3 text-xs text-slate-400">Partners: {project.expand?.stakeholder_ids?.length || 0} · Area: {project.area || area}</p><button className="mt-3 text-sm font-semibold text-emerald-800 hover:underline" onClick={() => setSelectedProject(project.id)}>Use this project</button></article>)}</div>
+                {!activeProjects.length && <p className="mt-5 rounded-xl bg-slate-50 p-5 text-sm text-slate-500">No published projects in this area yet.</p>}
+                {isMember && <div className="mt-6 border-t border-slate-100 pt-5"><h3 className="font-semibold">Collaboration invitations</h3>{collaborations.length ? <div className="mt-3 space-y-2">{collaborations.map((invite) => <div key={invite.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"><div><p className="text-sm font-medium">{invite.expand?.stakeholder?.display_name || 'Partner'} · {invite.expand?.project?.title || 'Project'}</p><p className="text-xs text-slate-500">{invite.proposed_role} · {invite.status}</p><p className="mt-1 text-xs text-slate-500">{invite.message}</p>{invite.response_note && <p className="mt-1 text-xs text-emerald-800">Response: {invite.response_note}</p>}</div>{invite.status === 'pending' && invite.expand?.stakeholder?.owner === currentUser.id && <div className="flex gap-2"><button disabled={busy} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white" onClick={() => respondToInvitation(invite, 'accepted')}>Accept</button><button disabled={busy} className="rounded-lg border border-slate-300 px-3 py-2 text-xs" onClick={() => respondToInvitation(invite, 'declined')}>Decline</button></div>}{invite.status === 'pending' && invite.requester === currentUser.id && <button disabled={busy} className="rounded-lg border border-slate-300 px-3 py-2 text-xs" onClick={() => respondToInvitation(invite, 'cancelled')}>Cancel</button>}</div>)}</div> : <p className="mt-2 text-sm text-slate-500">No collaboration invitations yet.</p>}</div>}
+              </Card>
+
+              <Card>
+                <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Implementation research · IRGA</p><h2 className="mt-2 text-2xl font-semibold">Assessment workbench</h2><p className="mt-1 text-sm text-slate-500">Consent-led participant responses plus aggregate project outcomes across the assessment cycle.</p></div><div className="flex flex-wrap gap-2"><button onClick={() => exportOutcomes('csv')} className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold"><Download className="mr-1 inline h-3.5 w-3.5" />CSV</button><button onClick={() => exportOutcomes('json')} className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold">JSON</button><button onClick={generatePolicyBrief} className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold">Policy brief</button></div></div>
+                <div className="mt-5 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">{PHASES.map((item) => <button key={item} onClick={() => setPhase(item)} className={`rounded-lg px-2 py-3 text-sm font-semibold capitalize ${phase === item ? 'bg-emerald-800 text-white' : 'text-slate-600'}`}>{item}</button>)}</div>
+                {isMember && activeProjects.some((item) => item.owner === currentUser.id) && <div className="mt-4 flex flex-wrap items-center gap-3"><button className={buttonClass} onClick={() => { setAssessmentForm({ ...EMPTY_ASSESSMENT, phase }); setAssessmentOpen(true); }}><ClipboardCheck className="h-4 w-4" />Record {phase} outcomes</button><button className="rounded-xl border border-emerald-800 px-4 py-2.5 text-sm font-semibold text-emerald-900" onClick={() => { setSurveyForm(EMPTY_SURVEY); setSurveyOpen(true); }}>Open participant survey</button><span className="text-xs text-slate-500">Aggregate project counts only; do not enter participant names.</span></div>}
+                <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{[
+                  { label: 'Youth enrolled', value: currentPhaseData.reduce((sum, item) => sum + Number(item.youth_enrolled || 0), 0) },
+                  { label: 'Apprenticeship placements', value: currentPhaseData.reduce((sum, item) => sum + Number(item.apprenticeships_placed || 0), 0) },
+                  { label: 'Women participants', value: currentPhaseData.reduce((sum, item) => sum + Number(item.women_participants || 0), 0) },
+                  { label: 'Disability-inclusive participants', value: currentPhaseData.reduce((sum, item) => sum + Number(item.disability_participants || 0), 0) },
+                ].map((metric) => <div key={metric.label} className="rounded-xl bg-slate-50 p-4"><p className="text-xs text-slate-500">{metric.label} · {phase}</p><p className="mt-2 text-2xl font-semibold">{metric.value}</p></div>)}</div>
+                <div className="mt-6 rounded-xl border border-slate-200 p-4"><h3 className="font-semibold">Progress and inclusion comparison</h3><p className="mt-1 text-xs text-slate-500">Area-wide reported aggregates by assessment phase. Compare like-for-like project and reporting periods.</p><div className="mt-4 space-y-4">{phaseProgress.map((item) => <div key={item.phase} className="grid gap-2 sm:grid-cols-[100px_1fr] sm:items-center"><p className="text-sm font-semibold capitalize">{item.phase}</p><div className="space-y-2"><div className="flex items-center gap-3 text-xs"><span className="w-28 shrink-0 text-slate-500">Placement / enrolled</span><div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-600" style={{ width: `${item.placementRate}%` }} /></div><span className="w-10 text-right font-semibold">{item.placementRate}%</span></div><div className="flex items-center gap-3 text-xs"><span className="w-28 shrink-0 text-slate-500">Women / enrolled</span><div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-violet-500" style={{ width: `${Math.min(item.womenRate, 100)}%` }} /></div><span className="w-10 text-right font-semibold">{item.womenRate}%</span></div><div className="flex items-center gap-3 text-xs"><span className="w-28 shrink-0 text-slate-500">Disability inclusion</span><div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-sky-500" style={{ width: `${Math.min(item.disabilityRate, 100)}%` }} /></div><span className="w-10 text-right font-semibold">{item.disabilityRate}%</span></div></div></div>)}</div></div>
+                {areaOutcomes.length > 0 && <div className="mt-5 space-y-2">{areaOutcomes.map((outcome) => <article key={outcome.id} className="rounded-xl border border-slate-200 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">{outcome.title}</h3><span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs capitalize text-emerald-800">{outcome.phase}</span></div><p className="mt-2 text-sm text-slate-600">Enrolled {outcome.youth_enrolled} · Placed {outcome.apprenticeships_placed} · Women {outcome.women_participants} · Marginalized youth {outcome.marginalized_participants}</p><p className="mt-2 text-xs text-slate-500">{outcome.created}</p>{outcome.learning_actions && <p className="mt-3 text-sm"><strong>Adaptive learning:</strong> {outcome.learning_actions}</p>}{outcome.employer_feedback && <p className="mt-2 text-sm"><strong>Employer feedback:</strong> {outcome.employer_feedback}</p>}{asList(outcome.barriers).length > 0 && <p className="mt-2 text-sm"><strong>Barriers:</strong> {asList(outcome.barriers).join(', ')}</p>}<p className="mt-2 text-xs text-slate-500">Community-owned intervention: {outcome.community_owned ? 'Yes' : 'Not yet marked'}</p></article>)}</div>}
+                {!areaOutcomes.length && <p className="mt-5 rounded-xl bg-slate-50 p-5 text-sm text-slate-500">No published assessment outcomes yet for this area.</p>}
+                {assessments.filter((item) => item.phase === phase && (!selectedProject || item.project === selectedProject)).map((item) => <div key={item.id} className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4"><div><p className="font-semibold">{item.title}</p><p className="text-xs capitalize text-slate-600">{item.status === 'open' ? 'Open' : 'Closed'} {item.phase} participant survey · responses are private</p></div><div className="flex gap-2">{isMember && item.status === 'open' && item.owner !== currentUser.id && <button disabled={myResponseAssessmentIds.includes(item.id)} onClick={() => acceptConsentAndRespond(item)} className="rounded-lg bg-emerald-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{myResponseAssessmentIds.includes(item.id) ? 'Response recorded' : 'Review & respond'}</button>}{isMember && item.status === 'open' && item.owner === currentUser.id && <button disabled={busy} onClick={() => closeSurvey(item)} className="rounded-lg border border-emerald-800 px-3 py-2 text-xs font-semibold text-emerald-900">Close survey</button>}</div></div>)}
+                <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-950"><ShieldCheck className="h-4 w-4 shrink-0" />Participant-level demographic responses are private to the respondent. Published outcome records contain aggregate counts; obtain informed consent and never submit identifying details.</div>
+              </Card>
+            </>}
+          </div>
+        </main>
+
+        {areaOpen && <Dialog title="Suggest a local area" onClose={() => setAreaOpen(false)}><form className="grid gap-3" onSubmit={handleAreaSubmit}><label className="text-sm font-medium">Area or community name<input required className={fieldClass} value={areaForm.name} onChange={updateText(setAreaForm, 'name')} placeholder="e.g. Nyalenda" /></label><label className="text-sm font-medium">Full location<input required className={fieldClass} value={areaForm.location} onChange={updateText(setAreaForm, 'location')} placeholder="Nyalenda, Kisumu County" /></label><label className="text-sm font-medium">Active economic sectors, comma-separated<input className={fieldClass} value={areaForm.sectorsText} onChange={updateText(setAreaForm, 'sectorsText')} placeholder="Retail, agriculture, hospitality" /></label><label className="text-sm font-medium">Local labor-market notes<textarea rows="3" className={fieldClass} value={areaForm.labor_market_notes} onChange={updateText(setAreaForm, 'labor_market_notes')} /></label><p className="text-xs text-slate-500">New locations start unverified and appear publicly after HACRO review.</p><button disabled={busy} className={buttonClass}>{busy ? 'Submitting…' : 'Submit area for review'}</button></form></Dialog>}
+        {surveyOpen && <Dialog title={`Open ${phase} participant survey`} onClose={() => setSurveyOpen(false)}><form className="grid gap-3" onSubmit={handleSurveySubmit}><label className="text-sm font-medium">Project<select required className={fieldClass} value={selectedProject || activeProjects.find((item) => item.owner === currentUser?.id)?.id || ''} onChange={(event) => setSelectedProject(event.target.value)}><option value="">Select your project</option>{activeProjects.filter((item) => item.owner === currentUser?.id).map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select></label><label className="text-sm font-medium">Survey title<input className={fieldClass} value={surveyForm.title} onChange={updateText(setSurveyForm, 'title')} placeholder={`${phase} participant survey`} /></label><label className="text-sm font-medium">Main question<textarea required rows="3" className={fieldClass} value={surveyForm.question} onChange={updateText(setSurveyForm, 'question')} /></label><label className="text-sm font-medium">Instructions<textarea rows="2" className={fieldClass} value={surveyForm.instructions} onChange={updateText(setSurveyForm, 'instructions')} placeholder="Do not include names or identifying information." /></label><p className="text-xs text-slate-500">Only signed-in members may submit. Respondent details and demographic answers are private; project owners can see aggregate project outcomes only.</p><button disabled={busy} className={buttonClass}>{busy ? 'Opening…' : 'Open consent-based survey'}</button></form></Dialog>}
+        {responseTarget && <Dialog title={responseTarget.title} onClose={() => setResponseTarget(null)}><form className="grid gap-4" onSubmit={handleParticipantResponse}><div className="rounded-xl bg-emerald-50 p-4 text-sm leading-6 text-emerald-950"><strong>Privacy:</strong> Your respondent account ID is stored to prevent duplicate responses; survey answers and demographics are readable only by you. Project leads receive aggregate project outcomes, not your personal response. {responseTarget.instructions}</div><label className="text-sm font-medium">{responseTarget.questions?.find((question) => question.id === 'experience')?.label || responseTarget.questions?.[0]?.label || 'Your experience'}<textarea required rows="4" className={fieldClass} value={participantResponse.answer} onChange={updateText(setParticipantResponse, 'answer')} /></label><label className="text-sm font-medium">Barriers you experienced<textarea rows="2" className={fieldClass} value={participantResponse.barriers} onChange={updateText(setParticipantResponse, 'barriers')} placeholder="No names or identifying details" /></label><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm font-medium">Gender<select className={fieldClass} value={participantResponse.gender} onChange={updateText(setParticipantResponse, 'gender')}><option value="">Prefer not to say</option><option value="woman">Woman</option><option value="man">Man</option><option value="non-binary">Non-binary</option><option value="prefer_not_to_say">Prefer not to say</option></select></label><label className="text-sm font-medium">Age band<select className={fieldClass} value={participantResponse.age_band} onChange={updateText(setParticipantResponse, 'age_band')}><option value="">Prefer not to say</option><option value="18-24">18–24</option><option value="25-34">25–34</option><option value="35-44">35–44</option><option value="45+">45+</option><option value="prefer_not_to_say">Prefer not to say</option></select></label></div><label className="flex items-start gap-2 text-sm"><input required type="checkbox" checked={participantResponse.consent} onChange={updateText(setParticipantResponse, 'consent')} className="mt-1" /><span>I freely consent to submit these responses for this assessment. I will not include identifying information.</span></label><button disabled={busy} className={buttonClass}>Submit consented response</button></form></Dialog>}
+        {profileOpen && typeof profileOpen === 'string' && <ProfileDialog profile={stakeholders.find((person) => person.id === profileOpen)} isMember={isMember} busy={busy} onClose={() => setProfileOpen(false)} onPropose={(person) => { setProfileOpen(false); setCollabTarget(person); }} />}
+        {profileOpen === true && <Dialog title={ownStakeholder ? 'Edit stakeholder profile' : 'Create stakeholder profile'} onClose={() => setProfileOpen(false)}><form className="grid gap-3 sm:grid-cols-2" onSubmit={handleProfileSubmit}>{[["Organization or display name", 'display_name'], ['Entity type', 'entity_type'], ['Physical area or community', 'location'], ['Sectors (comma-separated)', 'sectorsText'], ['Capabilities offered (comma-separated)', 'offersText'], ['Collaboration needs (comma-separated)', 'seeksText']].map(([label, key]) => <label key={key} className="text-sm font-medium">{label}{key === 'entity_type' ? <select required className={fieldClass} value={profileForm[key]} onChange={updateText(setProfileForm, key)}>{TYPES.map((type) => <option key={type}>{type}</option>)}</select> : <input required={key === 'display_name'} className={fieldClass} value={profileForm[key]} onChange={updateText(setProfileForm, key)} />}</label>
+
+function ProfileDialog({ profile, isMember, busy, onClose, onPropose }) {
+  if (!profile) return null;
+  return <Dialog title={profile.display_name} onClose={onClose}><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-slate-100 px-3 py-1 text-xs">{profile.entity_type}</span><span className="rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-800">{profile.area || profile.expand?.area_id?.location}</span>{profile.verified && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-semibold text-emerald-900"><CheckCircle2 className="h-3 w-3" /> HACRO verified</span>}</div><p className="mt-5 text-sm leading-6 text-slate-600">{profile.description}</p><h3 className="mt-6 font-semibold">Community work and track record</h3><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">{profile.community_work || 'No community work history has been added yet.'}</p>{Array.isArray(profile.active_cohorts) && profile.active_cohorts.length > 0 && <><h3 className="mt-5 font-semibold">Active cohorts</h3><p className="mt-2 text-sm text-slate-600">{profile.active_cohorts.join(', ')}</p></>}<div className="mt-5 grid gap-5 sm:grid-cols-2"><div><h3 className="font-semibold">Capabilities offered</h3><ul className="mt-2 space-y-1 text-sm text-slate-600">{asList(profile.offers).map((item) => <li key={item}>• {item}</li>)}</ul></div><div><h3 className="font-semibold">Collaboration needs</h3><ul className="mt-2 space-y-1 text-sm text-slate-600">{asList(profile.seeks).map((item) => <li key={item}>• {item}</li>)}</ul></div></div><p className="mt-5 text-xs text-slate-400">Public profile; direct personal contact details are not exposed.</p>{isMember && <button disabled={busy} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white" onClick={() => onPropose(profile)}><Handshake className="h-4 w-4" />Propose collaboration</button>}</Dialog>;
+}

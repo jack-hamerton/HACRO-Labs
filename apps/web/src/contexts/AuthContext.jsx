@@ -69,6 +69,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateCurrentUser = (updatedUser) => {
     setCurrentUser(updatedUser);
+    setUserRole(resolveUserRole(updatedUser));
   };
 
   const value = {

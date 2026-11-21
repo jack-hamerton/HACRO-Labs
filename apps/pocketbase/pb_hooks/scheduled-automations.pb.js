@@ -8,7 +8,7 @@ cronAdd("check_overdue_loans", "0 9 * * *", () => {
 
     
 
-    const activeLoans = $app.findRecordsByFilter("loans", "status = 'active'", { limit: 10000 });
+    const activeLoans = $app.findRecordsByFilter("loans", "status = 'active'", "", 10000);
 
     activeLoans.forEach((loan) => {
       const loanId = loan.id;
@@ -58,7 +58,8 @@ cronAdd("check_overdue_loans", "0 9 * * *", () => {
         const existingNotifications = $app.findRecordsByFilter(
           "notifications",
           "member_id = '" + memberId + "' && type = 'loan_overdue' && created >= '" + disbursementDate + "'",
-          { limit: 1000 }
+          "",
+          1000
         );
 
         const notificationDays = existingNotifications.length;
@@ -68,7 +69,7 @@ cronAdd("check_overdue_loans", "0 9 * * *", () => {
           
 
           const groupId = loan.get("group_id");
-          const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", { limit: 1000 });
+          const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", "", 1000);
 
           groupMembers.forEach((gm) => {
             const gmMemberId = gm.get("member_id");
@@ -118,7 +119,7 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
     if (loanType === "IL") {
       
 
-      const memberSavings = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
+      const memberSavings = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", "", 1);
       let availableSavings = 0;
       if (memberSavings.length > 0) {
         availableSavings = memberSavings[0].get("total_savings") || 0;
@@ -127,7 +128,7 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
       
 
       const bonusesEarned = $app.findRecordsByFilter("contributions_history",
-        "member_id = '" + memberId + "' && type = 'interest_earned'", { limit: 1000 });
+        "member_id = '" + memberId + "' && type = 'interest_earned'", "", 1000);
       let totalBonuses = 0;
       bonusesEarned.forEach(bonus => {
         totalBonuses += bonus.get("amount") || 0;
@@ -192,7 +193,7 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
     } else if (loanType === "GIL") {
       
 
-      const borrowerSavingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
+      const borrowerSavingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", "", 1);
       let borrowerSavings = 0;
       if (borrowerSavingsRecords.length > 0) {
         borrowerSavings = borrowerSavingsRecords[0].get("total_savings") || 0;
@@ -219,7 +220,7 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
         remainingBalance = deductGroupInterestPenalty(loan, remainingBalance, memberId);
       }
 
-      const guarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loan.id + "' && status = 'active'", { limit: 1000 });
+      const guarantors = $app.findRecordsByFilter("loan_guarantors", "loan_id = '" + loan.id + "' && status = 'active'", "", 1000);
       const guarantorCollateralTotal = guarantors.reduce((sum, guarantor) => sum + (guarantor.get("collateral_amount") || 0), 0);
 
       if (remainingBalance <= 0) {
@@ -231,7 +232,7 @@ function handleLoanDefault(loan, memberId, loanBalance, loanType) {
           const guarantorId = guarantor.get("guarantor_id");
           const collateralAmount = guarantor.get("collateral_amount") || 0;
           if (collateralAmount > 0) {
-            const guarantorSavings = $app.findRecordsByFilter("savings", "member_id = '" + guarantorId + "'", { limit: 1 });
+            const guarantorSavings = $app.findRecordsByFilter("savings", "member_id = '" + guarantorId + "'", "", 1);
             if (guarantorSavings.length > 0) {
               const currentSavings = guarantorSavings[0].get("total_savings") || 0;
               guarantorSavings[0].set("total_savings", currentSavings + collateralAmount);
@@ -286,7 +287,7 @@ function deductGroupInterestPenalty(loan, remainingBalance, borrowerId) {
     return remainingBalance;
   }
 
-  const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", { limit: 1000 });
+  const groupMembers = $app.findRecordsByFilter("group_members", "group_id = '" + groupId + "'", "", 1000);
   const eligibleMembers = groupMembers.filter((gm) => gm.get("member_id") !== borrowerId);
   if (eligibleMembers.length === 0) {
     return remainingBalance;
@@ -295,7 +296,7 @@ function deductGroupInterestPenalty(loan, remainingBalance, borrowerId) {
   let totalInterest = 0;
   const memberInterest = eligibleMembers.map((gm) => {
     const memberId = gm.get("member_id");
-    const interestRecords = $app.findRecordsByFilter("contributions_history", "member_id = '" + memberId + "' && type = 'interest_earned'", { limit: 1000 });
+    const interestRecords = $app.findRecordsByFilter("contributions_history", "member_id = '" + memberId + "' && type = 'interest_earned'", "", 1000);
     let interestBalance = 0;
     interestRecords.forEach((record) => {
       interestBalance += record.get("amount") || 0;
@@ -311,7 +312,7 @@ function deductGroupInterestPenalty(loan, remainingBalance, borrowerId) {
       const deductionShare = Math.min((item.interestBalance / totalInterest) * remaining, item.interestBalance);
       if (deductionShare <= 0) return;
 
-      const savingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + item.memberId + "'", { limit: 1 });
+      const savingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + item.memberId + "'", "", 1);
       if (savingsRecords.length === 0) return;
 
       const currentSavings = savingsRecords[0].get("total_savings") || 0;
@@ -346,7 +347,7 @@ function deductGroupInterestPenalty(loan, remainingBalance, borrowerId) {
     eligibleMembers.forEach((gm) => {
       if (remaining <= 0) return;
       const memberId = gm.get("member_id");
-      const savingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", { limit: 1 });
+      const savingsRecords = $app.findRecordsByFilter("savings", "member_id = '" + memberId + "'", "", 1);
       if (savingsRecords.length === 0) return;
 
       const currentSavings = savingsRecords[0].get("total_savings") || 0;
@@ -389,7 +390,7 @@ cronAdd("monthly_interest_distribution", "0 10 1 * *", () => {
   try {
     
 
-    const allSavings = $app.findRecordsByFilter("savings", "", { limit: 10000 });
+    const allSavings = $app.findRecordsByFilter("savings", "", "", 10000);
 
     let totalSavings = 0;
     let totalInterest = 0;
@@ -460,7 +461,7 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
 
     
 
-    const allMembers = $app.findRecordsByFilter("members", "", { limit: 10000 });
+    const allMembers = $app.findRecordsByFilter("members", "", "", 10000);
 
     allMembers.forEach((member) => {
       const memberId = member.id;
@@ -477,7 +478,7 @@ cronAdd("insurance_fee_deduction", "0 11 1 * *", () => {
       if (recentInsurancePayments.length === 0) {
         
 
-        const memberSavings = $app.findRecordsByFilter("savings", `member_id = '${memberId}'`, { limit: 10000 });
+        const memberSavings = $app.findRecordsByFilter("savings", `member_id = '${memberId}'`, "", 10000);
         let totalSavings = 0;
 
         memberSavings.forEach((saving) => {
@@ -577,7 +578,7 @@ cronAdd("bonus_deduction_no_loans", "0 12 1 * *", () => {
 
     
 
-    const allMembers = $app.findRecordsByFilter("members", "", { limit: 10000 });
+    const allMembers = $app.findRecordsByFilter("members", "", "", 10000);
 
     allMembers.forEach((member) => {
       const memberId = member.id;

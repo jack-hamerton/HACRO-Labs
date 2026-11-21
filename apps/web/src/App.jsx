@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
+import { Navigate, Route, Routes, BrowserRouter as Router } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext.jsx';
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext.jsx';
@@ -9,6 +9,8 @@ import ProtectedRoute from '@/components/ProtectedRoute.jsx';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute.jsx';
 
 import HomePage from '@/pages/HomePage.jsx';
+import HubPage from '@/pages/HubPage.jsx';
+import StakeholderProfile from '@/pages/StakeholderProfile.jsx';
 import RegistrationPage from '@/pages/RegistrationPage.jsx';
 import RegistrationConfirmationPage from '@/pages/RegistrationConfirmationPage.jsx';
 import MemberLoginPage from '@/pages/MemberLoginPage.jsx';
@@ -30,7 +32,6 @@ import GroupMessaging from '@/pages/GroupMessaging.jsx';
 import NewsletterPage from '@/pages/NewsletterPage.jsx';
 import DonatePage from '@/pages/DonatePage.jsx';
 import CommunityFinancialEmpowermentPage from '@/pages/CommunityFinancialEmpowermentPage.jsx';
-import GenderEqualityAndInclusionPage from '@/pages/GenderEqualityAndInclusionPage.jsx';
 import RegenerativeAgribusinessPage from '@/pages/RegenerativeAgribusinessPage.jsx';
 import AdminNewsletterPage from '@/pages/AdminNewsletterPage.jsx';
 
@@ -68,6 +69,8 @@ function App() {
           <div className="min-h-screen">
             <Routes>
               <Route path="/" element={<HomePage />} />
+            <Route path="/hub" element={<ProtectedRoute requireMember><HubPage /></ProtectedRoute>} />
+            <Route path="/hub/stakeholders/:stakeholderId" element={<ProtectedRoute requireMember><StakeholderProfile /></ProtectedRoute>} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/registration-confirmation" element={<RegistrationConfirmationPage />} />
             <Route path="/member-login" element={<MemberLoginPage />} />
@@ -78,7 +81,7 @@ function App() {
             <Route path="/staff" element={<StaffPage />} />
             <Route path="/donate" element={<DonatePage />} />
             <Route path="/community-financial-empowerment" element={<CommunityFinancialEmpowermentPage />} />
-            <Route path="/gender-equality-and-inclusion" element={<GenderEqualityAndInclusionPage />} />
+            <Route path="/gender-equality-and-inclusion" element={<Navigate to="/member-dashboard" replace />} />
             <Route path="/regenerative-agribusiness" element={<RegenerativeAgribusinessPage />} />
             
             {               }
